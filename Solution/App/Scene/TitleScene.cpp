@@ -1,6 +1,6 @@
 ﻿#include "TitleScene.h"
 
-#include "EndScene.h"
+#include "GameClearScene.h"
 #include "GameOverScene.h"
 #include "System/SceneManager.h"
 #include <DirectXMath.h>
@@ -14,7 +14,7 @@ TitleScene::TitleScene() :
 	input = Input::getInstance();
 
 	shortBridge = std::make_unique<Sound>("Resources/SE/Shortbridge29-1.wav");
-	bgm = std::make_unique<Sound>("Resources/BGM/Detour.wav");
+	//bgm = std::make_unique<Sound>("Resources/BGM/Detour.wav");
 
 	spCom.reset(new SpriteBase());
 
@@ -32,6 +32,10 @@ TitleScene::TitleScene() :
 	titleBack = std::make_unique<Sprite>(spCom->loadTexture(L"Resources/titleBack.png"),
 										 spCom.get(),
 										 XMFLOAT2(0.f, 0.f));
+
+	titlePressKey = std::make_unique<Sprite>(spCom->loadTexture(L"Resources/title_PressKey.png"),
+										 spCom.get(),
+										 XMFLOAT2(0.f, 0.f));
 	titleBack->setSize(XMFLOAT2((float)WinAPI::window_width, (float)WinAPI::window_height));
 }
 
@@ -39,9 +43,9 @@ void TitleScene::start()
 {
 	// 次シーンの読み込み開始
 	sceneThread.reset(new MyThread());
-	sceneThread->thread.reset(new std::thread([&] { nextScene = std::make_unique<EndScene>(); }));
+	sceneThread->thread.reset(new std::thread([&] { nextScene = std::make_unique<GameClearScene>(); }));
 
-	Sound::SoundPlayWave(bgm.get(), XAUDIO2_LOOP_INFINITE, 0.2f);
+	//Sound::SoundPlayWave(bgm.get(), XAUDIO2_LOOP_INFINITE, 0.2f);
 }
 
 TitleScene::~TitleScene()
@@ -56,7 +60,7 @@ void TitleScene::update_normal()
 {
 	if (input->triggerKey(DIK_0))
 	{
-		Sound::SoundStopWave(bgm.get());
+		//Sound::SoundStopWave(bgm.get());
 		sceneThread->join();
 		nextScene.reset(new GameOverScene());
 		update_proc = std::bind(&TitleScene::update_end, this);
@@ -65,8 +69,8 @@ void TitleScene::update_normal()
 		input->triggerPadButton(Input::PAD::B))
 	{
 		update_proc = std::bind(&TitleScene::update_end, this);
-		Sound::SoundPlayWave(shortBridge.get());
-		Sound::SoundStopWave(bgm.get());
+		//Sound::SoundPlayWave(shortBridge.get());
+		//Sound::SoundStopWave(bgm.get());
 	}
 }
 
@@ -83,4 +87,5 @@ void TitleScene::drawFrontSprite()
 	spCom->drawStart(DX12Base::ins()->getCmdList());
 	titleBack->drawWithUpdate(DX12Base::ins(), spCom.get());
 	titleLogo->drawWithUpdate(DX12Base::ins(), spCom.get());
+	titlePressKey->drawWithUpdate(DX12Base::ins(), spCom.get());
 }

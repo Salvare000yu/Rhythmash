@@ -1,10 +1,10 @@
-﻿#include "EndScene.h"
+﻿#include "GameClearScene.h"
 
 #include "TitleScene.h"
 #include "System/PostEffect.h"
 #include "System/SceneManager.h"
 
-EndScene::EndScene()
+GameClearScene::GameClearScene()
 {
 	PostEffect::getInstance()->setAlpha(1.f);
 	PostEffect::getInstance()->setMosaicNum(DirectX::XMFLOAT2(WinAPI::window_width, WinAPI::window_height));
@@ -16,21 +16,21 @@ EndScene::EndScene()
 	// デバッグテキスト用のテクスチャ読み込み
 	debugText.reset(new DebugText(spCom->loadTexture(L"Resources/debugfont.png"), spCom.get()));
 
-	end.reset(new Sprite(spCom->loadTexture(L"Resources/end.png"),
+	clear.reset(new Sprite(spCom->loadTexture(L"Resources/GameClear/gameClear.png"),
 						 spCom.get(),
 						 DirectX::XMFLOAT2(0.f, 0.f)));
 
-	end->setSize(DirectX::XMFLOAT2((float)WinAPI::window_width,
+	clear->setSize(DirectX::XMFLOAT2((float)WinAPI::window_width,
 								   (float)WinAPI::window_height));
 }
 
-void EndScene::start()
+void GameClearScene::start()
 {
 	// マウスカーソルは表示する
 	input->changeDispMouseCursorFlag(true);
 }
 
-void EndScene::update()
+void GameClearScene::update()
 {
 	if (input->triggerKey(DIK_SPACE) ||
 		input->triggerPadButton(Input::PAD::A) ||
@@ -40,8 +40,8 @@ void EndScene::update()
 	}
 }
 
-void EndScene::drawFrontSprite()
+void GameClearScene::drawFrontSprite()
 {
 	spCom->drawStart(DX12Base::getInstance()->getCmdList());
-	end->drawWithUpdate(DX12Base::ins(), spCom.get());
+	clear->drawWithUpdate(DX12Base::ins(), spCom.get());
 }

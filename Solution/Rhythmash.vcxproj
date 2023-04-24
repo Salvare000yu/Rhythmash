@@ -121,7 +121,7 @@
     <ClCompile Include="Engine\Collision\CollisionShape.cpp" />
     <ClCompile Include="Engine\2D\DebugText.cpp" />
     <ClCompile Include="Engine\System\DX12Base.cpp" />
-    <ClCompile Include="App\Scene\EndScene.cpp" />
+    <ClCompile Include="App\Scene\GameClearScene.cpp" />
     <ClCompile Include="App\GameObject\GameObj.cpp" />
     <ClCompile Include="Engine\Input\Input.cpp" />
     <ClCompile Include="Engine\3D\Light.cpp" />
@@ -157,7 +157,7 @@
     <ClInclude Include="Engine\Collision\CollisionShape.h" />
     <ClInclude Include="Engine\2D\DebugText.h" />
     <ClInclude Include="Engine\System\DX12Base.h" />
-    <ClInclude Include="App\Scene\EndScene.h" />
+    <ClInclude Include="App\Scene\GameClearScene.h" />
     <ClInclude Include="App\GameObject\GameObj.h" />
     <ClInclude Include="Engine\System\GameScene.h" />
     <ClInclude Include="Engine\Input\Input.h" />

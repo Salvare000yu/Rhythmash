@@ -5,14 +5,14 @@
 #include "2D/DebugText.h"
 #include "Input/Input.h"
 
-class EndScene :
+class GameClearScene :
 	public GameScene
 {
 	// --------------------
 	// スプライト
 	// --------------------
 	std::unique_ptr<SpriteBase> spCom;
-	std::unique_ptr<Sprite> end;
+	std::unique_ptr<Sprite> clear;
 
 	// --------------------
 	// デバッグテキスト
@@ -22,7 +22,7 @@ class EndScene :
 	Input* input = nullptr;
 
 public:
-	EndScene();
+	GameClearScene();
 	void start() override;
 	void update() override;
 	void drawFrontSprite() override;

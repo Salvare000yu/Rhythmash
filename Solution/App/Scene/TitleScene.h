@@ -34,6 +34,7 @@ class TitleScene :
 	std::unique_ptr<SpriteBase> spCom;
 	std::unique_ptr<Sprite> titleLogo;
 	std::unique_ptr<Sprite> titleBack;
+	std::unique_ptr<Sprite> titlePressKey;//対応キーでシーン切り替え画像
 
 	// --------------------
 	// デバッグテキスト
