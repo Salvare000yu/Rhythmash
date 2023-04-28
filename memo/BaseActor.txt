@@ -1,0 +1,55 @@
+
+↓継承して自機と敵
+BaseActorクラス（仮称）作る
+{
+	float 移動速度;
+	float3 位置;
+	void 移動共通処理(float3 向き)
+	{
+		位置 += Normalized(向き) * 移動速度;
+	}
+	void 攻撃共通処理()
+	{
+		前方に攻撃;	// 仮
+	} 
+
+	// 派生クラスでの実装必須関数
+	virtual void 移動() = 0;
+	virtual void 攻撃() = 0;
+
+class Player : public BaseActor
+{
+	void 移動() override {
+		if(入力されたら)
+		{
+			移動共通処理(移動方向);
+		}
+	}
+	void 攻撃()  override {
+		if(入力されたら)
+		{
+			攻撃共通処理();
+		}
+	}
+};
+
+class BaseEnemy : public BaseActor
+{
+	void 移動() override  {
+		移動共通処理(移動方向);
+	}
+	void 攻撃() override  {
+		攻撃共通処理();
+	}
+	void update()
+	{
+		if(時間が来たら)
+		{
+			移動();
+		}
+		if(時間が来たら)
+		{
+			攻撃();
+		}
+	}
+};

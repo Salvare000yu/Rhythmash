@@ -1,0 +1,15 @@
+# InputMgrクラス
+
+参考URL (Godot Engine):
+https://ueshita.hatenablog.jp/entry/2020/09/09/193218
+
+例:
+enum class ACTION : uint8_t
+{
+	ATTACK
+};
+InputMgr::getInput(ACTION::ATTACK);
+
+## 入力優先度
+
+WASD > パッド十字キー > パッド左スティック
