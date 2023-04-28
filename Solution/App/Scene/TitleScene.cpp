@@ -1,7 +1,7 @@
 ﻿#include "TitleScene.h"
 
-#include "GameClearScene.h"
 #include "GameOverScene.h"
+#include "GamePlayScene.h"
 #include "System/SceneManager.h"
 #include <DirectXMath.h>
 #include <Util/Util.h>
@@ -43,7 +43,7 @@ void TitleScene::start()
 {
 	// 次シーンの読み込み開始
 	sceneThread.reset(new MyThread());
-	sceneThread->thread.reset(new std::thread([&] { nextScene = std::make_unique<GameClearScene>(); }));
+	sceneThread->thread.reset(new std::thread([&] { nextScene = std::make_unique<GamePlayScene>(); }));
 
 	//Sound::SoundPlayWave(bgm.get(), XAUDIO2_LOOP_INFINITE, 0.2f);
 }

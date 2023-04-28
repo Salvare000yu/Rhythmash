@@ -26,6 +26,9 @@ protected:
 	virtual void additionalDraw(Light* light) {}
 
 public:
+	inline void setPipelineStateNum(size_t num) { ppStateNum = num; }
+	inline size_t getPipelineStateNum() const { return ppStateNum; }
+
 	inline void setHp(uint16_t hpNum) { hp = hpNum; }
 	inline uint16_t getHp() const { return hp; }
 

@@ -22,6 +22,9 @@ private:
 public:
 	CameraObj(GameObj* parent);
 
+	inline void setEye2TargetOffset(const DirectX::XMFLOAT3& offset) { eye2TargetOffset = offset; }
+	inline const auto& getEye2TargetOffset() const { return eye2TargetOffset; }
+
 	/// @param eye2TargetLen カメラ位置から注視点の距離
 	inline void setEye2TargetLen(float eye2TargetLen) { this->eye2TargetLen = eye2TargetLen; }
 	/// @return カメラ位置から注視点の距離

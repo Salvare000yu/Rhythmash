@@ -146,6 +146,7 @@
     <ClCompile Include="Engine\BehaviorTree\Selector.cpp" />
     <ClCompile Include="App\Scene\GameOverScene.cpp" />
     <ClCompile Include="Engine\Util\Util.cpp" />
+    <ClCompile Include="App\Scene\GamePlayScene.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="App\CollisionMgr.h" />
@@ -184,6 +185,7 @@
     <ClInclude Include="Engine\BehaviorTree\Selector.h" />
     <ClInclude Include="App\Scene\GameOverScene.h" />
     <ClInclude Include="Engine\Util\Util.h" />
+    <ClInclude Include="App\Scene\GamePlayScene.h" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Resources\Shaders\BackPS.hlsl">
