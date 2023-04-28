@@ -8,7 +8,7 @@
 #include "ObjModel.h"
 #include "System/DX12Base.h"
 #include "Camera/Camera.h"
-#include "3D/Light.h"
+#include "3D/Light/Light.h"
 
 #include <3D/BaseObj.h>
 

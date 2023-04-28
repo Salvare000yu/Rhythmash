@@ -144,7 +144,7 @@
     <ClCompile Include="Engine\2D\SpriteBase.cpp">
       <Filter>Object共通\Sprite</Filter>
     </ClCompile>
-    <ClCompile Include="Engine\3D\Light.cpp">
+    <ClCompile Include="Engine\3D\Light\Light.cpp">
       <Filter>Light</Filter>
     </ClCompile>
     <ClCompile Include="Engine\System\Looper.cpp">
@@ -251,7 +251,7 @@
     <ClInclude Include="Engine\System\WinAPI.h">
       <Filter>System</Filter>
     </ClInclude>
-    <ClInclude Include="Engine\3D\Light.h">
+    <ClInclude Include="Engine\3D\Light\Light.h">
       <Filter>Light</Filter>
     </ClInclude>
     <ClInclude Include="Engine\System\Looper.h">
@@ -324,6 +324,9 @@
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
     <ClInclude Include="App\Scene\GamePlayScene.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\3D\Light\PointLight.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
   </ItemGroup>

@@ -1,6 +1,6 @@
 ﻿#include "GamePlayScene.h"
 #include <GameObject/GameObj.h>
-#include <3D/Light.h>
+#include <3D/Light/Light.h>
 #include <3D/Obj/Object3d.h>
 #include <Camera/CameraObj.h>
 #include <DirectXMath.h>
@@ -12,8 +12,9 @@ GamePlayScene::GamePlayScene() :
 	backState(Object3d::createGraphicsPipeline(BaseObj::BLEND_MODE::ALPHA, L"Resources/Shaders/backVS.hlsl", L"Resources/Shaders/backPS.hlsl")),
 	light(std::make_unique<Light>())
 {
-	light->setColor(XMFLOAT3(1, 1, 1));
-	light->setAtten(XMFLOAT3(0.3f, 0.1f, 0.1f));
+	light->setPointLightActive(0, true);
+	light->setPointLightColor(0, XMFLOAT3(1, 1, 1));
+	light->setPointLightAtten(0, XMFLOAT3(0.3f, 0.1f, 0.1f));
 
 	cameraObj = std::make_unique<CameraObj>(nullptr);
 
@@ -85,7 +86,7 @@ void GamePlayScene::update()
 	}
 	groundObj->update();
 
-	light->setPos(cameraObj->getEye());
+	light->setPointLightPos(0, cameraObj->getEye());
 	light->update();
 }
 
@@ -107,20 +108,19 @@ void GamePlayScene::drawFrontSprite()
 		ImGui::Text("自機ワールド座標：%.1f %.1f %.1f", pWPos.x, pWPos.y, pWPos.z);
 		const auto& camPos = cameraObj->getEye();
 		ImGui::Text("カメラワールド座標：%.1f %.1f %.1f", camPos.x, camPos.y, camPos.z);
-		const auto& att = light->getAtten();
+		const auto& att = light->getPointLightAtten(0);
 		ImGui::Text("ライト減衰：%.1f %.1f %.1f", att.x, att.y, att.z);
 
-		const auto& lpos = light->getPos();
+		const auto& lpos = light->getPointLightPos(0);
 		ImGui::Text("ライト位置：%.1f %.1f %.1f", lpos.x, lpos.y, lpos.z);
 		{
-			const auto& att = light->getAtten();
 			float num[3]{ att.x,att.y,att.z };
 			ImGui::SliderFloat3("ライト減衰係数", num, 0.f, 1.f, "%.2f", ImGuiSliderFlags_::ImGuiSliderFlags_AlwaysClamp);
 			if (num[0] != att.x ||
 				num[1] != att.y ||
 				num[2] != att.z)
 			{
-				light->setAtten(XMFLOAT3(num));
+				light->setPointLightAtten(0, XMFLOAT3(num));
 			}
 		}
 		/*{

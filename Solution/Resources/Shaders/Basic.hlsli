@@ -17,13 +17,22 @@ cbuffer cbuff1 : register(b1)
 	float2 shiftUv : packoffset(c4);
 }
 
+// ポイントライトの最大数
+// CPP側と合わせる
+#define PointLightCountMax uint(3)
+
+struct PointLight
+{
+	float3 pos; // ライト座標
+	float3 color; // ライトの色(RGB)
+	float3 atten; // ライト距離減衰係数
+};
+
 cbuffer cbuff2 : register(b2)
 {
-	float3 ambientColor;
-	
-	float3 lightPos; // ライトの位置(ワールド)
-	float3 lightColor; // ライトの色(RGB)
-	float3 lightAtten; // 距離減衰係数
+	float3 ambientColor;	
+	uint activePointLightCount;
+	PointLight pointLights[PointLightCountMax];
 };
 
 // 頂点シェーダーからピクセルシェーダーへのやり取りに使用する構造体

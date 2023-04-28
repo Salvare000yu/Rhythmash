@@ -30,10 +30,19 @@ void Light::transferConstBuffer()
 	HRESULT result = constBuff->Map(0, nullptr, (void**)&constMap);
 	if (SUCCEEDED(result))
 	{
-		constMap->ambientColor = XMFLOAT3(1, 1, 1);
-		constMap->lightPos = pos;
-		constMap->lightColor = color;
-		constMap->lightAtten = atten;
+		constMap->ambientColor = ambientColor;
+
+		unsigned pointLightNum = 0u;
+		for (auto& i : pointLights)
+		{
+			if (!i.getActive()) { continue; }
+			constMap->pointLights[pointLightNum].pos = i.getPos();
+			constMap->pointLights[pointLightNum].color = i.getColor();
+			constMap->pointLights[pointLightNum].atten = i.getAtten();
+			++pointLightNum;
+		}
+		constMap->activePointLightCount = pointLightNum;
+
 		constBuff->Unmap(0, nullptr);
 	}
 }
