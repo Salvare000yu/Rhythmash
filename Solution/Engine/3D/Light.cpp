@@ -8,25 +8,6 @@ DX12Base* Light::dxBase = DX12Base::getInstance();
 
 Light::Light()
 {
-	init();
-}
-
-void Light::transferConstBuffer()
-{
-	HRESULT result = S_FALSE;
-	//定数バッファへデータ転送
-	ConstBufferData* constMap = nullptr;
-	result = constBuff->Map(0, nullptr, (void**)&constMap);
-	if (SUCCEEDED(result))
-	{
-		constMap->lightPos = pos;
-		constMap->lightColor = color;
-		constBuff->Unmap(0, nullptr);
-	}
-}
-
-void Light::init()
-{
 	//定数バッファ生成
 	HRESULT result = dxBase->getDev()->CreateCommittedResource(
 		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD),
@@ -42,16 +23,19 @@ void Light::init()
 	transferConstBuffer();
 }
 
-void Light::setLightPos(const DirectX::XMFLOAT3& lightPos)
+void Light::transferConstBuffer()
 {
-	pos = lightPos;
-	dirty = true;
-}
-
-void Light::setLightColor(const DirectX::XMFLOAT3& lightColor)
-{
-	this->color = lightColor;
-	dirty = true;
+	//定数バッファへデータ転送
+	ConstBufferData* constMap = nullptr;
+	HRESULT result = constBuff->Map(0, nullptr, (void**)&constMap);
+	if (SUCCEEDED(result))
+	{
+		constMap->ambientColor = XMFLOAT3(1, 1, 1);
+		constMap->lightPos = pos;
+		constMap->lightColor = color;
+		constMap->lightAtten = atten;
+		constBuff->Unmap(0, nullptr);
+	}
 }
 
 void Light::update()

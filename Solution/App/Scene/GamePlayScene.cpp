@@ -12,7 +12,9 @@ GamePlayScene::GamePlayScene() :
 	backState(Object3d::createGraphicsPipeline(BaseObj::BLEND_MODE::ALPHA, L"Resources/Shaders/backVS.hlsl", L"Resources/Shaders/backPS.hlsl")),
 	light(std::make_unique<Light>())
 {
-	light->setLightPos({ 0, 0.5f, 0 });
+	light->setColor(XMFLOAT3(1, 1, 1));
+	light->setAtten(XMFLOAT3(0.3f, 0.1f, 0.1f));
+
 	cameraObj = std::make_unique<CameraObj>(nullptr);
 
 	groundModel = std::make_unique<ObjModel>("Resources/ground", "ground");
@@ -77,12 +79,14 @@ void GamePlayScene::update()
 	}
 
 	cameraObj->update();
-	light->setLightPos(cameraObj->getEye());
 	for (auto& i : objs)
 	{
 		i.second->update();
 	}
 	groundObj->update();
+
+	light->setPos(cameraObj->getEye());
+	light->update();
 }
 
 void GamePlayScene::drawObj3d()
@@ -91,7 +95,7 @@ void GamePlayScene::drawObj3d()
 	{
 		i.second->draw(light.get());
 	}
-	groundObj->draw(light.get(), backState);
+	groundObj->draw(light.get());
 }
 
 void GamePlayScene::drawFrontSprite()
@@ -100,7 +104,32 @@ void GamePlayScene::drawFrontSprite()
 	ImGui::Begin("自機", nullptr, DX12Base::imGuiWinFlagsDef);
 	{
 		const auto& pWPos = objs.at("player")->calcWorldPos();
-		ImGui::Text("ワールド座標：%.1f %.1f %.1f", pWPos.x, pWPos.y, pWPos.z);
+		ImGui::Text("自機ワールド座標：%.1f %.1f %.1f", pWPos.x, pWPos.y, pWPos.z);
+		const auto& camPos = cameraObj->getEye();
+		ImGui::Text("カメラワールド座標：%.1f %.1f %.1f", camPos.x, camPos.y, camPos.z);
+		const auto& att = light->getAtten();
+		ImGui::Text("ライト減衰：%.1f %.1f %.1f", att.x, att.y, att.z);
+
+		const auto& lpos = light->getPos();
+		ImGui::Text("ライト位置：%.1f %.1f %.1f", lpos.x, lpos.y, lpos.z);
+		{
+			const auto& att = light->getAtten();
+			float num[3]{ att.x,att.y,att.z };
+			ImGui::SliderFloat3("ライト減衰係数", num, 0.f, 1.f, "%.2f", ImGuiSliderFlags_::ImGuiSliderFlags_AlwaysClamp);
+			if (num[0] != att.x ||
+				num[1] != att.y ||
+				num[2] != att.z)
+			{
+				light->setAtten(XMFLOAT3(num));
+			}
+		}
+		/*{
+			const auto& pos = light->getPos();
+			float num[3]{ pos.x,pos.y,pos.z };
+			ImGui::SliderFloat3("ライト位置", num, -2.f, 2.f, "%.1f", ImGuiSliderFlags_::ImGuiSliderFlags_AlwaysClamp);
+			num[1] = pWPos.y;
+			light->setPos(XMFLOAT3(num));
+		}*/
 	}
 	ImGui::End();
 }

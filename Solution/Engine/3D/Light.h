@@ -13,9 +13,13 @@ private:
 public:
 	struct ConstBufferData
 	{
+		DirectX::XMFLOAT3 ambientColor{ 1, 1, 1 };	// アンビエント色
+		float pad0{};
 		DirectX::XMFLOAT3 lightPos{ 0, 0, 0 };		// ライトの位置(ワールド)
-		float pad{};
+		float pad1{};
 		DirectX::XMFLOAT3 lightColor{ 1, 1, 1 };	// ライト色
+		float pad2{};
+		DirectX::XMFLOAT3 lightAtten{ 1, 1, 1 };	// 距離減衰係数
 	};
 
 private:
@@ -25,6 +29,7 @@ private:
 	ComPtr<ID3D12Resource> constBuff;	// 定数バッファ
 	DirectX::XMFLOAT3 pos = { 0, 0, 0 };	// ライトの位置
 	DirectX::XMFLOAT3 color = { 1, 1, 1 };	// ライトの色
+	DirectX::XMFLOAT3 atten = { 1, 1, 1 };	// 距離減衰係数
 	bool dirty = false;
 
 public:
@@ -36,11 +41,12 @@ public:
 	//定数バッファ転送
 	void transferConstBuffer();
 
-	void init();
-
 	// 光線の方向をセット
-	void setLightPos(const DirectX::XMFLOAT3& lightPos);
-	void setLightColor(const DirectX::XMFLOAT3& lightColor);
+	inline void setPos(const DirectX::XMFLOAT3& lightPos) { pos = lightPos; dirty = true; }
+	inline void setColor(const DirectX::XMFLOAT3& lightColor) { color = lightColor; dirty = true; }
+	inline void setAtten(const DirectX::XMFLOAT3& lightAtten) { atten = lightAtten; dirty = true; }
+
+	inline const auto& getAtten() const { return atten; }
 
 	void update();
 

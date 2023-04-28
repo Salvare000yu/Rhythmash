@@ -135,6 +135,8 @@ float4 chromaticAberration(float2 uv, float level = 3.f, float spread = 0.03125f
 
 float4 main(VSOutput input) : SV_TARGET
 {
+	return tex0.Sample(smp, input.uv);
+	
 	static float PI = 3.141592653589793f;
 	static float PI2 = 6.283185307179586f;
 	
