@@ -19,6 +19,10 @@ GamePlayScene::GamePlayScene() :
 	light->setDirLightActive(0, true);
 	light->setDirLightColor(0, XMFLOAT3(1, 1, 1));
 
+	light->setSpotLightActive(0, true);
+	light->setSpotLightDir(0, XMVectorSet(0, -1, 0, 0));
+	light->setSpotLightPos(0, XMFLOAT3(0, 2, 0));
+
 	cameraObj = std::make_unique<CameraObj>(nullptr);
 
 	groundModel = std::make_unique<ObjModel>("Resources/ground", "ground");
@@ -89,7 +93,12 @@ void GamePlayScene::update()
 	}
 	groundObj->update();
 
-	light->setPointLightPos(0, cameraObj->getEye());
+	{
+		XMFLOAT3 pos = objs.at("player")->calcWorldPos();
+		pos.y += 3.f;
+		light->setSpotLightPos(0, pos);
+		light->setPointLightPos(0, pos);
+	}
 	light->update();
 }
 
@@ -104,21 +113,25 @@ void GamePlayScene::drawObj3d()
 
 void GamePlayScene::drawFrontSprite()
 {
-	ImGui::SetNextWindowSize(ImVec2(300, 200));
+	ImGui::SetNextWindowSize(ImVec2(400, 200));
 	ImGui::Begin("自機", nullptr, DX12Base::imGuiWinFlagsDef);
 	{
-		const auto& pWPos = objs.at("player")->calcWorldPos();
-		ImGui::Text("自機ワールド座標：%.1f %.1f %.1f", pWPos.x, pWPos.y, pWPos.z);
-		const auto& camPos = cameraObj->getEye();
-		ImGui::Text("カメラワールド座標：%.1f %.1f %.1f", camPos.x, camPos.y, camPos.z);
-		const auto& att = light->getPointLightAtten(0);
-		ImGui::Text("ライト減衰：%.1f %.1f %.1f", att.x, att.y, att.z);
-
-		const auto& lpos = light->getPointLightPos(0);
-		ImGui::Text("ライト位置：%.1f %.1f %.1f", lpos.x, lpos.y, lpos.z);
 		{
+			const auto& pWPos = objs.at("player")->calcWorldPos();
+			ImGui::Text("自機ワールド座標：%.1f %.1f %.1f", pWPos.x, pWPos.y, pWPos.z);
+		}
+		{
+			const auto& camPos = cameraObj->getEye();
+			ImGui::Text("カメラワールド座標：%.1f %.1f %.1f", camPos.x, camPos.y, camPos.z);
+		}
+		{
+			const auto& lpos = light->getPointLightPos(0);
+			ImGui::Text("点光源位置：%.1f %.1f %.1f", lpos.x, lpos.y, lpos.z);
+		}
+		{
+			const auto& att = light->getPointLightAtten(0);
 			float num[3]{ att.x,att.y,att.z };
-			ImGui::SliderFloat3("ライト減衰係数", num, 0.f, 1.f, "%.2f", ImGuiSliderFlags_::ImGuiSliderFlags_AlwaysClamp);
+			ImGui::SliderFloat3("点光源減衰係数", num, 0.f, 1.f, "%.2f", ImGuiSliderFlags_::ImGuiSliderFlags_AlwaysClamp);
 			if (num[0] != att.x ||
 				num[1] != att.y ||
 				num[2] != att.z)
@@ -130,7 +143,7 @@ void GamePlayScene::drawFrontSprite()
 			XMFLOAT3 dir{};
 			XMStoreFloat3(&dir, light->getDirLightDir(0));
 			float num[3]{ dir.x,dir.y,dir.z };
-			ImGui::SliderFloat3("ライト向き", num, -1.f, 1.f);
+			ImGui::SliderFloat3("点光源向き", num, -1.f, 1.f);
 			if (num[0] != dir.x ||
 				num[1] != dir.y ||
 				num[2] != dir.z)
@@ -138,13 +151,29 @@ void GamePlayScene::drawFrontSprite()
 				light->setDirLightDir(0, XMLoadFloat3(&XMFLOAT3(num)));
 			}
 		}
-		/*{
-			const auto& pos = light->getPos();
-			float num[3]{ pos.x,pos.y,pos.z };
-			ImGui::SliderFloat3("ライト位置", num, -2.f, 2.f, "%.1f", ImGuiSliderFlags_::ImGuiSliderFlags_AlwaysClamp);
-			num[1] = pWPos.y;
-			light->setPos(XMFLOAT3(num));
-		}*/
+		{
+			XMFLOAT3 dir{};
+			XMStoreFloat3(&dir, light->getSpotLightDir(0));
+			float val[3]{ dir.x,dir.y,dir.z };
+			ImGui::SliderFloat3("スポット向き", val, -1.f, 1.f, "%.1f", ImGuiSliderFlags_::ImGuiSliderFlags_AlwaysClamp);
+			if (val[0] != dir.x ||
+				val[1] != dir.y ||
+				val[2] != dir.z)
+			{
+				light->setSpotLightDir(0, XMLoadFloat3(&XMFLOAT3(val)));
+			}
+		}
+		{
+			const XMFLOAT3& attVal = light->getSpotLightAtten(0);
+			float num[3]{ attVal.x,attVal.y,attVal.z };
+			ImGui::SliderFloat3("スポット減衰", num, 0.f, 1.f, "%.2f", ImGuiSliderFlags_::ImGuiSliderFlags_AlwaysClamp);
+			if (num[0] != attVal.x ||
+				num[1] != attVal.y ||
+				num[2] != attVal.z)
+			{
+				light->setSpotLightAtten(0, XMFLOAT3(num));
+			}
+		}
 	}
 	ImGui::End();
 }

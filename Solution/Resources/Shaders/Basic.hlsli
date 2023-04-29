@@ -1,7 +1,6 @@
 cbuffer cbuff0 : register(b0)
 {
 	float4 color; // 色(RGBA)
-	//matrix mat; // ３Ｄ変換行列
 	matrix viewProj;
 	matrix world; // ワールド行列
 	float3 cameraPos; // カメラ位置(ワールド座標)
@@ -17,6 +16,16 @@ cbuffer cbuff1 : register(b1)
 	float2 shiftUv : packoffset(c4);
 }
 
+// 平行光源の最大数
+// CPP側と合わせる
+#define DirLightCountMax uint(3)
+
+struct DirectionalLight
+{
+	float3 dir2Light; // ライトへの方向の単位ベクトル
+	float3 color; // ライトの色(RGB)
+};
+
 // 点光源の最大数
 // CPP側と合わせる
 #define PointLightCountMax uint(3)
@@ -28,14 +37,17 @@ struct PointLight
 	float3 atten; // ライト距離減衰係数
 };
 
-// 平行光源の最大数
+// スポットライトの最大数
 // CPP側と合わせる
-#define DirLightCountMax uint(3)
+#define SpotLightCountMax uint(3)
 
-struct DirectionalLight
+struct SpotLight
 {
-	float3 dir2Light; // ライトへの方向の単位ベクトル
+	float3 invLightDirNormal; // ライトの光線方向の逆ベクトル（単位ベクトル）
+	float3 pos; // ライト座標
 	float3 color; // ライトの色(RGB)
+	float3 atten; // ライト距離減衰係数
+	float2 factorAngleCos; // ライト減衰角度のコサイン
 };
 
 cbuffer cbuff2 : register(b2)
@@ -43,8 +55,10 @@ cbuffer cbuff2 : register(b2)
 	float3 ambientColor;
 	uint activeDirLightCount;
 	uint activePointLightCount;
+	uint activeSpotLightCount;
 	DirectionalLight dirLights[DirLightCountMax];
 	PointLight pointLights[PointLightCountMax];
+	SpotLight spotLights[SpotLightCountMax];
 };
 
 // 頂点シェーダーからピクセルシェーダーへのやり取りに使用する構造体

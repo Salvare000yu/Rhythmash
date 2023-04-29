@@ -53,6 +53,19 @@ void Light::transferConstBuffer()
 		}
 		constMap->activePointLightCount = lightNum;
 
+		lightNum = 0u;
+		for (auto& i : spotLights)
+		{
+			if (!i.getActive()) { continue; }
+			constMap->spotLights[lightNum].invLightDirNormal = -XMVector3Normalize(i.dir);
+			constMap->spotLights[lightNum].pos = i.pos;
+			constMap->spotLights[lightNum].color = i.color;
+			constMap->spotLights[lightNum].atten = i.atten;
+			constMap->spotLights[lightNum].factorAngleCos = i.factorAngleCos;
+			++lightNum;
+		}
+		constMap->activeSpotLightCount = lightNum;
+
 		constBuff->Unmap(0, nullptr);
 	}
 }

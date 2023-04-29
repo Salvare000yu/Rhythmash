@@ -42,6 +42,37 @@ PSOutput main(VSOutput input)
 		shadeColor.rgb += atten * (diffuse + specular) * pointLights[p].color.rgb;
 	}
 	
+	for (uint s = 0; s < activeSpotLightCount; ++s)
+	{
+		// ライトへの方向ベクトル
+		float3 dir2Light = spotLights[s].pos - input.worldPos.xyz;
+		float d = length(dir2Light);
+		dir2Light = normalize(dir2Light);
+
+		// 距離減衰係数
+		float atten = 1.f / (spotLights[s].atten.x + spotLights[s].atten.y * d + spotLights[s].atten.z * d * d);
+
+		// 角度減衰
+		float cos = dot(dir2Light, spotLights[s].invLightDirNormal);
+		// 減衰開始角度から、減衰終了角度にかけて減衰
+		// 減衰開始角度の内側は1倍 減衰終了角度の外側は0倍の輝度
+		float angleatten = smoothstep(spotLights[s].factorAngleCos.y, spotLights[s].factorAngleCos.x, cos);
+		// 角度減衰を乗算
+		atten *= angleatten;
+
+		// ライトに向かうベクトルと法線の内積
+		float3 dir2LightDotNormal = dot(dir2Light, input.normal);
+		// 反射光ベクトル
+		float3 reflect = normalize(-dir2Light + 2 * dir2LightDotNormal * input.normal); // 反射光
+		// 拡散反射光
+		float3 diffuse = dir2LightDotNormal * m_diffuse;
+		// 鏡面反射光
+		float3 specular = pow(saturate(dot(reflect, eyeDir)), shininess) * m_specular; // 鏡面反射光
+
+		// 全て加算する
+		shadeColor.rgb += atten * (diffuse + specular) * spotLights[s].color;
+	}
+	
 	PSOutput output;
 	output.target0 = shadeColor * texcolor * color;
 	// target1を反転色にする
