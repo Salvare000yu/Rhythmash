@@ -23,9 +23,9 @@ public:
 	inline void setActive(bool active) { this->active = active; }
 	inline bool getActive() const { return active; }
 
-	DirectX::XMVECTOR dir{ 1,0,0,0 };
+	DirectX::XMVECTOR dir{ 0,-1,0,0 };
 	DirectX::XMFLOAT3 casterPos{ 0,0,0 };
 	float caster2LightDistance = 100.f;
 	DirectX::XMFLOAT3 atten{ 0.5f, 0.6f, 0.f };
-	DirectX::XMFLOAT2 factorAngleCos{ 0.5f, 0.2f };
+	DirectX::XMFLOAT2 factorAngleCos{ 1.f, 0.9996f };
 };

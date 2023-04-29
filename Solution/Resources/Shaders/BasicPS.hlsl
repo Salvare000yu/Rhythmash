@@ -50,7 +50,7 @@ PSOutput main(VSOutput input)
 		dir2Light = normalize(dir2Light);
 
 		// 距離減衰係数
-		float atten = 1.f / (spotLights[s].atten.x + spotLights[s].atten.y * d + spotLights[s].atten.z * d * d);
+		float atten = saturate(1.f / (spotLights[s].atten.x + spotLights[s].atten.y * d + spotLights[s].atten.z * d * d));
 
 		// 角度減衰
 		float cos = dot(dir2Light, spotLights[s].invLightDirNormal);
@@ -81,7 +81,7 @@ PSOutput main(VSOutput input)
 		float d = dot(casterv, circleShadows[c].invLightDirNormal);
 
 		// 距離減衰係数
-		float atten = 1.f / (circleShadows[c].atten.x + circleShadows[c].atten.y * d + circleShadows[c].atten.z * d * d);
+		float atten = saturate(1.f / (circleShadows[c].atten.x + circleShadows[c].atten.y * d + circleShadows[c].atten.z * d * d));
 		// 距離がマイナスなら0にする
 		atten *= step(0, d);
 

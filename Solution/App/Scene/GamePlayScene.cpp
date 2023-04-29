@@ -17,18 +17,18 @@ GamePlayScene::GamePlayScene() :
 	light->setPointLightColor(0, XMFLOAT3(1, 1, 1));
 	light->setPointLightAtten(0, XMFLOAT3(0.3f, 0.1f, 0.1f));*/
 
-	light->setDirLightActive(0, true);
-	light->setDirLightColor(0, XMFLOAT3(1, 1, 1));
-	light->setDirLightDir(0, XMVectorSet(0, -1, 0, 0));
+	//light->setDirLightActive(0, true);
+	//light->setDirLightColor(0, XMFLOAT3(1, 1, 1));
+	//light->setDirLightDir(0, XMVectorSet(0, -1, 1, 0));	// 奥下方向
 
-	/*light->setSpotLightActive(0, true);
+	light->setSpotLightActive(0, true);
 	light->setSpotLightDir(0, XMVectorSet(0, -1, 0, 0));
-	light->setSpotLightPos(0, XMFLOAT3(0, 2, 0));*/
+	light->setSpotLightPos(0, XMFLOAT3(0, 17, 0));
 
 	light->setCircleShadowActive(0, true);
-	light->setCircleShadowDir(0, XMVectorSet(0, -1, 0, 0));
-	light->setCircleShadowCasterPos(0, XMFLOAT3(0, 1, 0));
-	light->setCircleShadowCaster2LightDistance(0, 2);
+	/*light->setCircleShadowDir(0, XMVectorSet(0, -1, 0, 0));
+	light->setCircleShadowCasterPos(0, XMFLOAT3(0, 1, 0));*/
+	//light->setCircleShadowCaster2LightDistance(0, 2);
 
 	cameraObj = std::make_unique<CameraObj>(nullptr);
 
@@ -42,13 +42,13 @@ GamePlayScene::GamePlayScene() :
 
 	auto& player =
 		objs.emplace("player", std::make_unique<GameObj>((Camera*)cameraObj.get(), (ObjModel*)playerModel.get())).first->second;
-	player->setPos({ 0,1,0 });
+	player->setPos({ 0,0,0 });
 	player->setScaleF3({ 1,1,1 });
 
 	//cameraObj->setParentObj(objs.at("player").get());
 	cameraObj->setParentObj(player.get());	// 上と同じ結果になる
 
-	cameraObj->setEye2TargetLen(10.f);
+	cameraObj->setEye2TargetLen(16.f);
 
 	cameraObj->setEye2TargetOffset(XMFLOAT3(0, 0, 0));
 }
@@ -91,6 +91,8 @@ void GamePlayScene::update()
 
 			player->setPos(pos);
 			light->setCircleShadowCasterPos(0, pos);
+			pos.y += 16.f;
+			light->setSpotLightPos(0, pos);
 		}
 	}
 
@@ -101,12 +103,7 @@ void GamePlayScene::update()
 	}
 	groundObj->update();
 
-	{
-		XMFLOAT3 pos = objs.at("player")->calcWorldPos();
-		pos.y += 3.f;
-		light->setSpotLightPos(0, pos);
-		light->setPointLightPos(0, pos);
-	}
+	light->setSpotLightDir(0, XMVectorSet(0, -1, 0, 0));
 	light->update();
 }
 
@@ -154,6 +151,42 @@ void GamePlayScene::drawFrontSprite()
 			{
 				light->setCircleShadowAtten(0, XMFLOAT3(num));
 			}
+		}
+		{
+			const float& preNum = light->getCircleShadowCaster2LightDistance(0);
+			float num = preNum;
+			ImGui::SliderFloat("丸影距離", &num, 0.f, 200.f);
+			if (num != preNum)
+			{
+				light->setCircleShadowCaster2LightDistance(0, num);
+			}
+		}
+		{
+			static DirectX::XMFLOAT2 angle{ 0.f, 0.5f };
+			float nums[2]{ angle.x, angle.y };
+			ImGui::SliderFloat2("丸影角度", nums, 0.f, 1.f, "%.6f", ImGuiSliderFlags_::ImGuiSliderFlags_NoRoundToFormat);
+			angle = XMFLOAT2(nums);
+
+			nums[0] = XMConvertToRadians(nums[0]);
+			nums[1] = XMConvertToRadians(nums[1]);
+
+			light->setCircleShadowFactorAngleRad(0, XMFLOAT2(nums));
+		}
+		{
+			const auto& att = light->getSpotLightAtten(0);
+			float num[3]{ att.x,att.y,att.z };
+			ImGui::SliderFloat3("スポットAtten", num, 0.f, 1.f);
+			light->setSpotLightAtten(0, XMFLOAT3(num));
+		}
+		{
+			static XMFLOAT2 angle{ 3, 6 };
+			float nums[2]{ angle.x, angle.y };
+			ImGui::SliderFloat2("ポイント角度", nums, 0.f, 10.f, "%.6f", ImGuiSliderFlags_::ImGuiSliderFlags_NoRoundToFormat);
+			angle = XMFLOAT2(nums);
+
+			nums[0] = XMConvertToRadians(nums[0]);
+			nums[1] = XMConvertToRadians(nums[1]);
+			light->setSpotLightFactorAngleRad(0, XMFLOAT2(nums));
 		}
 	}
 	ImGui::End();

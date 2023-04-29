@@ -4,6 +4,7 @@
 #include <DirectXMath.h>
 #include <d3d12.h>
 #include <array>
+#include <cmath>
 #include <System/DX12Base.h>
 #include "DirectionalLight.h"
 #include "PointLight.h"
@@ -116,6 +117,13 @@ public:
 	inline void setSpotLightFactorAngleCos(unsigned ind, const DirectX::XMFLOAT2& factorAngleCos) { this->spotLights[ind].factorAngleCos = factorAngleCos; dirty = true; }
 	inline const auto& getSpotLightFactorAngleCos(unsigned ind) const { return spotLights[ind].factorAngleCos; }
 
+	inline void setSpotLightFactorAngleRad(unsigned ind, const DirectX::XMFLOAT2& factorAngleRad)
+	{
+		spotLights[ind].factorAngleCos.x = std::cos(factorAngleRad.x);
+		spotLights[ind].factorAngleCos.y = std::cos(factorAngleRad.y);
+		dirty = true;
+	}
+
 #pragma endregion スポットライトアクセッサ
 
 #pragma region 丸影アクセッサ
@@ -137,6 +145,13 @@ public:
 
 	inline void setCircleShadowFactorAngleCos(unsigned ind, const DirectX::XMFLOAT2& factorAngleCos) { circleShadows[ind].factorAngleCos = factorAngleCos; dirty = true; }
 	inline const auto& getCircleShadowFactorAngleCos(unsigned ind) const { return circleShadows[ind].factorAngleCos; }
+
+	inline void setCircleShadowFactorAngleRad(unsigned ind, const DirectX::XMFLOAT2& factorAngleRad)
+	{
+		circleShadows[ind].factorAngleCos.x = std::cos(factorAngleRad.x);
+		circleShadows[ind].factorAngleCos.y = std::cos(factorAngleRad.y);
+		dirty = true;
+	}
 
 #pragma endregion 丸影アクセッサ
 

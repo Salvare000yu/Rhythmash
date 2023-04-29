@@ -1,78 +1,8 @@
-# Blender 3.3.1 MTL File: 'playerベイク後.blend'
-# www.blender.org
+# MagicaVoxel @ Ephtracy
 
-newmtl マテリアル
-Ns 250.000000
-Ka 0.2 0.2 0.2
-Kd 0.8 0.8 0.8
-Ks 0.1 0.1 0.1
-Ke 0.000000 0.000000 0.000000
-Ni 1.450000
-d 1.000000
-illum 2
-map_Kd player.png
-
-newmtl マテリアル.001
-Ns 250.000000
-Ka 0.2 0.2 0.2
-Kd 0.8 0.8 0.8
-Ks 0.1 0.1 0.1
-Ke 0.000000 0.000000 0.000000
-Ni 1.450000
-d 1.000000
-illum 2
-map_Kd player.png
-
-newmtl マテリアル.002
-Ns 250.000000
-Ka 0.2 0.2 0.2
-Kd 0.8 0.8 0.8
-Ks 0.1 0.1 0.1
-Ke 0.000000 0.000000 0.000000
-Ni 1.450000
-d 1.000000
-illum 2
-map_Kd player.png
-
-newmtl マテリアル.003
-Ns 250.000000
-Ka 0 0 0
-Ks 0.500000 0.500000 0.500000
-Ke 0.000000 0.000000 0.000000
-Ni 1.450000
-d 1.000000
-illum 2
-map_Kd player.png
-
-newmtl マテリアル.004
-Ns 250.000000
-Ka 0.2 0.2 0.2
-Kd 0.8 0.8 0.8
-Ks 0.1 0.1 0.1
-Ke 0.000000 0.000000 0.000000
-Ni 1.450000
-d 1.000000
-illum 2
-map_Kd player.png
-
-newmtl マテリアル.005
-Ns 250.000000
-Ka 0.2 0.2 0.2
-Kd 0.8 0.8 0.8
-Ks 0.1 0.1 0.1
-Ke 0.000000 0.000000 0.000000
-Ni 1.450000
-d 1.000000
-illum 2
-map_Kd player.png
-
-newmtl マテリアル.006
-Ns 250.000000
-Ka 0.2 0.2 0.2
-Kd 0.8 0.8 0.8
-Ks 0.1 0.1 0.1
-Ke 0.000000 0.000000 0.000000
-Ni 1.450000
-d 1.000000
-illum 2
+newmtl palette
+illum 1
+Ka 0.100 0.100 0.100
+Kd 1.000 1.000 1.000
+Ks 0.000 0.000 0.000
 map_Kd player.png
