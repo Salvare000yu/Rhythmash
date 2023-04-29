@@ -16,6 +16,9 @@ GamePlayScene::GamePlayScene() :
 	light->setPointLightColor(0, XMFLOAT3(1, 1, 1));
 	light->setPointLightAtten(0, XMFLOAT3(0.3f, 0.1f, 0.1f));
 
+	light->setDirLightActive(0, true);
+	light->setDirLightColor(0, XMFLOAT3(1, 1, 1));
+
 	cameraObj = std::make_unique<CameraObj>(nullptr);
 
 	groundModel = std::make_unique<ObjModel>("Resources/ground", "ground");
@@ -121,6 +124,18 @@ void GamePlayScene::drawFrontSprite()
 				num[2] != att.z)
 			{
 				light->setPointLightAtten(0, XMFLOAT3(num));
+			}
+		}
+		{
+			XMFLOAT3 dir{};
+			XMStoreFloat3(&dir, light->getDirLightDir(0));
+			float num[3]{ dir.x,dir.y,dir.z };
+			ImGui::SliderFloat3("ライト向き", num, -1.f, 1.f);
+			if (num[0] != dir.x ||
+				num[1] != dir.y ||
+				num[2] != dir.z)
+			{
+				light->setDirLightDir(0, XMLoadFloat3(&XMFLOAT3(num)));
 			}
 		}
 		/*{

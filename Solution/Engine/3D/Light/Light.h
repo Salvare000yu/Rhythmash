@@ -6,13 +6,18 @@
 #include <array>
 #include <System/DX12Base.h>
 #include "PointLight.h"
+#include "DirectionalLight.h"
 
 class Light
 {
 public:
-	// ポイントライトの最大数
+	// 点光源の最大数
 	// シェーダー側と合わせる
 	constexpr static unsigned PointLightCountMax = 3u;
+
+	// 平行光源の最大数
+	// シェーダー側と合わせる
+	constexpr static unsigned DirLightCountMax = 3u;
 
 private:
 	template <class T> using ComPtr = Microsoft::WRL::ComPtr<T>;
@@ -21,7 +26,9 @@ public:
 	struct ConstBufferData
 	{
 		DirectX::XMFLOAT3 ambientColor{ 1, 1, 1 };	// アンビエント色
-		unsigned activePointLightCount;				// 有効なライトの数
+		unsigned activeDirLightCount;				// 有効な平行光源の数
+		unsigned activePointLightCount;				// 有効な点光源の数
+		DirectionalLight::ConstBufferData dirLights[DirLightCountMax]{};
 		PointLight::ConstBufferData pointLights[PointLightCountMax]{};
 	};
 
@@ -36,12 +43,15 @@ private:
 	bool dirty = false;
 
 	std::array<PointLight, PointLightCountMax> pointLights;
+	std::array<DirectionalLight, DirLightCountMax> dirLights;
 
 public:
 	Light();
 
 	inline void setAmbientColor(const DirectX::XMFLOAT3& color) { this->ambientColor = color; dirty = true; }
 	inline const DirectX::XMFLOAT3& getAmbientColor() const { return this->ambientColor; }
+
+#pragma region 点光源アクセッサ
 
 	inline void setPointLightActive(unsigned ind, bool active) { pointLights[ind].setActive(active); dirty = true; }
 	inline bool getPointLightActive(unsigned ind) const { return pointLights[ind].getActive(); }
@@ -54,6 +64,21 @@ public:
 
 	inline void setPointLightAtten(unsigned ind, const DirectX::XMFLOAT3& atten) { pointLights[ind].setAtten(atten); dirty = true; }
 	inline const auto& getPointLightAtten(unsigned ind) const { return pointLights[ind].getAtten(); }
+
+#pragma endregion 点光源アクセッサ
+
+#pragma region 平行光源アクセッサ
+
+	inline void setDirLightActive(unsigned ind, bool active) { dirLights[ind].setActive(active); dirty = true; }
+	inline bool getDirLightActive(unsigned ind) const { return dirLights[ind].getActive(); }
+
+	inline void setDirLightDir(unsigned ind, const DirectX::XMVECTOR& dirNormal) { dirLights[ind].setDir(dirNormal); dirty = true; }
+	inline const auto& getDirLightDir(unsigned ind) const { return dirLights[ind].getDir(); }
+
+	inline void setDirLightColor(unsigned ind, const DirectX::XMFLOAT3& color) { dirLights[ind].setColor(color); dirty = true; }
+	inline const auto& getDirLightColor(unsigned ind) const { return dirLights[ind].getColor(); }
+
+#pragma endregion 平行光源アクセッサ
 
 	//定数バッファ転送
 	void transferConstBuffer();

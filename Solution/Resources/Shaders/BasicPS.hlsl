@@ -13,13 +13,24 @@ PSOutput main(VSOutput input)
 	float3 ambient = m_ambient;
 	float4 shadeColor = float4(ambientColor * ambient, m_alpha);
 	
-	for (uint i = 0; i < activePointLightCount; ++i)
+	for (uint d = 0; d < activeDirLightCount; ++d)
 	{
-		float3 dir2Light = pointLights[i].pos - input.worldPos.xyz;
-		float d = length(dir2Light);
+		// ライトへ向かうベクトルと法線の内積
+		float3 dir2LightDotNormal = dot(dirLights[d].dir2Light, input.normal);
+		float3 reflect = normalize(-dirLights[d].dir2Light + 2 * dir2LightDotNormal * input.normal);
+		float3 diffuse = dir2LightDotNormal * m_diffuse;
+		float3 specular = pow(saturate(dot(reflect, eyeDir)), shininess) * m_specular;
+		
+		shadeColor.rgb += (diffuse + specular) * dirLights[d].color;
+	}
+	
+	for (uint p = 0; p < activePointLightCount; ++p)
+	{
+		float3 dir2Light = pointLights[p].pos - input.worldPos.xyz;
+		float l = length(dir2Light);
 		dir2Light = normalize(dir2Light);
 		
-		float atten = 1.f / (pointLights[i].atten.x + pointLights[i].atten.y * d + pointLights[i].atten.z * d * d);
+		float atten = 1.f / (pointLights[p].atten.x + pointLights[p].atten.y * l + pointLights[p].atten.z * l * l);
 		
 		// ライトへ向かうベクトルと法線の内積
 		float3 dir2LightDotNormal = dot(dir2Light, input.normal);
@@ -28,7 +39,7 @@ PSOutput main(VSOutput input)
 		float3 diffuse = dir2LightDotNormal * m_diffuse;
 		float3 specular = pow(saturate(dot(reflect, eyeDir)), shininess) * m_specular; // 鏡面反射光
 
-		shadeColor.rgb += atten * (diffuse + specular) * pointLights[i].color.rgb;
+		shadeColor.rgb += atten * (diffuse + specular) * pointLights[p].color.rgb;
 	}
 	
 	PSOutput output;

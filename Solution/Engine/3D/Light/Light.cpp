@@ -32,16 +32,26 @@ void Light::transferConstBuffer()
 	{
 		constMap->ambientColor = ambientColor;
 
-		unsigned pointLightNum = 0u;
+		unsigned lightNum = 0u;
+		for (auto& i : dirLights)
+		{
+			if (!i.getActive()) { continue; }
+			constMap->dirLights[lightNum].dir2Light = -XMVector3Normalize(i.getDir());
+			constMap->dirLights[lightNum].color = i.getColor();
+			++lightNum;
+		}
+		constMap->activeDirLightCount = lightNum;
+
+		lightNum = 0u;
 		for (auto& i : pointLights)
 		{
 			if (!i.getActive()) { continue; }
-			constMap->pointLights[pointLightNum].pos = i.getPos();
-			constMap->pointLights[pointLightNum].color = i.getColor();
-			constMap->pointLights[pointLightNum].atten = i.getAtten();
-			++pointLightNum;
+			constMap->pointLights[lightNum].pos = i.getPos();
+			constMap->pointLights[lightNum].color = i.getColor();
+			constMap->pointLights[lightNum].atten = i.getAtten();
+			++lightNum;
 		}
-		constMap->activePointLightCount = pointLightNum;
+		constMap->activePointLightCount = lightNum;
 
 		constBuff->Unmap(0, nullptr);
 	}

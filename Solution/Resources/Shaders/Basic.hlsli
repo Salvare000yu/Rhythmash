@@ -17,7 +17,7 @@ cbuffer cbuff1 : register(b1)
 	float2 shiftUv : packoffset(c4);
 }
 
-// ポイントライトの最大数
+// 点光源の最大数
 // CPP側と合わせる
 #define PointLightCountMax uint(3)
 
@@ -28,10 +28,22 @@ struct PointLight
 	float3 atten; // ライト距離減衰係数
 };
 
+// 平行光源の最大数
+// CPP側と合わせる
+#define DirLightCountMax uint(3)
+
+struct DirectionalLight
+{
+	float3 dir2Light; // ライトへの方向の単位ベクトル
+	float3 color; // ライトの色(RGB)
+};
+
 cbuffer cbuff2 : register(b2)
 {
-	float3 ambientColor;	
+	float3 ambientColor;
+	uint activeDirLightCount;
 	uint activePointLightCount;
+	DirectionalLight dirLights[DirLightCountMax];
 	PointLight pointLights[PointLightCountMax];
 };
 

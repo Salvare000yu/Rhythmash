@@ -151,6 +151,7 @@
   <ItemGroup>
     <ClInclude Include="App\CollisionMgr.h" />
     <ClInclude Include="Engine\3D\BaseObj.h" />
+    <ClInclude Include="Engine\3D\Light\DirectionalLight.h" />
     <ClInclude Include="Engine\BehaviorTree\BaseComposite.h" />
     <ClInclude Include="Engine\Camera\Camera.h" />
     <ClInclude Include="Engine\Camera\CameraObj.h" />
