@@ -50,15 +50,30 @@ struct SpotLight
 	float2 factorAngleCos; // ライト減衰角度のコサイン
 };
 
+// 丸影の最大数
+// CPP側と合わせる
+#define CircleShadowCountMax uint(3)
+
+struct CircleShadow
+{
+	float3 invLightDirNormal;
+	float3 casterPos;
+	float caster2LightDistance;
+	float3 atten;
+	float2 factorAngleCos;
+};
+
 cbuffer cbuff2 : register(b2)
 {
 	float3 ambientColor;
 	uint activeDirLightCount;
 	uint activePointLightCount;
 	uint activeSpotLightCount;
+	uint activeCircleShadowCount;
 	DirectionalLight dirLights[DirLightCountMax];
 	PointLight pointLights[PointLightCountMax];
 	SpotLight spotLights[SpotLightCountMax];
+	CircleShadow circleShadows[CircleShadowCountMax];
 };
 
 // 頂点シェーダーからピクセルシェーダーへのやり取りに使用する構造体

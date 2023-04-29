@@ -8,6 +8,7 @@
 #include "DirectionalLight.h"
 #include "PointLight.h"
 #include "SpotLight.h"
+#include "CircleShadow.h"
 
 class Light
 {
@@ -24,6 +25,10 @@ public:
 	// シェーダー側と合わせる
 	constexpr static unsigned SpotLightCountMax = 3u;
 
+	// 丸影の最大数
+	// シェーダー側と合わせる
+	constexpr static unsigned CircleShadowCountMax = 1u;
+
 private:
 	template <class T> using ComPtr = Microsoft::WRL::ComPtr<T>;
 
@@ -34,9 +39,11 @@ public:
 		unsigned activeDirLightCount;	// 有効な平行光源の数
 		unsigned activePointLightCount;	// 有効な点光源の数
 		unsigned activeSpotLightCount;	// 有効なスポットライトの数
+		unsigned activeCircleShadowCount;//有効な丸影の数
 		DirectionalLight::ConstBufferData dirLights[DirLightCountMax]{};
 		PointLight::ConstBufferData pointLights[PointLightCountMax]{};
 		SpotLight::ConstBufferData spotLights[SpotLightCountMax]{};
+		CircleShadow::ConstBufferData circleShadows[CircleShadowCountMax];
 	};
 
 private:
@@ -52,6 +59,7 @@ private:
 	std::array<PointLight, PointLightCountMax> pointLights;
 	std::array<DirectionalLight, DirLightCountMax> dirLights;
 	std::array<SpotLight, DirLightCountMax> spotLights;
+	std::array<CircleShadow, CircleShadowCountMax> circleShadows;
 
 public:
 	Light();
@@ -109,6 +117,28 @@ public:
 	inline const auto& getSpotLightFactorAngleCos(unsigned ind) const { return spotLights[ind].factorAngleCos; }
 
 #pragma endregion スポットライトアクセッサ
+
+#pragma region 丸影アクセッサ
+
+	inline void setCircleShadowActive(unsigned ind, bool active) { circleShadows[ind].setActive(active); dirty = true; }
+	inline bool getCircleShadowActive(unsigned ind) const { return circleShadows[ind].getActive(); }
+
+	inline void setCircleShadowDir(unsigned ind, const DirectX::XMVECTOR& dir) { circleShadows[ind].dir = dir; dirty = true; }
+	inline const auto& getCircleShadowDir(unsigned ind) const { return circleShadows[ind].dir; }
+
+	inline void setCircleShadowCasterPos(unsigned ind, const DirectX::XMFLOAT3& pos) { circleShadows[ind].casterPos = pos; dirty = true; }
+	inline const auto& getCircleShadowCasterPos(unsigned ind) const { return circleShadows[ind].casterPos; }
+
+	inline void setCircleShadowCaster2LightDistance(unsigned ind, float distance) { circleShadows[ind].caster2LightDistance = distance; dirty = true; }
+	inline float getCircleShadowCaster2LightDistance(unsigned ind) const { return circleShadows[ind].caster2LightDistance; }
+
+	inline void setCircleShadowAtten(unsigned ind, const DirectX::XMFLOAT3& atten) { circleShadows[ind].atten = atten; dirty = true; }
+	inline const auto& getCircleShadowAtten(unsigned ind) const { return circleShadows[ind].atten; }
+
+	inline void setCircleShadowFactorAngleCos(unsigned ind, const DirectX::XMFLOAT2& factorAngleCos) { circleShadows[ind].factorAngleCos = factorAngleCos; dirty = true; }
+	inline const auto& getCircleShadowFactorAngleCos(unsigned ind) const { return circleShadows[ind].factorAngleCos; }
+
+#pragma endregion 丸影アクセッサ
 
 	//定数バッファ転送
 	void transferConstBuffer();

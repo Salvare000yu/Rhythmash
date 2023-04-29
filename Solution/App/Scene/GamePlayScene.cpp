@@ -5,6 +5,7 @@
 #include <Camera/CameraObj.h>
 #include <DirectXMath.h>
 #include <Input/Input.h>
+#include <Collision/Collision.h>
 
 using namespace DirectX;
 
@@ -12,16 +13,22 @@ GamePlayScene::GamePlayScene() :
 	backState(Object3d::createGraphicsPipeline(BaseObj::BLEND_MODE::ALPHA, L"Resources/Shaders/backVS.hlsl", L"Resources/Shaders/backPS.hlsl")),
 	light(std::make_unique<Light>())
 {
-	light->setPointLightActive(0, true);
+	/*light->setPointLightActive(0, true);
 	light->setPointLightColor(0, XMFLOAT3(1, 1, 1));
-	light->setPointLightAtten(0, XMFLOAT3(0.3f, 0.1f, 0.1f));
+	light->setPointLightAtten(0, XMFLOAT3(0.3f, 0.1f, 0.1f));*/
 
 	light->setDirLightActive(0, true);
 	light->setDirLightColor(0, XMFLOAT3(1, 1, 1));
+	light->setDirLightDir(0, XMVectorSet(0, -1, 0, 0));
 
-	light->setSpotLightActive(0, true);
+	/*light->setSpotLightActive(0, true);
 	light->setSpotLightDir(0, XMVectorSet(0, -1, 0, 0));
-	light->setSpotLightPos(0, XMFLOAT3(0, 2, 0));
+	light->setSpotLightPos(0, XMFLOAT3(0, 2, 0));*/
+
+	light->setCircleShadowActive(0, true);
+	light->setCircleShadowDir(0, XMVectorSet(0, -1, 0, 0));
+	light->setCircleShadowCasterPos(0, XMFLOAT3(0, 1, 0));
+	light->setCircleShadowCaster2LightDistance(0, 2);
 
 	cameraObj = std::make_unique<CameraObj>(nullptr);
 
@@ -83,6 +90,7 @@ void GamePlayScene::update()
 			}
 
 			player->setPos(pos);
+			light->setCircleShadowCasterPos(0, pos);
 		}
 	}
 
@@ -125,53 +133,26 @@ void GamePlayScene::drawFrontSprite()
 			ImGui::Text("カメラワールド座標：%.1f %.1f %.1f", camPos.x, camPos.y, camPos.z);
 		}
 		{
-			const auto& lpos = light->getPointLightPos(0);
-			ImGui::Text("点光源位置：%.1f %.1f %.1f", lpos.x, lpos.y, lpos.z);
-		}
-		{
-			const auto& att = light->getPointLightAtten(0);
-			float num[3]{ att.x,att.y,att.z };
-			ImGui::SliderFloat3("点光源減衰係数", num, 0.f, 1.f, "%.2f", ImGuiSliderFlags_::ImGuiSliderFlags_AlwaysClamp);
-			if (num[0] != att.x ||
-				num[1] != att.y ||
-				num[2] != att.z)
-			{
-				light->setPointLightAtten(0, XMFLOAT3(num));
-			}
-		}
-		{
 			XMFLOAT3 dir{};
-			XMStoreFloat3(&dir, light->getDirLightDir(0));
+			XMStoreFloat3(&dir, light->getCircleShadowDir(0));
 			float num[3]{ dir.x,dir.y,dir.z };
-			ImGui::SliderFloat3("点光源向き", num, -1.f, 1.f);
+			ImGui::SliderFloat3("丸影向", num, -1.f, 1.f);
 			if (num[0] != dir.x ||
 				num[1] != dir.y ||
 				num[2] != dir.z)
 			{
-				light->setDirLightDir(0, XMLoadFloat3(&XMFLOAT3(num)));
+				light->setCircleShadowDir(0, XMLoadFloat3(&XMFLOAT3(num)));
 			}
 		}
 		{
-			XMFLOAT3 dir{};
-			XMStoreFloat3(&dir, light->getSpotLightDir(0));
-			float val[3]{ dir.x,dir.y,dir.z };
-			ImGui::SliderFloat3("スポット向き", val, -1.f, 1.f, "%.1f", ImGuiSliderFlags_::ImGuiSliderFlags_AlwaysClamp);
-			if (val[0] != dir.x ||
-				val[1] != dir.y ||
-				val[2] != dir.z)
+			const auto& att = light->getCircleShadowAtten(0);
+			float num[3]{ att.x,att.y,att.z };
+			ImGui::SliderFloat3("丸影減衰", num, 0.f, 1.f);
+			if (num[0] != att.x ||
+				num[1] != att.y ||
+				num[2] != att.z)
 			{
-				light->setSpotLightDir(0, XMLoadFloat3(&XMFLOAT3(val)));
-			}
-		}
-		{
-			const XMFLOAT3& attVal = light->getSpotLightAtten(0);
-			float num[3]{ attVal.x,attVal.y,attVal.z };
-			ImGui::SliderFloat3("スポット減衰", num, 0.f, 1.f, "%.2f", ImGuiSliderFlags_::ImGuiSliderFlags_AlwaysClamp);
-			if (num[0] != attVal.x ||
-				num[1] != attVal.y ||
-				num[2] != attVal.z)
-			{
-				light->setSpotLightAtten(0, XMFLOAT3(num));
+				light->setCircleShadowAtten(0, XMFLOAT3(num));
 			}
 		}
 	}

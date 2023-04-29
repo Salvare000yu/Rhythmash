@@ -66,6 +66,19 @@ void Light::transferConstBuffer()
 		}
 		constMap->activeSpotLightCount = lightNum;
 
+		lightNum = 0u;
+		for (auto& i : circleShadows)
+		{
+			if (!i.getActive()) { continue; }
+			constMap->circleShadows[lightNum].invLightDirNormal = -XMVector3Normalize(i.dir);
+			constMap->circleShadows[lightNum].casterPos = i.casterPos;
+			constMap->circleShadows[lightNum].caster2LightDistance = i.caster2LightDistance;
+			constMap->circleShadows[lightNum].atten = i.atten;
+			constMap->circleShadows[lightNum].factorAngleCos = i.factorAngleCos;
+			++lightNum;
+		}
+		constMap->activeCircleShadowCount = lightNum;
+
 		constBuff->Unmap(0, nullptr);
 	}
 }
