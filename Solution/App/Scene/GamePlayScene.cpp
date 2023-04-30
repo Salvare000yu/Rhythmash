@@ -48,9 +48,9 @@ GamePlayScene::GamePlayScene() :
 	//cameraObj->setParentObj(objs.at("player").get());
 	cameraObj->setParentObj(player.get());	// 上と同じ結果になる
 
-	cameraObj->setEye2TargetLen(16.f);
+	cameraObj->setEye2TargetLen(8.f);
 
-	cameraObj->setEye2TargetOffset(XMFLOAT3(0, 0, 0));
+	cameraObj->setEye2TargetOffset(XMFLOAT3(0, 1, 0));
 }
 
 GamePlayScene::~GamePlayScene()
@@ -59,6 +59,48 @@ GamePlayScene::~GamePlayScene()
 void GamePlayScene::update()
 {
 	{
+		auto& player = objs.at("player");
+
+		const bool hitRIGHT = Input::ins()->hitKey(DIK_RIGHT);
+		const bool hitLEFT = Input::ins()->hitKey(DIK_LEFT);
+		const bool hitUP = Input::ins()->hitKey(DIK_UP);
+		const bool hitDOWN = Input::ins()->hitKey(DIK_DOWN);
+
+		if (hitRIGHT || hitLEFT || hitUP || hitDOWN)
+		{
+			constexpr float speedVal = XM_2PI * 10.f;
+			const float speed = speedVal / DX12Base::ins()->getFPS();
+
+			XMFLOAT3 rotaVel{};
+
+			if (hitRIGHT)
+			{
+				rotaVel.y += 1.f;
+			}
+			if (hitLEFT)
+			{
+				rotaVel.y -= 1.f;
+			}
+			if (hitDOWN)
+			{
+				rotaVel.x += 1.f;
+			}
+			if (hitUP)
+			{
+				rotaVel.x -= 1.f;
+			}
+
+			XMStoreFloat3(&rotaVel, speed * XMVector3Normalize(XMLoadFloat3(&rotaVel)));
+
+			XMFLOAT3 rota = player->getRotation();
+
+			rota.x += rotaVel.x;
+			rota.y += rotaVel.y;
+			rota.z += rotaVel.z;
+
+			player->setRotation(rota);
+		}
+
 		const bool hitW = Input::ins()->hitKey(DIK_W);
 		const bool hitA = Input::ins()->hitKey(DIK_A);
 		const bool hitS = Input::ins()->hitKey(DIK_S);
@@ -66,30 +108,38 @@ void GamePlayScene::update()
 
 		if (hitW || hitA || hitS || hitD)
 		{
-			auto& player = objs.at("player");
-
-			XMFLOAT3 pos = player->getPos();
-
 			constexpr float speedVal = 5.f;
 			const float speed = speedVal / DX12Base::ins()->getFPS();
+
+			XMFLOAT3 vel{};
+
 			if (hitW)
 			{
-				pos.z += speed;
+				vel.z += 1.f;
 			}
 			if (hitS)
 			{
-				pos.z -= speed;
+				vel.z -= 1.f;
 			}
 			if (hitD)
 			{
-				pos.x += speed;
+				vel.x += 1.f;
 			}
 			if (hitA)
 			{
-				pos.x -= speed;
+				vel.x -= 1.f;
 			}
+			XMVECTOR velVec = XMVector3Rotate(XMLoadFloat3(&vel),
+							  XMQuaternionRotationRollPitchYaw(XMConvertToRadians(player->getRotation().x),
+															   XMConvertToRadians(player->getRotation().y),
+															   XMConvertToRadians(player->getRotation().z)));
+			velVec = speed * XMVector3Normalize(XMVectorSetY(velVec, 0.f));
+
+			XMFLOAT3 pos{};
+			XMStoreFloat3(&pos, velVec + XMLoadFloat3(&player->getPos()));
 
 			player->setPos(pos);
+
 			light->setCircleShadowCasterPos(0, pos);
 			pos.y += 16.f;
 			light->setSpotLightPos(0, pos);
@@ -118,7 +168,7 @@ void GamePlayScene::drawObj3d()
 
 void GamePlayScene::drawFrontSprite()
 {
-	ImGui::SetNextWindowSize(ImVec2(400, 200));
+	ImGui::SetNextWindowSize(ImVec2(400, 260));
 	ImGui::Begin("自機", nullptr, DX12Base::imGuiWinFlagsDef);
 	{
 		{
@@ -187,6 +237,16 @@ void GamePlayScene::drawFrontSprite()
 			nums[0] = XMConvertToRadians(nums[0]);
 			nums[1] = XMConvertToRadians(nums[1]);
 			light->setSpotLightFactorAngleRad(0, XMFLOAT2(nums));
+		}
+		{
+			const auto& player = objs.at("player");
+			const auto& col = player->getCol();
+			float alpha = col.w;
+			ImGui::SliderFloat("自機透明度", &alpha, 0.f, 1.f, "%.3f", ImGuiSliderFlags_::ImGuiSliderFlags_AlwaysClamp);
+			if (alpha != col.w)
+			{
+				player->setCol(XMFLOAT4(col.x, col.y, col.z, alpha));
+			}
 		}
 	}
 	ImGui::End();

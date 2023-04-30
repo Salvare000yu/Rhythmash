@@ -192,7 +192,6 @@ float4 main(VSOutput input) : SV_TARGET
 	float speedLineNum = speedLine(input.uv, fmod(nowTime / oneSec, 1.f), speedLineIntensity);
 	// 中心に近いほど色を薄くする
 	speedLineNum *= distance(float2(0.5f, 0.5f), input.uv);
-
 	
 	// --------------------
 	// 合わせる

@@ -3,9 +3,31 @@
 Texture2D<float4> tex : register(t0); // 0番スロットに設定されたテクスチャ
 SamplerState smp : register(s0); // 0番スロットに設定されたサンプラー
 
+// ディザリング抜き
+void ScreenDoor(float2 screenPos, float alpha)
+{
+	static const int Bayer[4][4] =
+	{
+		{ 0, 8, 2, 10 },
+		{ 12, 4, 14, 6 },
+		{ 3, 11, 1, 9 },
+		{ 15, 7, 13, 5 }
+	};
+	
+	// 0 ~ 16
+	float ditherLevel = clamp(16.f - (alpha * 16.f), 0.f, 16.f);
+		
+	int ditherUvX = (int) fmod(screenPos.x, 4.f);
+	int ditherUvY = (int) fmod(screenPos.y, 4.f);
+	float doorNum = Bayer[ditherUvY][ditherUvX];
+	clip(doorNum - ditherLevel);
+}
+
 PSOutput main(VSOutput input)
 {
 	float4 texcolor = float4(tex.Sample(smp, input.uv * texTilling + shiftUv));
+
+	ScreenDoor(input.svpos.xy, texcolor.a * color.a);
 	
 	const float shininess = 4.f; // 光沢
 	float3 eyeDir = normalize(cameraPos - input.worldPos.xyz); // 頂点->視点ベクトル
