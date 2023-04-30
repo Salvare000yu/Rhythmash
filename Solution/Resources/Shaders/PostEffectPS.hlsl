@@ -11,6 +11,28 @@ SamplerState smp : register(s0); // 0番スロットに設定されたサンプ�
 // これより大きい値の色がグローする
 #define bloomThreshold (0.5f)
 
+// 円周率
+#define PI (3.141592653589793f)
+#define PI2 (6.283185307179586f)
+
+// 色を段階的にする
+#define colorNum (256.f)
+
+// 1 / 2.2
+#define gamma (0.4545454545454545f)
+
+#define slnSpeed (8.f)
+#define slnDivLevel (96.f)
+#define slnPower (24.f)
+
+#define speedLineDivNum (1024.f)
+
+// 1 ~
+#define ditherColor (256.f)
+
+//0 ~ 0.5
+#define ditherNum (0.5f)
+
 float3 getBloomPixel(SamplerState smp, float2 uv, float2 texPixelSize)
 {
 	float2 uv2 = floor(uv / texPixelSize) * texPixelSize;
@@ -74,11 +96,10 @@ float speedLine(float2 uv, float seed, float colourIntensity = 0.125f)
 	float2 pos = (uv - 0.5f) * 2.f;
 
 	// 0 ~ 1の角度
-	float angle = ((atan2(pos.r, pos.g) / 3.141592653589793f) + 1.f) / 2.f;
+	float angle = ((atan2(pos.r, pos.g) / PI) + 1.f) / 2.f;
 
 	// 角度の値を段階的にする
-	static float divNum = 1024;
-	float floorAngle = floor(angle * divNum) / divNum * seed;
+	float floorAngle = floor(angle * speedLineDivNum) / speedLineDivNum * seed;
 
 	// (段階的な)角度を参考にノイズを返す
 	return saturate(fracNoise(float2(floorAngle, floorAngle))) * colourIntensity;
@@ -90,18 +111,15 @@ float4 dither(float4 texCol, float2 uv, float ditherSize = 1.f)
 	float2 num = floor(fmod(uv / pixelSize, 2.f));
 	float c = fmod(num.x + num.y, 2.f);
 		
-	static float colors = 4.f; // 1~16
-	static float dither = 0.125f; // 0~0.5
-		
 	float4 retCol = texCol;
 		
-	retCol.r = (round(texCol.r * colors + dither) / colors) * c;
-	retCol.g = (round(texCol.g * colors + dither) / colors) * c;
-	retCol.b = (round(texCol.b * colors + dither) / colors) * c;
+	retCol.r = (round(texCol.r * ditherColor + ditherNum) / ditherColor) * c;
+	retCol.g = (round(texCol.g * ditherColor + ditherNum) / ditherColor) * c;
+	retCol.b = (round(texCol.b * ditherColor + ditherNum) / ditherColor) * c;
 	c = 1.f - c;
-	retCol.r += (round(texCol.r * colors - dither) / colors) * c;
-	retCol.g += (round(texCol.g * colors - dither) / colors) * c;
-	retCol.b += (round(texCol.b * colors - dither) / colors) * c;
+	retCol.r += (round(texCol.r * ditherColor - ditherNum) / ditherColor) * c;
+	retCol.g += (round(texCol.g * ditherColor - ditherNum) / ditherColor) * c;
+	retCol.b += (round(texCol.b * ditherColor - ditherNum) / ditherColor) * c;
 		
 	return retCol;
 }
@@ -135,11 +153,6 @@ float4 chromaticAberration(float2 uv, float level = 3.f, float spread = 0.03125f
 
 float4 main(VSOutput input) : SV_TARGET
 {
-	return tex0.Sample(smp, input.uv);
-	
-	static float PI = 3.141592653589793f;
-	static float PI2 = 6.283185307179586f;
-	
 	// --------------------
 	// モザイク
 	// --------------------
@@ -157,9 +170,6 @@ float4 main(VSOutput input) : SV_TARGET
 	// --------------------
 	// 走査線のようなもの
 	// --------------------
-	static float slnSpeed = 8.f;
-	static float slnDivLevel = 96.f;
-	static float slnPower = 24.f;
 	float sinNum = uv.y * slnDivLevel + time * slnSpeed;
 	float sLineNum = fracNoise(float2(time, uv.y)) * sin(sinNum) * sin(sinNum + 0.75f) + 1.f;
 	sLineNum /= -slnPower;
@@ -167,10 +177,10 @@ float4 main(VSOutput input) : SV_TARGET
 	// --------------------
 	// rgbずらし&ディザリング
 	// --------------------
-	float4 texColor0 = dither(tex0.Sample(smp, uv), uv, 1.f);
-	texColor0.g = dither(tex0.Sample(smp, uv + rgbShiftNum), uv, 1.f).g;
-	static float gamma = 1.f / 2.2f;
-	texColor0 = pow(texColor0, gamma);
+	const float ditherSize = winSize.y / 512.f;
+	float4 texColor0 = dither(tex0.Sample(smp, uv), uv, ditherSize);
+	texColor0.g = dither(tex0.Sample(smp, uv + rgbShiftNum), uv, ditherSize).g;
+	texColor0.rgb = pow(texColor0.rgb, gamma);
 
 	float noiseNum = noise(input.uv, time);
 	
@@ -191,8 +201,7 @@ float4 main(VSOutput input) : SV_TARGET
 	float4 drawCol = float4(texColor0.rgb + sLineNum + vignNum + noiseNum + speedLineNum, alpha);
 	
 	// 色数を減らす
-	static float colourNum = 8.f;
-	drawCol.rgb = floor(drawCol.rgb * colourNum) / colourNum;
+	drawCol.rgb = floor(drawCol.rgb * colorNum) / colorNum;
 	
 	// ブルーム
 	drawCol.rgb += bloom(smp, uv).rgb;

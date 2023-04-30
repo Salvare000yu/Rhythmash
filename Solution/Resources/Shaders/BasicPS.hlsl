@@ -103,8 +103,7 @@ PSOutput main(VSOutput input)
 	
 	PSOutput output;
 	output.target0 = shadeColor * texcolor * color;
-	// target1を反転色にする
-	output.target1 = output.target0;
+	output.target1 = float4((input.normal + 1.f) / 2.f, 1);
 
 	return output;
 }
