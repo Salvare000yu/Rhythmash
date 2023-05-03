@@ -3,6 +3,8 @@
 #include "System/PostEffect.h"
 #include "System/SceneManager.h"
 
+using namespace DirectX;
+
 GameMainScene::GameMainScene()
 {
 	PostEffect::getInstance()->setAlpha(1.f);
@@ -12,10 +14,19 @@ GameMainScene::GameMainScene()
 
 	spCom.reset(new SpriteBase());
 
+	titleBack = std::make_unique<Sprite>(spCom->loadTexture(L"Resources/titleBack.png"),
+										 spCom.get(),
+										 XMFLOAT2(0.f, 0.f));
+	titleBack->setSize(XMFLOAT2((float)WinAPI::window_width, (float)WinAPI::window_height));
 	// デバッグテキスト用のテクスチャ読み込み
 	debugText.reset(new DebugText(spCom->loadTexture(L"Resources/debugfont.png"), spCom.get()));
 
-	player.reset(new Player());
+	cameraobj.reset(new CameraObj(player.get()));
+	PlayerModel.reset(new ObjModel("Resources/cube/", "cube"));
+	//PlayerObj.reset(new GameObj(cameraobj.get(), PlayerModel.get()));
+	player.reset(new Player(cameraobj.get(), PlayerModel.get()));
+
+	light.reset(new Light());
 }
 
 void GameMainScene::start()
@@ -26,18 +37,23 @@ void GameMainScene::start()
 
 void GameMainScene::update()
 {
-	
+	cameraobj->setEye({ 0, 0, 0 });
 	if (input->triggerKey(DIK_SPACE) ||
 			input->triggerPadButton(Input::PAD::A) ||
 			input->triggerPadButton(Input::PAD::B))
 	{
 		SceneManager::getInstange()->changeScene<TitleScene>();
 	}
-	player->update(input,0.2f);
+	//PlayerObj->update();
+	player->update();
+	Playerpos = player->getPos();
 }
 
 void GameMainScene::drawFrontSprite()
 {
 	spCom->drawStart(DX12Base::getInstance()->getCmdList());
-	player->Draw();
+	titleBack->drawWithUpdate(DX12Base::ins(), spCom.get());
+	player->drawWithUpdate(light.get());
+	//PlayerObj->drawWithUpdate(light.get());
+
 }

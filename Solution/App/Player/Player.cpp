@@ -1,53 +1,88 @@
 ﻿#include "Player.h"
 
-Player::Player()
+Player::Player(Camera* camera,
+						 ObjModel* model,
+						 const DirectX::XMFLOAT3& pos)
+	:BaseActObj(camera,model, pos)
 {
-	PlayerModel.reset(new ObjModel("Resources/cube/", "cube"));
-	cameraobj.reset(new CameraObj(PlayerObj.get()));
-	PlayerObj.reset(new GameObj(cameraobj.get(), PlayerModel.get(), { 0,0,0 }));
-	light.reset(new Light());
+	
+	input = Input::getInstance();
 }
 
 void Player::start()
 {}
 
-void Player::update(Input* input, float val)
+void Player::update()
 {
+	//{
+	//	if (input->hitKey(DIK_W))
+	//	{
+	//		PlayerObj->moveForward(val);
+	//		moveZFlag = true;
+	//	} else if (input->hitKey(DIK_S))
+	//	{
+	//		PlayerObj->moveForward(-val);
+	//		moveZFlag = true;
+	//	} else
+	//	{
+	//		moveZFlag = false;
+	//	}
+	//	if (input->hitKey(DIK_D))
+	//	{
+	//		PlayerObj->moveRight(val);
+	//		moveXFlag = true;
+	//	} else if (input->hitKey(DIK_A))
+	//	{
+	//		PlayerObj->moveRight(-val);
+	//		moveXFlag = true;
+	//	} else
+	//	{
+	//		moveXFlag = false;
+	//	}
+	//	float mag = (val * val + val * val);
+	//	if (moveZFlag == true && moveXFlag == true)
+	//	{
+
+	//		val = val / mag;
+	//	}
+
+	//}
 	
-	if (input->hitKey(DIK_W))
-	{
-		PlayerObj->moveForward(val);
-		moveZFlag = true;
-	} else if (input->hitKey(DIK_S))
-	{
-		PlayerObj->moveForward(-val);
-		moveZFlag = true;
-	} else
-	{
-		moveZFlag = false;
-	}
-	if (input->hitKey(DIK_D))
-	{
-		PlayerObj->moveRight(val);
-		moveXFlag = true;
-	} else if (input->hitKey(DIK_A))
-	{
-		PlayerObj->moveRight(-val);
-		moveXFlag = true;
-	} else
-	{
-		moveXFlag = false;
-	}
-	float mag = (val * val + val * val);
-	if (moveZFlag == true && moveXFlag == true)
-	{
-		
-		val = val / mag;
-	}
-	PlayerObj->update();
+	
+	Move();
+
+	
 }
 
 void Player::Draw()
 {
-	PlayerObj->drawWithUpdate(light.get());
+	
 }
+
+void Player::Move()
+{
+	dir = { 0,0,0 };
+	
+	if (input->hitKey(DIK_W))
+	{
+		dir.z = 5;
+		MoveProcess(dir);
+	} else if (input->hitKey(DIK_S))
+	{
+		dir.z = -5;
+		MoveProcess(dir);
+	}
+
+	if (input->hitKey(DIK_D))
+	{
+		dir.x = 5;
+		MoveProcess(dir);
+	} else if (input->hitKey(DIK_A))
+	{
+		dir.x = -5;
+		MoveProcess(dir);
+	}
+}
+
+void Player::Attack()
+{}
