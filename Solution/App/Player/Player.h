@@ -20,6 +20,13 @@ class Player
 
 	DirectX::XMFLOAT3 dir = { 0,0,0 };
 
+	bool isWeekAttack;
+	bool isHardAttack;
+	bool isJump;
+	bool isStep;
+
+	void input();
+
 public:
 	Player(Camera* camera,
 				ObjModel* model,
