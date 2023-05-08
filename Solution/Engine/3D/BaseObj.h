@@ -2,7 +2,6 @@
 #include <DirectXMath.h>
 #include <Camera/Camera.h>
 #include <3D/Light.h>
-
 class BaseObj
 {
 protected:

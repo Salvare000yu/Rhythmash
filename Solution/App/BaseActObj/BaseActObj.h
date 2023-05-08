@@ -1,23 +1,30 @@
 ﻿#pragma once
 #include <DirectXMath.h>
 #include "GameObject/GameObj.h"
+#include <CollisionMgr.h>
+
+using namespace DirectX;
+
 class BaseActObj
 	: public GameObj
 {
-	using XMFLOAT2 = DirectX::XMFLOAT2;
-	using XMFLOAT3 = DirectX::XMFLOAT3;
-	using XMFLOAT4 = DirectX::XMFLOAT4;
-	using XMVECTOR = DirectX::XMVECTOR;
-	using XMMATRIX = DirectX::XMMATRIX;
 
 protected:
 	//移動スピード
 	float MoveSpeed = 1.5;
+	//攻撃フラグ
+	bool AttackFlag = false;
+
+	//無敵時間
+	int WaitTime = 0;
 public:
 
 	BaseActObj(Camera* camera,
 			  ObjModel* model,
 			  const DirectX::XMFLOAT3& pos = { 0,0,0 });
+
+	CollisionMgr::ColliderSet mycoll{};
+
 	//基本移動動作
 	void MoveProcess(XMFLOAT3 dir)
 	{
@@ -32,6 +39,25 @@ public:
 	}
 
 	void AttackProcess()
+	{
+		mycoll.hitProc = [&](GameObj* obj)
+		{
+			if (AttackFlag == false)
+			{
+
+				this->setCol({ 1,0,0,1 });
+				if (obj->damage(1u, false))
+				{
+					obj->kill();
+					return;
+				}
+
+			}
+		};
+		this->setCol({ 1,1,1,1 });
+
+	}
+	void OnCollision()
 	{
 
 	}
