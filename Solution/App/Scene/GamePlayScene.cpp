@@ -231,7 +231,7 @@ void GamePlayScene::drawFrontSprite()
 		{
 			static XMFLOAT2 angle{ 3, 6 };
 			float nums[2]{ angle.x, angle.y };
-			ImGui::SliderFloat2("ポイント角度", nums, 0.f, 10.f, "%.6f", ImGuiSliderFlags_::ImGuiSliderFlags_NoRoundToFormat);
+			ImGui::SliderFloat2("スポット角度", nums, 0.f, 10.f, "%.6f", ImGuiSliderFlags_::ImGuiSliderFlags_NoRoundToFormat);
 			angle = XMFLOAT2(nums);
 
 			nums[0] = XMConvertToRadians(nums[0]);
