@@ -152,7 +152,7 @@ public:
 	{
 	public:
 		/// @brief 列挙型に使う型
-		using enumType = WORD;
+		using enumType = BYTE;
 
 		/// @brief 実際使われる列挙型
 		enum PADNUM : enumType

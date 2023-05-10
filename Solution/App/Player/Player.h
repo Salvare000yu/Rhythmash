@@ -5,7 +5,6 @@
 #include "3D/Obj/ObjModel.h"
 #include "GameObject/GameObj.h"
 #include "Camera/CameraObj.h"
-#include "3D/Light.h"
 #include <DirectXMath.h>
 class Player
 	: public BaseActObj
