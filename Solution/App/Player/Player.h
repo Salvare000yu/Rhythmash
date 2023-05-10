@@ -25,8 +25,6 @@ class Player
 	bool isJump;
 	bool isStep;
 
-	void input();
-
 public:
 	Player(Camera* camera,
 				ObjModel* model,

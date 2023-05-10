@@ -86,15 +86,3 @@ void Player::Move()
 
 void Player::Attack()
 {}
-
-void Player::Input()
-{
-	//ジャンプ
-	if (input->triggerPadButton(XINPUT_GAMEPAD_A) && !isJump)isJump = true;
-	//回避
-	if (input->triggerMouseButton(XINPUT_GAMEPAD_RIGHT_SHOULDER) && !isStep)isStep = true;
-	//弱攻撃
-	if (input->triggerMouseButton(XINPUT_GAMEPAD_X) && !isWeekAttack)isWeekAttack = true;
-	//強攻撃
-	if (input->triggerMouseButton(XINPUT_GAMEPAD_Y) && !isHardAttack)isHardAttack = true;
-}

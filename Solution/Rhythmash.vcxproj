@@ -115,6 +115,7 @@
   <ItemGroup>
     <ClCompile Include="App\BaseActObj\BaseActObj.cpp" />
     <ClCompile Include="App\CollisionMgr.cpp" />
+    <ClCompile Include="App\InputMgr.cpp" />
     <ClCompile Include="Engine\3D\BaseObj.cpp" />
     <ClCompile Include="Engine\Camera\Camera.cpp" />
     <ClCompile Include="Engine\Camera\CameraObj.cpp" />
@@ -153,6 +154,7 @@
   <ItemGroup>
     <ClInclude Include="App\CollisionMgr.h" />
     <ClInclude Include="App\BaseActObj\BaseActObj.h" />
+    <ClInclude Include="App\InputMgr.h" />
     <ClInclude Include="Engine\3D\BaseObj.h" />
     <ClInclude Include="Engine\BehaviorTree\BaseComposite.h" />
     <ClInclude Include="Engine\Camera\Camera.h" />
