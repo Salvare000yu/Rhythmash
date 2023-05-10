@@ -32,27 +32,24 @@ bool InputMgr::GetInput(ACTION act)
 DirectX::XMFLOAT2 InputMgr::GetThumbValue(ACTION act)
 {
 	DirectX::XMFLOAT2 inp = {};
-	float max = 32767.0f;
+	float max = 1.0f;
 	switch (act)
 	{
 	case ACTION::MOVE:
-		inp.x = static_cast<float>(input->hitPadLStickX());
-		inp.y = static_cast<float>(input->hitPadLStickY());
+		inp = input->hitPadLStickRaito();
 
 		if (input->hitKey(DIK_W))inp.y = max;
 		if (input->hitKey(DIK_S))inp.y = -max;
-		if (input->hitKey(DIK_A))inp.x = max;
-		if (input->hitKey(DIK_D))inp.x = -max;
+		if (input->hitKey(DIK_D))inp.x = max;
+		if (input->hitKey(DIK_A))inp.x = -max;
 		break;
 	case ACTION::CAMERA:
-		inp.x = static_cast<float>(input->hitPadRStickX());
-		inp.y = static_cast<float>(input->hitPadRStickY());
+		inp = input->hitPadRStickRaito();
+
 		break;
 	default:
 		break;
 	}
-	inp.x /= max;
-	inp.y /= max;
 
 	return inp;
 }
