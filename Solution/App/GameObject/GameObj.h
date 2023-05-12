@@ -2,7 +2,7 @@
 #include <DirectXMath.h>
 #include <memory>
 #include "System/DX12Base.h"
-#include "3D/Light.h"
+#include "3D/Light/Light.h"
 
 #include <3D/BaseObj.h>
 #include <3D/Obj/Object3d.h>
@@ -26,6 +26,9 @@ protected:
 	virtual void additionalDraw(Light* light) {}
 
 public:
+	inline void setPipelineStateNum(size_t num) { ppStateNum = num; }
+	inline size_t getPipelineStateNum() const { return ppStateNum; }
+
 	inline void setHp(uint16_t hpNum) { hp = hpNum; }
 	inline uint16_t getHp() const { return hp; }
 

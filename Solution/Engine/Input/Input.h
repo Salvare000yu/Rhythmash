@@ -94,13 +94,13 @@ public:
 	};
 
 	// @param keyCode Input::MOUSE::なんとか、rgbButtons配列の添え字
-	inline bool hitMouseButton(_In_ BYTE keyCode)
+	inline bool hitMouseButton(_In_ WORD keyCode)
 	{
 		return (bool)mouseState.rgbButtons[keyCode];
 	}
 
 	// @param keyCode Input::MOUSE::なんとか、rgbButtons配列の添え
-	inline bool hitPreMouseButton(_In_ BYTE keyCode)
+	inline bool hitPreMouseButton(_In_ WORD keyCode)
 	{
 		return (bool)preMouseState.rgbButtons[keyCode];
 	}
@@ -108,7 +108,7 @@ public:
 	/// @brief マウスのボタンを押した瞬間を検知
 	/// @param keyCode Input::MOUSE::なんとか、rgbButtons配列の添え字
 	/// @return 押した瞬間ならtrue
-	inline bool triggerMouseButton(_In_ BYTE keyCode)
+	inline bool triggerMouseButton(_In_ WORD keyCode)
 	{
 		return hitMouseButton(keyCode) && !hitPreMouseButton(keyCode);
 	}
@@ -116,7 +116,7 @@ public:
 	/// @brief マウスのボタンを離した瞬間を検知
 	/// @param keyCode Input::MOUSE::なんとか、rgbButtons配列の添え字
 	/// @return 離した瞬間ならtrue
-	inline bool releaseTriggerMouseButton(_In_ BYTE keyCode)
+	inline bool releaseTriggerMouseButton(_In_ WORD keyCode)
 	{
 		return !hitMouseButton(keyCode) && hitPreMouseButton(keyCode);
 	}

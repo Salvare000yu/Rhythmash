@@ -12,7 +12,6 @@
 #include "GameObject/GameObj.h"
 #include "Camera/CameraObj.h"
 
-#include "3D/Light.h"
 class GameMainScene :
 	public GameScene
 {

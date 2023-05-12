@@ -20,7 +20,7 @@ public:
 		float alpha;	// アルファ
 		DirectX::XMFLOAT2 texTilling;	// タイリング
 		DirectX::XMFLOAT2 pad3;	// パディング
-		DirectX::XMFLOAT2 shiftUv;	// タイリング
+		DirectX::XMFLOAT2 shiftUv;	// UVずらし
 	};
 
 public:

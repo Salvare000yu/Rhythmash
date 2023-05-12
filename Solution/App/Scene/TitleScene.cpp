@@ -1,7 +1,7 @@
 ﻿#include "TitleScene.h"
 
-#include "GameClearScene.h"
 #include "GameOverScene.h"
+#include "GamePlayScene.h"
 #include "System/SceneManager.h"
 #include <DirectXMath.h>
 #include <Util/Util.h>
