@@ -14,9 +14,21 @@
 #include "GameObject/GameObj.h"
 #include "Camera/CameraObj.h"
 
+class Timer;
+
 class GameMainScene :
 	public GameScene
 {
+	// --------------------
+	// 時間関係
+	// --------------------
+	std::unique_ptr<Timer> timer;
+
+	float bpm{};
+	const float judgeOkRange{};
+	float nowCount{};
+	float nowBeatRaito{};
+
 	// --------------------
 	// スプライト
 	// --------------------
