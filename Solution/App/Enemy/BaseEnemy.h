@@ -2,6 +2,9 @@
 #include "BaseActObj/BaseActObj.h"
 #include <memory>
 #include <DirectXMath.h>
+
+class Sequencer;
+
 class BaseEnemy :
 	public BaseActObj
 {
@@ -14,9 +17,12 @@ protected:
 	float minZ = -30.0f;
 	float maxZ = 30.0f;
 
-	float ActTime = 0;
-	int waitTime = 0;
+	uint16_t actFrame = 0;
+	uint16_t waitFrame = 0;
 	bool moved = false;
+
+	std::unique_ptr<Sequencer> attackProc;
+
 public:
 	BaseEnemy(Camera* camera,
 				ObjModel* model,
@@ -24,7 +30,7 @@ public:
 
 	inline auto createCollider() { return CollisionMgr::ColliderType{ .obj = this, .colliderR = this->getScaleF3().z }; }
 
-	void update();
+	void additionalUpdate() override;
 	void Move()  override;
 	void Attack() override;
 };

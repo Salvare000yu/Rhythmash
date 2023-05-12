@@ -6,6 +6,7 @@
 
 #include <3D/BaseObj.h>
 #include <3D/Obj/Object3d.h>
+#include <unordered_map>
 
 /// @brief ゲームオブジェクト基底クラス
 class GameObj
@@ -16,6 +17,8 @@ protected:
 	BaseObj* obj = nullptr;
 
 	std::unique_ptr<Object3d> objObject;
+
+	std::unordered_map<std::string, std::shared_ptr<GameObj>> otherObj;
 
 	bool alive = true;
 	bool drawFlag = true;
@@ -120,6 +123,9 @@ public:
 	}
 
 	inline DirectX::XMFLOAT3 calcWorldPos() const { return obj->calcWorldPos(); }
+
+	/// @return 移動量
+	DirectX::XMFLOAT3 move(const DirectX::XMVECTOR& dirNormal, float speed, bool moveYFlag = false);
 
 	/// @brief 視線方向に前進
 	/// @param moveVel 移動量
