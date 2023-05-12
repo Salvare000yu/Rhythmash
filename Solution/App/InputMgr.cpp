@@ -57,8 +57,8 @@ DirectX::XMFLOAT2 InputMgr::GetThumbValue(ACTION act)
 		//コントローラーが入力されていなかったらマウス移動量を得る
 		if (inp.x == 0.0f && inp.y == 0.0f)
 		{
-			inp.x = input->getMouseMove().x;
-			inp.y = input->getMouseMove().y;
+			inp.x = static_cast<float>(input->getMouseMove().x);
+			inp.y = static_cast<float>(input->getMouseMove().y);
 			inp.x /= rate;
 			inp.y /= rate;
 		}
