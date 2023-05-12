@@ -2,14 +2,16 @@
 #include <random>
 BaseEnemy::BaseEnemy(Camera* camera, ObjModel* model, const DirectX::XMFLOAT3& pos)
 	:BaseActObj(camera, model, pos)
-{}
+{
+	this->setPos({ 20,0,0 });
+}
 
 void BaseEnemy::update()
 {
 	ActTime++;
-	/*Move();
+	Move();
 	this->setCol({ 1,0,0,1 });
-	if (ActTime >= 100)
+	/*if (ActTime >= 100)
 	{
 		Attack();
 		if (ActTime>=150)
@@ -48,6 +50,7 @@ void BaseEnemy::Move()
 
 void BaseEnemy::Attack()
 {
+	AttackFlag = true;
 	AttackProcess();
 	this->setCol({ 0,0,0,1 });
 }

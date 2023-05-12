@@ -30,7 +30,7 @@ GameMainScene::GameMainScene()
 	PlayerModel = std::make_unique<ObjModel>("Resources/cube/", "cube");
 	player = std::make_unique<Player>(cameraobj.get(), PlayerModel.get());
 	player->setHp(20u);
-	player->setAlive(true);
+	
 
 	// --------------------
 	//エネミー
@@ -49,14 +49,22 @@ void GameMainScene::start()
 	// マウスカーソルは表示する
 	input->changeDispMouseCursorFlag(true);
 
-	player->mycoll.group.emplace_front(player->createCollider());
-	enemy->mycoll.group.emplace_front(enemy->createCollider());
+	player->Mycoll.group.emplace_front(player->createCollider());
+	enemy->Mycoll.group.emplace_front(enemy->createCollider());
+	
+	
 }
 
 void GameMainScene::update()
 {
-
-	cameraobj->update();
+	{
+		cameraobj->update();
+		player->update();
+		player->AtkObj->update();
+		enemy->update();
+		enemy->AtkObj->update();
+	}
+	
 	Playerpos = player->getPos();
 
 	cameraobj->setEye({ Playerpos.x, Playerpos.y + 25, Playerpos.z - 30 });
@@ -67,21 +75,20 @@ void GameMainScene::update()
 	//{
 	//	SceneManager::getInstange()->changeScene<TitleScene>();
 	//}
-
-	player->update();
-
-	enemy->update();
-	enemy->setPos({ 50,0,0 });
-	player->setCol({ 1,1,1,1 });
 	
-	if (player->getAlive())
+	if (enemy->AttackFlag == true)
 	{
-		CollisionMgr::checkHitAll(enemy->mycoll, player->mycoll);
+		CollisionMgr::checkHitAll(enemy->Atkcoll, player->Mycoll);
 	}
-	if (!player->getAlive())
+
+	if (player->AttackFlag == true)
 	{
-		player->setCol({ 0,0,0,1 });
+		player->AtkObj->setCol({ 0,1,0,1 });
+		CollisionMgr::checkHitAll(player->Atkcoll, enemy->Mycoll);
+
 	}
+
+	
 
 }
 
@@ -89,16 +96,17 @@ void GameMainScene::drawFrontSprite()
 {
 	spCom->drawStart(DX12Base::getInstance()->getCmdList());
 	titleBack->drawWithUpdate(DX12Base::ins(), spCom.get());
-	
-	if (player->getAlive())
+
+	/*if (player->getAlive())
 	{
 		player->drawWithUpdate(light.get());
-	}
-
-
+	}*/
+	player->drawWithUpdate(light.get());
+	player->AtkObj->drawWithUpdate(light.get());
 	if (enemy->getAlive())
 	{
 		enemy->drawWithUpdate(light.get());
+		enemy->AtkObj->drawWithUpdate(light.get());
 	}
 
 

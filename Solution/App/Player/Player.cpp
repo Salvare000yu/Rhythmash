@@ -12,6 +12,10 @@ void Player::update()
 {
 	Move();
 	Attack();
+	if (!this->getAlive())
+	{
+		this->setCol({ 0,0,0,1 });
+	}
 }
 
 void Player::Move()
@@ -41,14 +45,11 @@ void Player::Move()
 
 void Player::Attack()
 {
-	if (input->hitKey(DIK_Q))
+	if (input->hitKey(DIK_SPACE))
 	{
 		AttackFlag = true;
 		this->setCol({ 0,0,1,1 });
 	}
-	if (input->hitKey(DIK_E))
-	{
-		
-	}
+
 	AttackProcess();
 }
