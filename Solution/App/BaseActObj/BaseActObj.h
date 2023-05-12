@@ -4,6 +4,7 @@
 #include <CollisionMgr.h>
 #include "3D/Obj/ObjModel.h"
 
+#include "3D/ParticleMgr.h"
 using namespace DirectX;
 
 class BaseActObj
@@ -13,13 +14,14 @@ class BaseActObj
 protected:
 	//移動スピード
 	float MoveSpeed = 1.5;
-	
+
 
 	//
 	int WaitTime = 0;
 
 	//float Rot = 0;
 	Light* light;
+	
 public:
 	//攻撃フラグ
 	bool AttackFlag = false;
@@ -31,6 +33,8 @@ public:
 
 	std::unique_ptr<ObjModel> AtkModel;
 	std::unique_ptr<GameObj> AtkObj;
+
+	std::unique_ptr<ParticleMgr> particlMgr;
 	//基本移動動作
 	void MoveProcess(XMFLOAT3 dir)
 	{
@@ -40,59 +44,66 @@ public:
 		float normal_x = dir.x / length;
 		float normal_z = dir.z / length;
 
-		if (normal_x > 0 || normal_z > 0)
+		//方向ベクトルで大まかな向いてる方向を向かせる
 		{
-			//WDキー同時　右上
-			if (normal_x > 0 && normal_z > 0)
+			if (normal_x > 0 || normal_z > 0)
 			{
-				this->setRotation({ 0,35,0 });
+				//WDキー同時　右上
+				if (normal_x > 0 && normal_z > 0)
+				{
+					this->setRotation({ 0,35,0 });
+				}
+				//Dキー　右
+				else if (normal_x > 0)
+				{
+					this->setRotation({ 0,90,0 });
+				}
+				//Wキー　前
+				else if (normal_z > 0)
+				{
+					this->setRotation({ 0,0,0 });
+				}
 			}
-			//Dキー　右
-			else if (normal_x > 0)
-			{
-				this->setRotation({ 0,90,0 });
-			}
-			//Wキー　前
-			else if (normal_z > 0)
-			{
-				this->setRotation({ 0,0,0 });
-			}
-		}
 
-		else if (normal_x < 0 || normal_z < 0)
-		{
-			//ASキー同時　左下
-			if (normal_x < 0 && normal_z < 0)
+			else if (normal_x < 0 || normal_z < 0)
 			{
-				this->setRotation({ 0,-145,0 });
+				//ASキー同時　左下
+				if (normal_x < 0 && normal_z < 0)
+				{
+					this->setRotation({ 0,-145,0 });
+				}
+				//Aキー　左
+				else if (normal_x < 0)
+				{
+					this->setRotation({ 0,-90,0 });
+				}
+				//Sキー　下
+				else if (normal_z < 0)
+				{
+					this->setRotation({ 0,-180,0 });
+				}
 			}
-			//Aキー　左
-			else if (normal_x < 0)
+			//AWキー同時　左上
+			if (normal_x < 0 && normal_z > 0)
 			{
-				this->setRotation({ 0,-90,0 });
+				this->setRotation({ 0,-35,0 });
 			}
-			//Sキー　下
-			else if (normal_z < 0)
+			//SDキー同時 右下
+			else if (normal_x > 0 && normal_z < 0)
 			{
-				this->setRotation({ 0,-180,0 });
+				this->setRotation({ 0,145,0 });
 			}
-		}
-		//AWキー同時　左上
-		if (normal_x < 0 && normal_z > 0)
-		{
-			this->setRotation({ 0,-35,0 });
-		}
-		//SDキー同時 右下
-		else if (normal_x > 0 && normal_z < 0)
-		{
-			this->setRotation({ 0,145,0 });
-		}
 
+		}
+		//移動加算
 		obj->position.x += normal_x * MoveSpeed;
 		obj->position.z += normal_z * MoveSpeed;
+
+
 		AtkObj->setPos({ obj->position.x ,obj->position.y,obj->position.z + 5 });
 
-		if (normal_x < 0 || normal_z < 0)
+		//プレーヤーの向き回転計算
+	/*	if (normal_x < 0 || normal_z < 0)
 		{
 			if (normal_x < 0 && normal_z < 0)
 			{
@@ -108,7 +119,7 @@ public:
 				normal_z = -normal_z;
 			}
 		}
-		/*Rot = normal_x / normal_z;
+		Rot = normal_x / normal_z;
 		Rot = atanf(Rot);
 		Rot = Rot * (180 / XM_PI);
 		this->setRotation({ 0,Rot,0 });*/
@@ -117,15 +128,17 @@ public:
 
 	void AttackProcess()
 	{
-
+		
 		Mycoll.hitProc = [&](GameObj* obj)
 		{
-				this->setCol({ 1,0,0,1 });
-				if (obj->damage(1u, false))
-				{
-					obj->kill();
-					return;
-				}
+			this->setCol({ 1,0,0,1 });
+			particlMgr->createParticle(particlMgr.get(), this->getPos(),50);
+			if (obj->damage(1u, false))
+			{
+				
+				obj->kill();
+				return;
+			}
 		};
 		this->setCol({ 1,1,1,1 });
 

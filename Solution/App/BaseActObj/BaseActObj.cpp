@@ -8,6 +8,8 @@ BaseActObj::BaseActObj(Camera* camera, ObjModel* model, const DirectX::XMFLOAT3&
 
 	Atkcoll.group.emplace_front(CollisionMgr::ColliderType{ .obj = AtkObj.get(), .colliderR = AtkObj->getScaleF3().z});
 
+	particlMgr = std::make_unique<ParticleMgr>();
+	particlMgr->setCamera(camera);
 	Atkcoll.hitProc = [&](GameObj* obj)
 	{
 	

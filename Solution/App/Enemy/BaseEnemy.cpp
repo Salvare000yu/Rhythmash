@@ -4,12 +4,13 @@ BaseEnemy::BaseEnemy(Camera* camera, ObjModel* model, const DirectX::XMFLOAT3& p
 	:BaseActObj(camera, model, pos)
 {
 	this->setPos({ 20,0,0 });
+	AtkObj->setPos(this->getPos());
 }
 
 void BaseEnemy::update()
 {
 	ActTime++;
-	Move();
+	//Move();
 	this->setCol({ 1,0,0,1 });
 	/*if (ActTime >= 100)
 	{

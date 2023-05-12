@@ -19,5 +19,6 @@ public:
 	void update();
 	void Move()  override;
 	void Attack() override;
+
 };
 
