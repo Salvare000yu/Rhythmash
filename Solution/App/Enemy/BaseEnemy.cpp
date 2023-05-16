@@ -12,15 +12,7 @@ void BaseEnemy::update()
 	ActTime++;
 	//Move();
 	this->setCol({ 1,0,0,1 });
-	/*if (ActTime >= 100)
-	{
-		Attack();
-		if (ActTime>=150)
-		{
-			ActTime = 0;
-		}
-	
-	}*/
+
 	Attack();
 }
 
