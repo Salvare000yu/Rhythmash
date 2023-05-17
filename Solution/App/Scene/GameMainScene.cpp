@@ -44,7 +44,7 @@ GameMainScene::GameMainScene()
 	enemy->setHp(2u);
 	light.reset(new Light());
 
-	const std::vector<std::string> fileNames = { "Resources/Csv/player.csv" };
+	const std::vector<std::string> fileNames = { "Resources/Csv/enemy.csv","Resources/Csv/enemy2.csv","Resources/Csv/enemy3.csv","Resources/Csv/player.csv" };
 	Util::CSVType csvData = Util::loadCsv(fileNames, true, ',', "//");
 	XMFLOAT3 csvpos{};
 	std::vector<XMFLOAT3> enemypos;
@@ -56,9 +56,12 @@ GameMainScene::GameMainScene()
 
 	for (size_t i = 0; i < csvData.size(); i++)
 	{
+		hp = 0;
 		if (csvData[i][0] == "type")
 		{
 			currentType = csvData[i][1];
+			continue;
+
 		} else if (csvData[i][0] == "position")
 		{
 			csvpos.x = std::stof(csvData[i][1]);
@@ -67,11 +70,16 @@ GameMainScene::GameMainScene()
 		} else if (csvData[i][0] == "hp")
 		{
 			hp = std::stof(csvData[i][1]);
+			continue;
+		}else if (csvData[i][0] == "attack")
+		{
+			continue;
 		}
 
 		if (currentType == "enemy")
 		{
 			enemypos.push_back(csvpos);
+			enemy->setHp(static_cast<uint16_t>(hp));
 		} else if (currentType == "enemy2")
 		{
 			enemypos2.push_back(csvpos);
@@ -84,6 +92,7 @@ GameMainScene::GameMainScene()
 			player->setHp(static_cast<uint16_t>(hp));
 		}
 	}
+
 }
 
 void GameMainScene::start()

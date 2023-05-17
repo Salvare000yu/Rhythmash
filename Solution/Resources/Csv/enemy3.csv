@@ -1,4 +1,4 @@
-type,emeny3,,
+type,enemy3,,
 hp,1,,
 attack,1,,
-position,-5,3,1
+position,6,3,1
