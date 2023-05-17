@@ -2,12 +2,13 @@
 #include "BaseActObj/BaseActObj.h"
 #include <memory>
 #include "EnemyBehavior.h"
+#include "Collision/Collision.h"
 class BaseEnemy :
 	public BaseActObj
 {
-	friend class BossBehavior;
+	friend class EnemyBehavior;
 
-	std::unique_ptr<EnemyBehavior> EnemyBehavior;
+	std::unique_ptr<EnemyBehavior> enemyBehavior;
 
 protected:
 	DirectX::XMFLOAT3 dir = { 0,0,0 };
@@ -22,10 +23,11 @@ protected:
 	int waitTime = 0;
 	bool moved = false;
 
-	float maxTargerDistance = 300.f;
+	float maxTargerDistance = 200.0f;
 	// 攻撃対象へのポインタ
 	GameObj* targetObj = nullptr;
 
+	std::function<void()> phase;
 public:
 
 	BaseEnemy(Camera* camera,
@@ -37,6 +39,11 @@ public:
 	inline void setTargetObj(GameObj* obj) { targetObj = obj; }
 
 	inline float getMaxTargetDistance() const { return maxTargerDistance; }
+
+	float TargetFromDistance();
+
+	inline void setPhase(const std::function<void()>& _phase) { this->phase = _phase; }
+
 	void update();
 	void Move()  override;
 	void Attack() override;

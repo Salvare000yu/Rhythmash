@@ -18,7 +18,13 @@ private://メンバ変数
 	//遠い時
 	std::unique_ptr<Sequencer> farTargetPhase;
 
+	std::unique_ptr<Sequencer> movePhase;
+
+	std::unique_ptr<Sequencer> attackPhase;
+
 private://メンバ関数
+
+
 
 	NODE_RESULT Phase_move();
 

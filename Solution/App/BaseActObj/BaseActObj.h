@@ -128,17 +128,6 @@ public:
 	void AttackProcess()
 	{
 		
-		Mycoll.hitProc = [&](GameObj* obj)
-		{
-			this->setCol({ 1,0,0,1 });
-			particlMgr->createParticle(particlMgr.get(), this->getPos(),50);
-			if (obj->damage(1u, false))
-			{
-				
-				obj->kill();
-				return;
-			}
-		};
 		this->setCol({ 1,1,1,1 });
 
 		if (AttackFlag == true)

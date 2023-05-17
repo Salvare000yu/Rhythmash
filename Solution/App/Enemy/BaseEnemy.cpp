@@ -1,19 +1,30 @@
 ﻿#include "BaseEnemy.h"
 #include <random>
 BaseEnemy::BaseEnemy(Camera* camera, ObjModel* model, const DirectX::XMFLOAT3& pos)
-	:BaseActObj(camera, model, pos)
+	:BaseActObj(camera, model, pos), enemyBehavior(std::make_unique<EnemyBehavior>(this))
 {
 	this->setPos({ 20,0,0 });
 	AtkObj->setPos(this->getPos());
+	setPhase([&] { return enemyBehavior->run(); });
+}
+
+float BaseEnemy::TargetFromDistance()
+{
+
+	if (!this->targetObj) { return -1.f; }
+	const XMVECTOR bpos = XMLoadFloat3(&this->calcWorldPos());
+	const XMVECTOR tpos = XMLoadFloat3(&this->targetObj->calcWorldPos());
+
+	return Collision::vecLength(bpos - tpos);
 }
 
 void BaseEnemy::update()
 {
-	ActTime++;
-	//Move();
-	this->setCol({ 1,0,0,1 });
+	//ActTime++;
+	////Move();
+	//this->setCol({ 1,0,0,1 });
 
-	Attack();
+	//Attack();
 }
 
 void BaseEnemy::Move()

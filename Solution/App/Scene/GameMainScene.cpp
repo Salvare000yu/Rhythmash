@@ -40,6 +40,7 @@ GameMainScene::GameMainScene()
 		enemy = std::make_unique<BaseEnemy>(cameraobj.get(), EnemyModel.get());
 
 		enemy->setHp(20u);
+		enemy->setTargetObj(player.get());
 	}
 	
 	light.reset(new Light());
