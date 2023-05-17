@@ -20,7 +20,7 @@ protected:
 	bool alive = true;
 	bool drawFlag = true;
 
-	uint16_t hp = 1ui16;
+	uint16_t hpBar = 1ui16;
 
 	virtual void additionalUpdate() {};
 	virtual void additionalDraw(Light* light) {}
@@ -29,8 +29,8 @@ public:
 	inline void setPipelineStateNum(size_t num) { ppStateNum = num; }
 	inline size_t getPipelineStateNum() const { return ppStateNum; }
 
-	inline void setHp(uint16_t hpNum) { hp = hpNum; }
-	inline uint16_t getHp() const { return hp; }
+	inline void setHp(uint16_t hpNum) { hpBar = hpNum; }
+	inline uint16_t getHp() const { return hpBar; }
 
 	/// @brief ダメージを与える
 	/// @param damegeNum 与えるダメージ数

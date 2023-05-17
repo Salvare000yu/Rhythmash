@@ -1,0 +1,8 @@
+type,enemy2,,
+hp,1,,
+attack,1,,
+position,16,0,3
+position,12,0,3
+position,8,0,3
+position,4,0,3
+position,0,0,3

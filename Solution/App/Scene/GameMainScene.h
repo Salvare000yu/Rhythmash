@@ -13,7 +13,7 @@
 #include "3D/Obj/ObjModel.h"
 #include "GameObject/GameObj.h"
 #include "Camera/CameraObj.h"
-
+#include "Util/Util.h"
 class GameMainScene :
 	public GameScene
 {
@@ -23,6 +23,7 @@ class GameMainScene :
 	std::unique_ptr<SpriteBase> spCom;
 	//std::unique_ptr<Sprite> clear;
 	std::unique_ptr<Sprite> titleBack;
+	std::unique_ptr<Sprite> hpBar;
 	// --------------------
 	// デバッグテキスト
 	// --------------------

@@ -30,7 +30,10 @@ GameMainScene::GameMainScene()
 	PlayerModel = std::make_unique<ObjModel>("Resources/cube/", "cube");
 	player = std::make_unique<Player>(cameraobj.get(), PlayerModel.get());
 	player->setHp(20u);
-	
+	hpBar = std::make_unique<Sprite>(spCom->loadTexture(L"Resources/hp.png"),
+									 spCom.get(),
+							 XMFLOAT2(0.f, 0.f));
+	hpBar->setSize(XMFLOAT2((float)WinAPI::window_width, (float)WinAPI::window_height));
 
 	// --------------------
 	//エネミー
@@ -41,7 +44,46 @@ GameMainScene::GameMainScene()
 	enemy->setHp(2u);
 	light.reset(new Light());
 
+	const std::vector<std::string> fileNames = { "Resources/Csv/player.csv" };
+	Util::CSVType csvData = Util::loadCsv(fileNames, true, ',', "//");
+	XMFLOAT3 csvpos{};
+	std::vector<XMFLOAT3> enemypos;
+	std::vector<XMFLOAT3> enemypos2;
+	std::vector<XMFLOAT3> enemypos3;
+	std::vector<XMFLOAT3> playerpos;
+	std::string currentType;
+	float hp = 0.0f;
 
+	for (size_t i = 0; i < csvData.size(); i++)
+	{
+		if (csvData[i][0] == "type")
+		{
+			currentType = csvData[i][1];
+		} else if (csvData[i][0] == "position")
+		{
+			csvpos.x = std::stof(csvData[i][1]);
+			csvpos.y = std::stof(csvData[i][2]);
+			csvpos.z = std::stof(csvData[i][3]);
+		} else if (csvData[i][0] == "hp")
+		{
+			hp = std::stof(csvData[i][1]);
+		}
+
+		if (currentType == "enemy")
+		{
+			enemypos.push_back(csvpos);
+		} else if (currentType == "enemy2")
+		{
+			enemypos2.push_back(csvpos);
+		} else if (currentType == "enemy3")
+		{
+			enemypos3.push_back(csvpos);
+		} else if (currentType == "player")
+		{
+			playerpos.push_back(csvpos);
+			player->setHp(static_cast<uint16_t>(hp));
+		}
+	}
 }
 
 void GameMainScene::start()
@@ -96,7 +138,7 @@ void GameMainScene::drawFrontSprite()
 {
 	spCom->drawStart(DX12Base::getInstance()->getCmdList());
 	titleBack->drawWithUpdate(DX12Base::ins(), spCom.get());
-
+	hpBar->drawWithUpdate(DX12Base::ins(), spCom.get());
 	/*if (player->getAlive())
 	{
 		player->drawWithUpdate(light.get());

@@ -45,26 +45,13 @@ GamePlayScene::GamePlayScene() :
 	player->setPos({ 0,0,0 });
 	player->setScaleF3({ 1,1,1 });
 
+	
+	
+	
 
-	Util::CSVType csvData = Util::loadCsv("Resources/Csv/enemy.csv", true, ',', "//");
 
-	XMFLOAT3 csvpos{};
-
-	std::vector<XMFLOAT3>enemypos;
-
-	for (size_t i = 0; i < csvData.size(); i++)
-	{
-		if (csvData[i][0] == "position")
-		{
-			csvpos.x = std::stof(csvData[i][1]);
-			csvpos.y = std::stof(csvData[i][2]);
-			csvpos.z = std::stof(csvData[i][3]);
-			if (csvData[0][1] == "enemy")
-			{
-				enemypos.push_back(csvpos);
-			}
-		}
-	}
+	
+	
 	//cameraObj->setParentObj(objs.at("player").get());
 	cameraObj->setParentObj(player.get());	// 上と同じ結果になる
 
@@ -188,6 +175,7 @@ void GamePlayScene::drawObj3d()
 
 void GamePlayScene::drawFrontSprite()
 {
+	
 	ImGui::SetNextWindowSize(ImVec2(400, 260));
 	ImGui::Begin("自機", nullptr, DX12Base::imGuiWinFlagsDef);
 	{
@@ -270,4 +258,5 @@ void GamePlayScene::drawFrontSprite()
 		}
 	}
 	ImGui::End();
+	
 }

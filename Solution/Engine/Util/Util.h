@@ -22,7 +22,7 @@ public:
 	/// @param divChar フィールドの区切り文字
 	/// @param commentStartStr コメント開始文字列
 	/// @return 読み込んだcsvの中身。失敗したらデフォルトコンストラクタで初期化された空のvector2次元配列が返る
-	static CSVType loadCsv(const std::string& csvFilePath,
+	static CSVType loadCsv(const std::vector<std::string>& csvFilePath,
 						   bool commentFlag = true,
 						   char divChar = ',',
 						   const std::string& commentStartStr = "//");

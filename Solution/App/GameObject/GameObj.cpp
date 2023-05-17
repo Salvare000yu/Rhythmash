@@ -4,14 +4,14 @@ using namespace DirectX;
 
 bool GameObj::damage(uint16_t damegeNum, bool killFlag)
 {
-	if (damegeNum >= hp)
+	if (damegeNum >= hpBar)
 	{
 		//hp = 0u;
 		if (killFlag) { kill(); }
 		return true;
 	}
 
-	hp -= damegeNum;
+	hpBar -= damegeNum;
 	return false;
 }
 
