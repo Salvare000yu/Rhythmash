@@ -20,8 +20,8 @@ EnemyBehavior::EnemyBehavior(BaseEnemy* enemy) :
 	farTargetPhase = std::make_unique<Sequencer>();
 	//farTargetPhase->addChild(Task([&] { return this->enemy->TargetFromDistance() > this->enemy->getMaxTargetDistance() * 0.5f ? NODE_RESULT::SUCCESS : NODE_RESULT::FAIL; }));
 	farTargetPhase->addChild(*movePhase);
-
-	addChild(*nearTargetPhase);
+	farTargetPhase->addChild(*attackPhase);
+	//addChild(*nearTargetPhase);
 	addChild(*farTargetPhase);
 }
 
@@ -37,7 +37,7 @@ NODE_RESULT EnemyBehavior::Phase_move()
 
 NODE_RESULT EnemyBehavior::Phase_Attack()
 {
-	this->enemy->Attack();
+ 	this->enemy->Attack();
 	return NODE_RESULT::SUCCESS;
 }
 

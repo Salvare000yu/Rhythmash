@@ -5,7 +5,8 @@ BaseEnemy::BaseEnemy(Camera* camera, ObjModel* model, const DirectX::XMFLOAT3& p
 {
 	this->setPos({ 20,0,0 });
 	AtkObj->setPos(this->getPos());
-	setPhase([&] { return enemyBehavior->run(); });
+	//setPhase([&] { return enemyBehavior->run(); });
+	
 }
 
 float BaseEnemy::TargetFromDistance()
@@ -21,9 +22,9 @@ float BaseEnemy::TargetFromDistance()
 void BaseEnemy::update()
 {
 	//ActTime++;
-	////Move();
+	//Move();
 	//this->setCol({ 1,0,0,1 });
-
+	enemyBehavior->run();
 	//Attack();
 }
 
