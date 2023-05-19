@@ -24,11 +24,6 @@ void Player::update()
 	
 }
 
-void Player::Draw()
-{
-
-}
-
 void Player::Move()
 {
 	dir = { 0,0,0 };
