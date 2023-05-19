@@ -1,6 +1,7 @@
 ﻿#include "Player.h"
 #include "Enemy/BaseEnemy.h"
 #include <InputMgr.h>
+#include <cmath>
 
 Player::Player(Camera* camera,
 						 ObjModel* model,
@@ -62,14 +63,17 @@ void Player::Attack()
 
 void Player::Step()
 {
+	float stepRange = 5.0f;
+	float subRate = 0.5f;
 	if (input->triggerKey(DIK_LSHIFT))
 	{
-		SetSpeed(5.0f);
+		SetSpeed(stepRange);
 	}
 	float speed = GetSpeed();
-	if (speed >= 2.0f)
+	if (speed > MOVE_SPEED)
 	{
-		speed -= 0.5f;
+		speed -= subRate;
+		speed = std::max(speed, MOVE_SPEED);
 	}
 	SetSpeed(speed);
 }

@@ -11,6 +11,8 @@ class Player
 {
 	Input* input = nullptr;
 
+	const float MOVE_SPEED = GetSpeed();
+
 	DirectX::XMFLOAT3 dir = { 0,0,0 };
 
 	bool isWeekAttack;
