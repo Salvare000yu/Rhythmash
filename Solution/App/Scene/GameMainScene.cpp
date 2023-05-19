@@ -29,7 +29,7 @@ GameMainScene::GameMainScene()
 
 	PlayerModel = std::make_unique<ObjModel>("Resources/cube/", "cube");
 	player = std::make_unique<Player>(cameraobj.get(), PlayerModel.get());
-	player->setHp(20u);
+	
 	hpBar = std::make_unique<Sprite>(spCom->loadTexture(L"Resources/hp.png"),
 									 spCom.get(),
 							 XMFLOAT2(0.f, 0.f));
@@ -41,7 +41,6 @@ GameMainScene::GameMainScene()
 	EnemyModel = std::make_unique<ObjModel>("Resources/enemy/", "enemy");
 	enemy = std::make_unique<BaseEnemy>(cameraobj.get(), EnemyModel.get());
 
-	enemy->setHp(2u);
 	light.reset(new Light());
 
 	const std::vector<std::string> fileNames = { "Resources/Csv/enemy.csv","Resources/Csv/enemy2.csv","Resources/Csv/enemy3.csv","Resources/Csv/player.csv" };
@@ -50,13 +49,13 @@ GameMainScene::GameMainScene()
 	std::vector<XMFLOAT3> enemypos;
 	std::vector<XMFLOAT3> enemypos2;
 	std::vector<XMFLOAT3> enemypos3;
-	std::vector<XMFLOAT3> playerpos;
+	XMFLOAT3 playerpos;
 	std::string currentType;
 	float hp = 0.0f;
-
+	float attack = 0.0f;
 	for (size_t i = 0; i < csvData.size(); i++)
 	{
-		hp = 0;
+		
 		if (csvData[i][0] == "type")
 		{
 			currentType = csvData[i][1];
@@ -73,25 +72,44 @@ GameMainScene::GameMainScene()
 			continue;
 		}else if (csvData[i][0] == "attack")
 		{
-			continue;
+			attack = std::stof(csvData[i][1]);
 		}
 
 		if (currentType == "enemy")
 		{
 			enemypos.push_back(csvpos);
-			enemy->setHp(static_cast<uint16_t>(hp));
-		} else if (currentType == "enemy2")
+			if (hp > 0) { enemy->setHp(static_cast<uint16_t>(hp)); }
+			if (attack > 0) { enemy->setAttack(static_cast<uint16_t>(hp)); }
+			hp = 0;
+			attack = 0;
+		}/* else if (currentType == "enemy2")
 		{
 			enemypos2.push_back(csvpos);
-		} else if (currentType == "enemy3")
+			if (hp > 0) { enemy2->setHp(static_cast<uint16_t>(hp)); }
+			if (attack > 0) { enemy2->setAttack(static_cast<uint16_t>(attack)); }
+			hp = 0;
+			attack = 0;
+		}*//* else if (currentType == "enemy3")
 		{
 			enemypos3.push_back(csvpos);
-		} else if (currentType == "player")
+			if (hp > 0) { enemy3->setHp(static_cast<uint16_t>(hp)); }
+			if (attack > 0) { enemy3->setAttack(static_cast<uint16_t>(attack)); }
+			hp = 0;
+			attack=0;
+		}*/ else if (currentType == "player")
 		{
-			playerpos.push_back(csvpos);
-			player->setHp(static_cast<uint16_t>(hp));
+			playerpos = csvpos;
+			if (hp > 0){ player->setHp(static_cast<uint16_t>(hp)); }
+			if (attack > 0) { player->setAttack(static_cast<uint16_t>(attack)); }
+			hp = 0;
+			attack = 0;
 		}
 	}
+	
+	player->setPos(playerpos);
+	player->getHp();
+	player->getAttack();
+	enemy->getHp();
 
 }
 
@@ -138,6 +156,21 @@ void GameMainScene::update()
 		CollisionMgr::checkHitAll(player->Atkcoll, enemy->Mycoll);
 
 	}
+
+	
+	if (hpbar == 0)
+	{
+		hpbar = player->getHp();
+	}
+
+	if (hpbar > 0)
+	{
+		hpbar -= 1;
+
+		hpBar->setSize(XMFLOAT2(64 * hpbar, 360));
+	}
+	
+	
 
 	
 

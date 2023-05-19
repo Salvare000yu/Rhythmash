@@ -42,7 +42,7 @@ GamePlayScene::GamePlayScene() :
 
 	auto& player =
 		objs.emplace("player", std::make_unique<GameObj>((Camera*)cameraObj.get(), (ObjModel*)playerModel.get())).first->second;
-	player->setPos({ 0,0,0 });
+	//player->setPos({ 0,0,0 });
 	player->setScaleF3({ 1,1,1 });
 
 	

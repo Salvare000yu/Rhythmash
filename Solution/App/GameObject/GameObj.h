@@ -21,6 +21,7 @@ protected:
 	bool drawFlag = true;
 
 	uint16_t hpBar = 1ui16;
+	uint16_t attack = 2ui16;
 
 	virtual void additionalUpdate() {};
 	virtual void additionalDraw(Light* light) {}
@@ -31,6 +32,9 @@ public:
 
 	inline void setHp(uint16_t hpNum) { hpBar = hpNum; }
 	inline uint16_t getHp() const { return hpBar; }
+	
+	inline void setAttack(uint16_t attackNum) { attack = attackNum; }
+	inline uint16_t getAttack() const { return attack; }
 
 	/// @brief ダメージを与える
 	/// @param damegeNum 与えるダメージ数

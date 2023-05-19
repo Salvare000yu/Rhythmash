@@ -51,5 +51,6 @@ public:
 	void start() override;
 	void update() override;
 	void drawFrontSprite() override;
+	float hpbar = 0;
 };
 
