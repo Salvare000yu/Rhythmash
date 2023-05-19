@@ -1,4 +1,5 @@
 ﻿#include "Player.h"
+#include <InputMgr.h>
 
 Player::Player(Camera* camera,
 						 ObjModel* model,
@@ -50,7 +51,7 @@ void Player::update()
 	
 	
 	Move();
-
+	Step();
 	
 }
 
@@ -86,3 +87,17 @@ void Player::Move()
 
 void Player::Attack()
 {}
+
+void Player::Step()
+{
+	if (input->triggerKey(DIK_LSHIFT))
+	{
+		SetSpeed(5.0f);
+	}
+	float speed = GetSpeed();
+	if (speed >= 2.0f)
+	{
+		speed -= 0.5f;
+	}
+	SetSpeed(speed);
+}

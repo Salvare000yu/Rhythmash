@@ -34,5 +34,6 @@ public:
 
 	void Move()  override;
 	void Attack() override;
+	void Step();
 };
 
