@@ -6,7 +6,7 @@ bool GameObj::damage(uint16_t damegeNum, bool killFlag)
 {
 	if (damegeNum >= hp)
 	{
-		hp = 0u;
+		//hp = 0u;
 		if (killFlag) { kill(); }
 		return true;
 	}

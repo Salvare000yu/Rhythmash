@@ -116,6 +116,7 @@
     <ClCompile Include="App\BaseActObj\BaseActObj.cpp" />
     <ClCompile Include="App\CollisionMgr.cpp" />
     <ClCompile Include="App\InputMgr.cpp" />
+    <ClCompile Include="App\Enemy\BaseEnemy.cpp" />
     <ClCompile Include="Engine\3D\BaseObj.cpp" />
     <ClCompile Include="Engine\Camera\Camera.cpp" />
     <ClCompile Include="Engine\Camera\CameraObj.cpp" />
