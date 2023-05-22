@@ -21,7 +21,7 @@ protected:
 	bool drawFlag = true;
 
 	uint16_t hpBar = 1ui16;
-	uint16_t attack = 2ui16;
+	uint16_t attack = 1ui16;
 
 	virtual void additionalUpdate() {};
 	virtual void additionalDraw(Light* light) {}

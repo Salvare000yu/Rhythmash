@@ -39,12 +39,15 @@ GameMainScene::GameMainScene()
 	//エネミー
 	// --------------------
 	EnemyModel = std::make_unique<ObjModel>("Resources/enemy/", "enemy");
+
 	enemy = std::make_unique<BaseEnemy>(cameraobj.get(), EnemyModel.get());
 
 	light.reset(new Light());
 
-	const std::vector<std::string> fileNames = { "Resources/Csv/enemy.csv","Resources/Csv/enemy2.csv","Resources/Csv/enemy3.csv","Resources/Csv/player.csv" };
+	//csvの読み込み
+	const std::vector<std::string> fileNames = { "Resources/Csv/enemy.csv","Resources/Csv/player.csv" };
 	Util::CSVType csvData = Util::loadCsv(fileNames, true, ',', "//");
+	
 	XMFLOAT3 csvpos{};
 	std::vector<XMFLOAT3> enemypos;
 	std::vector<XMFLOAT3> enemypos2;
@@ -53,6 +56,8 @@ GameMainScene::GameMainScene()
 	std::string currentType;
 	float hp = 0.0f;
 	float attack = 0.0f;
+
+
 	for (size_t i = 0; i < csvData.size(); i++)
 	{
 		
@@ -73,15 +78,17 @@ GameMainScene::GameMainScene()
 		}else if (csvData[i][0] == "attack")
 		{
 			attack = std::stof(csvData[i][1]);
+			continue;
 		}
 
 		if (currentType == "enemy")
 		{
 			enemypos.push_back(csvpos);
 			if (hp > 0) { enemy->setHp(static_cast<uint16_t>(hp)); }
-			if (attack > 0) { enemy->setAttack(static_cast<uint16_t>(hp)); }
+			if (attack > 0) { enemy->setAttack(static_cast<uint16_t>(attack)); }
 			hp = 0;
 			attack = 0;
+			
 		}/* else if (currentType == "enemy2")
 		{
 			enemypos2.push_back(csvpos);
@@ -105,10 +112,10 @@ GameMainScene::GameMainScene()
 			attack = 0;
 		}
 	}
-	
 	player->setPos(playerpos);
-	player->getHp();
 	player->getAttack();
+	player->getHp();
+	enemy->getAttack();
 	enemy->getHp();
 
 }
@@ -156,24 +163,19 @@ void GameMainScene::update()
 		CollisionMgr::checkHitAll(player->Atkcoll, enemy->Mycoll);
 
 	}
-
 	
-	if (hpbar == 0)
+	if (hpbar < 0)
 	{
 		hpbar = player->getHp();
 	}
 
 	if (hpbar > 0)
 	{
-		hpbar -= 1;
+		hpbar -= 0.1f;
 
 		hpBar->setSize(XMFLOAT2(64 * hpbar, 360));
 	}
 	
-	
-
-	
-
 }
 
 void GameMainScene::drawFrontSprite()
