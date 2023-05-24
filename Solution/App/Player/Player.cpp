@@ -47,7 +47,10 @@ void Player::Attack()
 {
 	if (input->hitKey(DIK_SPACE))
 	{
-		AttackFlag = true;
+		if (AttackFlag == false)
+		{
+			AttackFlag = true;
+		}
 		this->setCol({ 0,0,1,1 });
 	}
 

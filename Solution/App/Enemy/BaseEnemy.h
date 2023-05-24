@@ -11,7 +11,7 @@ class BaseEnemy :
 	std::unique_ptr<EnemyBehavior> enemyBehavior;
 
 protected:
-	DirectX::XMFLOAT3 dir = { 0,0,0 };
+	XMFLOAT3 dir = { 0,0,0 };
 
 	float minX = -30.0f;
 	float maxX = 30.0f;
@@ -19,13 +19,15 @@ protected:
 	float minZ = -30.0f;
 	float maxZ = 30.0f;
 
-	float ActTime = 0;
 	int waitTime = 0;
-	bool moved = false;
+	bool movestop = false;
 
-	float maxTargerDistance = 200.0f;
 	// 攻撃対象へのポインタ
 	GameObj* targetObj = nullptr;
+
+
+	XMFLOAT3 pos = { 0,0,0 };
+	XMFLOAT3 tpos = { 0,0,0 };
 
 	std::function<void()> phase;
 public:
@@ -38,13 +40,17 @@ public:
 
 	inline void setTargetObj(GameObj* obj) { targetObj = obj; }
 
-	inline float getMaxTargetDistance() const { return maxTargerDistance; }
-
+	//ターゲットとの距離間
 	float TargetFromDistance();
 
 	inline void setPhase(const std::function<void()>& _phase) { this->phase = _phase; }
 
 	void update();
+	//ターゲット方向に移動
+	void MovetoTarget();
+	//ランダムに移動地点を生成して移動
+	void RandomMove();
+
 	void Move()  override;
 	void Attack() override;
 };

@@ -20,7 +20,7 @@ protected:
 
 	//float Rot = 0;
 	Light* light;
-	
+
 public:
 	//攻撃フラグ
 	bool AttackFlag = false;
@@ -39,6 +39,10 @@ public:
 	{
 		//前後左右のみの長さ
 		float length = (dir.x * dir.x + dir.z * dir.z);
+		if (length == 0)
+		{
+			return;
+		}
 		//正規化
 		float normal_x = dir.x / length;
 		float normal_z = dir.z / length;
@@ -127,13 +131,14 @@ public:
 
 	void AttackProcess()
 	{
-		
+
 		this->setCol({ 1,1,1,1 });
 
 		if (AttackFlag == true)
 		{
+			
 			WaitTime++;
-			if (WaitTime >= 30)
+			if (WaitTime >= 5)
 			{
 				AttackFlag = false;
 				AtkObj->setCol({ 1,1,1,1 });

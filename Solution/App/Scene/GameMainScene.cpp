@@ -41,6 +41,7 @@ GameMainScene::GameMainScene()
 
 		enemy->setHp(20u);
 		enemy->setTargetObj(player.get());
+		enemy->setPos({ 20,0,0 });
 	}
 	
 	light.reset(new Light());
@@ -61,11 +62,14 @@ void GameMainScene::update()
 {
 	//各アップデート
 	{
+		enemy->setTargetObj(player.get());
 		cameraobj->update();
 		player->update();
 		player->AtkObj->update();
 		enemy->update();
 		enemy->AtkObj->update();
+		
+		
 	}
 	//カメラ設定
 	{
