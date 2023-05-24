@@ -24,6 +24,8 @@ Player::Player(Camera* camera,
 			update_proc = [] {};
 			this->setCol({ 0,0,0,1 });
 		}
+
+		Step();
 	};
 }
 
@@ -74,4 +76,18 @@ void Player::Attack()
 	{
 		this->setCol({ 1,1,1,1 });
 	}
+}
+
+void Player::Step()
+{
+	if (input->triggerKey(DIK_LSHIFT))
+	{
+		SetSpeed(5.0f);
+	}
+	float speed = GetSpeed();
+	if (speed >= 2.0f)
+	{
+		speed -= 0.5f;
+	}
+	SetSpeed(speed);
 }

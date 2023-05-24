@@ -3,24 +3,26 @@
 InputMgr::InputMgr()
 {
 	input = Input::getInstance();
+	rate = 1000.0f;
 }
 
 bool InputMgr::GetInput(ACTION act)
 {
 	bool inp = false;
+	//それぞれのアクションの入力判定を取る
 	switch (act)
 	{
 	case ACTION::WEEKATTACK:
-		if (input->triggerMouseButton(Input::PAD::X) && input->triggerMouseButton(Input::MOUSE::LEFT))inp = true;
+		if (input->triggerPadButton(Input::PAD::X) && input->triggerMouseButton(Input::MOUSE::LEFT))inp = true;
 		break;
 	case ACTION::HARDATTACK:
-		if (input->triggerMouseButton(Input::PAD::Y) && input->triggerMouseButton(Input::MOUSE::RIGHT))inp = true;
+		if (input->triggerPadButton(Input::PAD::Y) && input->triggerMouseButton(Input::MOUSE::RIGHT))inp = true;
 		break;
 	case ACTION::JUMP:
-		if (input->triggerMouseButton(Input::PAD::A) && input->triggerKey(DIK_SPACE))inp = true;
+		if (input->triggerPadButton(Input::PAD::A) && input->triggerKey(DIK_SPACE))inp = true;
 		break;
 	case ACTION::STEP:
-		if (input->triggerMouseButton(Input::PAD::RB) && input->triggerKey(DIK_LSHIFT))inp = true;
+		if (input->triggerPadButton(Input::PAD::RB) && input->triggerKey(DIK_LSHIFT))inp = true;
 		break;
 	default:
 		inp = false;
@@ -31,28 +33,40 @@ bool InputMgr::GetInput(ACTION act)
 
 DirectX::XMFLOAT2 InputMgr::GetThumbValue(ACTION act)
 {
-	DirectX::XMFLOAT2 inp = {};
-	float max = 32767.0f;
+	DirectX::XMFLOAT2 inp = DirectX::XMFLOAT2(0.0f, 0.0f);
+	float max = 1.0f;
 	switch (act)
 	{
 	case ACTION::MOVE:
-		inp.x = static_cast<float>(input->hitPadLStickX());
-		inp.y = static_cast<float>(input->hitPadLStickY());
+		//コントローラー入力を得る
+		inp = input->hitPadLStickRaito();
 
-		if (input->hitKey(DIK_W))inp.y = max;
-		if (input->hitKey(DIK_S))inp.y = -max;
-		if (input->hitKey(DIK_A))inp.x = max;
-		if (input->hitKey(DIK_D))inp.x = -max;
+		//コントローラが入力されていなかったらキー入力を得る
+		if (inp.x == 0.0f && inp.y == 0.0f)
+		{
+			if (input->hitKey(DIK_W))inp.y = max;
+			if (input->hitKey(DIK_S))inp.y = -max;
+			if (input->hitKey(DIK_D))inp.x = max;
+			if (input->hitKey(DIK_A))inp.x = -max;
+		}
 		break;
 	case ACTION::CAMERA:
-		inp.x = static_cast<float>(input->hitPadRStickX());
-		inp.y = static_cast<float>(input->hitPadRStickY());
+		//コントローラー入力を得る
+		inp = input->hitPadRStickRaito();
+
+		//コントローラーが入力されていなかったらマウス移動量を得る
+		if (inp.x == 0.0f && inp.y == 0.0f)
+		{
+			inp.x = static_cast<float>(input->getMouseMove().x);
+			inp.y = static_cast<float>(input->getMouseMove().y);
+			inp.x /= rate;
+			inp.y /= rate;
+		}
+
 		break;
 	default:
 		break;
 	}
-	inp.x /= max;
-	inp.y /= max;
 
 	return inp;
 }

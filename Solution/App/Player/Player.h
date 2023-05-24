@@ -21,5 +21,6 @@ public:
 	void additionalUpdate() override;
 	void Move()  override;
 	void Attack() override;
+	void Step();
 };
 
