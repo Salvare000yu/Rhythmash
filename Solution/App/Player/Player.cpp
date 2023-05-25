@@ -3,62 +3,81 @@
 #include <InputMgr.h>
 #include <cmath>
 
+#include <Input/Input.h>
+
+using namespace DirectX;
+
 Player::Player(Camera* camera,
 						 ObjModel* model,
-						 const DirectX::XMFLOAT3& pos)
-	:BaseActObj(camera, model, pos)
+						 const DirectX::XMFLOAT3& pos) :
+	BaseActObj(camera, model, pos),
+	input(Input::ins())
 {
-	input = Input::getInstance();
+	moveSpeed = 20.f;
+
+	update_proc =
+		[&]
+	{
+		Move();
+		Attack();
+
+		if (!this->getAlive())
+		{
+			update_proc = [] {};
+			this->setCol({ 0,0,0,1 });
+		}
+
+		Step();
+	};
 }
 
-void Player::update()
+void Player::additionalUpdate()
 {
-	Move();
-
-	Attack();
-	if (!this->getAlive())
-	{
-		this->setCol({ 0,0,0,1 });
-	}
-
-	Step();
-	
+	update_proc();
 }
 
 void Player::Move()
 {
-	dir = { 0,0,0 };
+	bool moved = false;
+	XMFLOAT3 dir = { 0,0,0 };
 
 	if (input->hitKey(DIK_W))
 	{
-		dir.z = 5;
-		MoveProcess(dir);
+		dir.z = 1.f;
+		moved = true;
 	} else if (input->hitKey(DIK_S))
 	{
-		dir.z = -5;
-		MoveProcess(dir);
+		dir.z = -1.f;
+		moved = true;
 	}
 
 	if (input->hitKey(DIK_D))
 	{
-		dir.x = 5;
-		MoveProcess(dir);
+		dir.x = 1.f;
+		moved = true;
 	} else if (input->hitKey(DIK_A))
 	{
-		dir.x = -5;
-		MoveProcess(dir);
+		dir.x = -1.f;
+		moved = true;
 	}
+
+	if (moved) { MoveProcess(dir); }
 }
 
 void Player::Attack()
 {
 	if (input->hitKey(DIK_SPACE))
 	{
-		AttackFlag = true;
+		attackFlag = true;
 		this->setCol({ 0,0,1,1 });
 	}
 
 	AttackProcess();
+
+	if (!attackFlag)
+	{
+		this->setCol({ 1,1,1,1 });
+	}
 }
 
 void Player::Step()

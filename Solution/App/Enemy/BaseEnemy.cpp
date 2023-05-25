@@ -1,56 +1,65 @@
 ﻿#include "BaseEnemy.h"
-#include <random>
+#include <Util/RandomNum.h>
+#include <BehaviorTree/Sequencer.h>
+
+using namespace DirectX;
+
 BaseEnemy::BaseEnemy(Camera* camera, ObjModel* model, const DirectX::XMFLOAT3& pos)
 	:BaseActObj(camera, model, pos)
 {
 	this->setPos({ 20,0,0 });
+
+	attackProc = std::make_unique<Sequencer>();
+	attackProc->addChild(Task([&]
+							  {
+								  if (actFrame > 100ui16)
+								  {
+									  attackFlag = true;
+									  return NODE_RESULT::SUCCESS;
+								  }
+								  ++actFrame;
+								  return NODE_RESULT::RUNNING;
+							  }));
+	attackProc->addChild(Task([&]
+							  {
+								  Attack();
+
+								  if (!attackFlag)
+								  {
+									  actFrame = 0ui16;
+									  return NODE_RESULT::SUCCESS;
+								  }
+								  return NODE_RESULT::RUNNING;
+							  }));
 }
 
-void BaseEnemy::update()
+void BaseEnemy::additionalUpdate()
 {
-	ActTime++;
 	Move();
 	this->setCol({ 1,0,0,1 });
-	/*if (ActTime >= 100)
-	{
-		Attack();
-		if (ActTime>=150)
-		{
-			ActTime = 0;
-		}
 	
-	}*/
-	Attack();
+	attackProc->run();
 }
 
 void BaseEnemy::Move()
 {
-
-	if (moved == false)
+	if (moved)
 	{
-
-		std::random_device rd;
-		std::mt19937 gen(rd());
-		std::uniform_real_distribution<float> random_posX(minX, maxX);
-		std::uniform_real_distribution<float> random_posZ(minZ, maxZ);
-		dir = { random_posX(gen) ,0.0f,random_posZ(gen) };
-		waitTime = 0;
-		moved = true;
-
-	} else if (moved == true)
-	{
-		waitTime++;
-		if (waitTime >= 100)
+		if (++waitFrame >= 100)
 		{
 			moved = false;
 		}
+	} else
+	{
+		dir = XMFLOAT3(RandomNum::getRandf(minX, maxX), 0.0f, RandomNum::getRandf(minZ, maxZ));
+		waitFrame = 0;
+		moved = true;
 	}
 	MoveProcess(dir);
 }
 
 void BaseEnemy::Attack()
 {
-	AttackFlag = true;
 	AttackProcess();
 	this->setCol({ 0,0,0,1 });
 }
