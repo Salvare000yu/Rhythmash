@@ -67,7 +67,7 @@ void Player::Step()
 	float subRate = 0.5f;
 	if (input->triggerKey(DIK_LSHIFT))
 	{
-		SetSpeed(stepRange);
+		SetSpeed(stepRange);	
 	}
 	float speed = GetSpeed();
 	if (speed > MOVE_SPEED)
