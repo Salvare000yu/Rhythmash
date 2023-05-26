@@ -2,6 +2,7 @@
 #include "Enemy/BaseEnemy.h"
 #include <InputMgr.h>
 #include <cmath>
+#include <Util/Timer.h>
 
 #include <Input/Input.h>
 
@@ -82,9 +83,9 @@ void Player::Attack()
 
 void Player::Step()
 {
-	float stepRange = 5.0f;
-	float subRate = 0.5f;
-	if (input->triggerKey(DIK_LSHIFT))
+	float stepRange = 45.0f;
+	float subRate = 5.0f;
+	if (input->triggerKey(DIK_LSHIFT) && judgeRet)
 	{
 		SetSpeed(stepRange);	
 	}

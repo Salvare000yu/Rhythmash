@@ -14,6 +14,7 @@ class Player
 	const float MOVE_SPEED = GetSpeed();
 
 	DirectX::XMFLOAT3 dir = { 0,0,0 };
+	bool judgeRet = false;
 
 public:
 	Player(Camera* camera,
@@ -25,5 +26,6 @@ public:
 	void Move()  override;
 	void Attack() override;
 	void Step();
+	void setJudge(bool judge) { judgeRet = judge; }
 };
 

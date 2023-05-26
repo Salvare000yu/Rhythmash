@@ -42,7 +42,7 @@ public:
 	virtual void Move() = 0;
 	virtual void Attack() = 0;
 
-	float GetSpeed() { return MoveSpeed; }
-	void SetSpeed(float speed) { MoveSpeed = speed; }
+	float GetSpeed() { return moveSpeed; }
+	void SetSpeed(float speed) { moveSpeed = speed; }
 };
 
