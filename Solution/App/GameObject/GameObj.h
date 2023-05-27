@@ -2,10 +2,11 @@
 #include <DirectXMath.h>
 #include <memory>
 #include "System/DX12Base.h"
-#include "3D/Light.h"
+#include "3D/Light/Light.h"
 
 #include <3D/BaseObj.h>
 #include <3D/Obj/Object3d.h>
+#include <unordered_map>
 
 /// @brief ゲームオブジェクト基底クラス
 class GameObj
@@ -17,6 +18,8 @@ protected:
 
 	std::unique_ptr<Object3d> objObject;
 
+	std::unordered_map<std::string, std::shared_ptr<GameObj>> otherObj;
+
 	bool alive = true;
 	bool drawFlag = true;
 
@@ -26,6 +29,9 @@ protected:
 	virtual void additionalDraw(Light* light) {}
 
 public:
+	inline void setPipelineStateNum(size_t num) { ppStateNum = num; }
+	inline size_t getPipelineStateNum() const { return ppStateNum; }
+
 	inline void setHp(uint16_t hpNum) { hp = hpNum; }
 	inline uint16_t getHp() const { return hp; }
 
@@ -117,6 +123,9 @@ public:
 	}
 
 	inline DirectX::XMFLOAT3 calcWorldPos() const { return obj->calcWorldPos(); }
+
+	/// @return 移動量
+	DirectX::XMFLOAT3 move(const DirectX::XMVECTOR& dirNormal, float speed, bool moveYFlag = false);
 
 	/// @brief 視線方向に前進
 	/// @param moveVel 移動量

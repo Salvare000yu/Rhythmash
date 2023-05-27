@@ -1,7 +1,8 @@
 ﻿#pragma once
 #include <DirectXMath.h>
 #include <Camera/Camera.h>
-#include <3D/Light.h>
+#include <3D/Light/Light.h>
+
 class BaseObj
 {
 protected:

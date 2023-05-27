@@ -11,7 +11,7 @@ class BaseEnemy :
 	std::unique_ptr<EnemyBehavior> enemyBehavior;
 
 protected:
-	XMFLOAT3 dir = { 0,0,0 };
+	DirectX::XMFLOAT3 dir = { 0,0,0 };
 
 	float minX = -30.0f;
 	float maxX = 30.0f;

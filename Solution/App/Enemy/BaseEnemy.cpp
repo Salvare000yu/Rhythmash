@@ -1,5 +1,9 @@
 ﻿#include "BaseEnemy.h"
-#include <random>
+#include <Util/RandomNum.h>
+#include <BehaviorTree/Sequencer.h>
+
+using namespace DirectX;
+
 BaseEnemy::BaseEnemy(Camera* camera, ObjModel* model, const DirectX::XMFLOAT3& pos)
 	:BaseActObj(camera, model, pos), enemyBehavior(std::make_unique<EnemyBehavior>(this))
 {
@@ -90,17 +94,18 @@ void BaseEnemy::RandomMove()
 		{
 			movestop = false;
 		}
+	} else
+	{
+		dir = XMFLOAT3(RandomNum::getRandf(minX, maxX), 0.0f, RandomNum::getRandf(minZ, maxZ));
+		waitFrame = 0;
+		moved = true;
 	}
 
 
 }
 
 void BaseEnemy::Attack()
-{
-	if (AttackFlag == false)
-	{
-		AttackFlag = true;
-	}
+	AttackFlag = true; 
 	AttackProcess();
 	this->setCol({ 0,0,0,1 });
 }

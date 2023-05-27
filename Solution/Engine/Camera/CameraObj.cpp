@@ -6,14 +6,12 @@ CameraObj::CameraObj(GameObj* parent)
 	:Camera(WinAPI::window_width,
 			WinAPI::window_height),
 	parentObj(parent)
-{
-	relativeRotaDeg = XMFLOAT3(30, 0, 0);
-}
+{}
 
 void CameraObj::updateMatWorld()
 {
 	XMFLOAT3 distance{}, rota{};
-	XMMATRIX matRot, matTrans;
+	XMMATRIX matRot{}, matTrans{};
 
 	XMFLOAT3 eye = getEye(), target = getTarget();
 
@@ -21,14 +19,17 @@ void CameraObj::updateMatWorld()
 						target.y - eye.y,
 						target.z - eye.z);
 
-	rota = parentObj->getRotation();
-	for (auto* parent = parentObj->getParent();
-		 parent;
-		 parent = parent->parent)
+	if (useParentRotaFlag)
 	{
-		rota.x += parent->rotation.x;
-		rota.y += parent->rotation.y;
-		rota.z += parent->rotation.z;
+		rota = parentObj->getRotation();
+		for (auto* parent = parentObj->getParent();
+			 parent;
+			 parent = parent->parent)
+		{
+			rota.x += parent->rotation.x;
+			rota.y += parent->rotation.y;
+			rota.z += parent->rotation.z;
+		}
 	}
 
 	matRot = XMMatrixIdentity();
@@ -54,28 +55,35 @@ void CameraObj::preUpdate()
 
 	XMFLOAT3 targetPos = parentObj->calcWorldPos();
 
-	XMFLOAT3 parentRota = parentObj->getRotation();
+	XMFLOAT3 rotaAngle = relativeRotaDeg;
+
+	if (useParentRotaFlag)
 	{
-		for (auto* parent = parentObj->getObj()->parent;
-			 parent;
-			 parent = parent->parent)
+		rotaAngle.x += parentObj->getRotation().x;
+		rotaAngle.y += parentObj->getRotation().y;
+		rotaAngle.z += parentObj->getRotation().z;
 		{
-			parentRota.x += parent->rotation.x;
-			parentRota.y += parent->rotation.y;
-			parentRota.z += parent->rotation.z;
+			for (auto* parent = parentObj->getObj()->parent;
+				 parent;
+				 parent = parent->parent)
+			{
+				rotaAngle.x += parent->rotation.x;
+				rotaAngle.y += parent->rotation.y;
+				rotaAngle.z += parent->rotation.z;
+			}
 		}
 	}
 
-	// 親の回転を取得[rad]
+	// 回転を取得[rad]
 	const XMFLOAT3 rotaAngleRad{
-		XMConvertToRadians(rotaInvFactor * (parentRota.x + relativeRotaDeg.x)),
-		XMConvertToRadians(rotaInvFactor * (parentRota.y + relativeRotaDeg.y)),
-		XMConvertToRadians(rotaInvFactor * (parentRota.z + relativeRotaDeg.z))
+		XMConvertToRadians(rotaInvFactor * rotaAngle.x),
+		XMConvertToRadians(rotaInvFactor * rotaAngle.y),
+		XMConvertToRadians(rotaInvFactor * rotaAngle.z)
 	};
 
 	// 垂直角度を計算
-	float sinT = dxBase->nearSin(-rotaAngleRad.x);
-	float cosT = dxBase->nearCos(-rotaAngleRad.x);
+	float sinT = std::sin(-rotaAngleRad.x);
+	float cosT = std::cos(-rotaAngleRad.x);
 
 	const XMFLOAT3 verticalPos{
 		0.f,
@@ -84,8 +92,8 @@ void CameraObj::preUpdate()
 	};
 
 	// 水平角度を計算
-	sinT = dxBase->nearSin(rotaAngleRad.y);
-	cosT = dxBase->nearCos(rotaAngleRad.y);
+	sinT = std::sin(rotaAngleRad.y);
+	cosT = std::cos(rotaAngleRad.y);
 	const XMFLOAT3 horizontalPos{
 		cosT * verticalPos.x - sinT * verticalPos.z,
 		verticalPos.y,
@@ -103,11 +111,10 @@ void CameraObj::preUpdate()
 	const XMFLOAT3 oldEye = getEye();
 
 	// 補間割合を加味したカメラ移動幅
-	constexpr float raito = 0.1f;
 	eye = {
-		(eye.x - oldEye.x) * raito,
-		(eye.y - oldEye.y) * raito,
-		(eye.z - oldEye.z) * raito
+		(eye.x - oldEye.x) * easeRaito,
+		(eye.y - oldEye.y) * easeRaito,
+		(eye.z - oldEye.z) * easeRaito
 	};
 
 	// 前回の位置に移動幅を足す
@@ -120,11 +127,17 @@ void CameraObj::preUpdate()
 	// 注視点の位置を高くする
 	{
 		XMFLOAT3 camHeiVec{};
-		XMStoreFloat3(&camHeiVec, XMVector3Transform(XMVectorSet(eye2TargetOffset.x,
-																 eye2TargetOffset.y,
-																 eye2TargetOffset.z,
-																 1),
-													 parentObj->getObj()->getMatRota()));
+		if (useParentRotaFlag)
+		{
+			XMStoreFloat3(&camHeiVec, XMVector3Transform(XMVectorSet(eye2TargetOffset.x,
+																	 eye2TargetOffset.y,
+																	 eye2TargetOffset.z,
+																	 1),
+														 parentObj->getObj()->getMatRota()));
+		} else
+		{
+			camHeiVec = eye2TargetOffset;
+		}
 		targetPos.x += camHeiVec.x;
 		targetPos.y += camHeiVec.y;
 		targetPos.z += camHeiVec.z;
@@ -132,7 +145,6 @@ void CameraObj::preUpdate()
 
 	setEye(eye);
 	setTarget(targetPos);
-	//setUp(XMFLOAT3(0, 1, 0));
 
 	updateMatWorld();
 

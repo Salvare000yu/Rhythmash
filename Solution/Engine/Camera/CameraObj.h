@@ -9,18 +9,28 @@ private:
 	GameObj* parentObj = nullptr;
 
 	// 視点から注視点までの距離
-	float eye2TargetLen = 150.f;
+	float eye2TargetLen = 30.f;
 	// 親を基準とした回転
-	DirectX::XMFLOAT3 relativeRotaDeg{};
+	DirectX::XMFLOAT3 relativeRotaDeg = XMFLOAT3(60, 0, 0);
 
-	DirectX::XMFLOAT3 eye2TargetOffset = XMFLOAT3(0.f, 50.f, 50.f);
+	DirectX::XMFLOAT3 eye2TargetOffset = XMFLOAT3(0.f, 5.f, 5.f);
 
 	bool matWorldDirty = false;
 
 	DirectX::XMMATRIX matWorld{};
 
 public:
+	// 追従の補間強度
+	float easeRaito = 0.1f;
+
+	// 親の回転を反映させるかどうか
+	bool useParentRotaFlag = false;
+
+public:
 	CameraObj(GameObj* parent);
+
+	inline void setEye2TargetOffset(const DirectX::XMFLOAT3& offset) { eye2TargetOffset = offset; }
+	inline const auto& getEye2TargetOffset() const { return eye2TargetOffset; }
 
 	/// @param eye2TargetLen カメラ位置から注視点の距離
 	inline void setEye2TargetLen(float eye2TargetLen) { this->eye2TargetLen = eye2TargetLen; }
