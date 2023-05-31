@@ -78,7 +78,9 @@ void Player::Attack()
 	{
 		Sound::SoundPlayWave(se1.get());
 		attackFlag = true;
-		this->setCol({ 0,0,1,1 });
+		this->setCol(XMFLOAT4(0, 0, 1, 1));
+		auto atkObj = atkObjPt.lock();
+		atkObj->setCol(XMFLOAT4(0, 1, 0, atkObj->getCol().w));
 	}
 
 	AttackProcess();

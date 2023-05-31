@@ -85,12 +85,16 @@ void GameMainScene::update()
 
 	if (player->attackFlag == true)
 	{
-		player->getAtkObjPt().lock()->setCol({ 0,1,0,1 });
 		CollisionMgr::checkHitAll(player->atkcoll, enemy->mycoll);
 	}
 
-	const bool judgeRet = Timer::judge(nowBeatRaito, judgeOkRange);
-	player->setJudge(judgeRet);
+	{
+		const float raitoColor = std::lerp(0.25f, 1.f, 1.f - nowBeatRaito);
+		player->setCol(XMFLOAT4(raitoColor, raitoColor, raitoColor, 1.f));
+
+		const bool judgeRet = Timer::judge(nowBeatRaito, judgeOkRange);
+		player->setJudge(judgeRet);
+	}
 
 	cameraObj->update();
 }

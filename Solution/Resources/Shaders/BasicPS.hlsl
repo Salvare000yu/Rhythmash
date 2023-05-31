@@ -17,8 +17,8 @@ void ScreenDoor(float2 screenPos, float alpha)
 	// 0 ~ 16
 	float ditherLevel = clamp(16.f - (alpha * 16.f), 0.f, 16.f);
 		
-	int ditherUvX = (int) fmod(screenPos.x, 4.f);
-	int ditherUvY = (int) fmod(screenPos.y, 4.f);
+	int ditherUvX = (int)fmod(screenPos.x, 4.f);
+	int ditherUvY = (int)fmod(screenPos.y, 4.f);
 	float doorNum = Bayer[ditherUvY][ditherUvX];
 	clip(doorNum - ditherLevel);
 }
@@ -124,7 +124,7 @@ PSOutput main(VSOutput input)
 	}
 	
 	PSOutput output;
-	output.target0 = shadeColor * texcolor * color;
+	output.target0 = float4(shadeColor.rgb * texcolor.rgb * color.rgb, 1.f);
 	output.target1 = float4((input.normal + 1.f) / 2.f, 1);
 
 	return output;

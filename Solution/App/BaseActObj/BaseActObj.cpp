@@ -15,6 +15,7 @@ BaseActObj::BaseActObj(Camera* camera, ObjModel* model, const DirectX::XMFLOAT3&
 
 	atkObj->setParent((BaseObj*)obj.get());
 	atkObj->setPos(XMFLOAT3(0, 0, 5));
+	atkObj->setCol(XMFLOAT4(1, 1, 1, 0.2f));
 
 	atkcoll.group.emplace_front(CollisionMgr::ColliderType{.obj = atkObj.get(), .colliderR = atkObj->getScaleF3().z });
 
@@ -57,11 +58,14 @@ void BaseActObj::AttackProcess()
 {
 	if (!attackFlag) { return; }
 
-	this->setCol({ 1,1,1,1 });
+	this->setCol(XMFLOAT4(1, 1, 1, this->getCol().w));
 	if (++waitFrame >= 30)
 	{
 		attackFlag = false;
-		atkObjPt.lock()->setCol({ 1,1,1,1 });
 		waitFrame = 0;
+
+		auto atkObj = atkObjPt.lock();
+		const auto& atkCol = atkObj->getCol();
+		atkObj->setCol(XMFLOAT4(1, 1, 1, atkCol.w));
 	}
 }
