@@ -4,7 +4,8 @@
 using namespace DirectX;
 
 BaseActObj::BaseActObj(Camera* camera, ObjModel* model, const DirectX::XMFLOAT3& pos) :
-	GameObj(camera, model, pos)
+	GameObj(camera, model, pos),
+	particleMgr(std::make_unique<ParticleMgr>(L"Resources/white.png", camera))
 {
 	atkModel = std::make_unique<ObjModel>("Resources/Attack/", "Attack");
 
@@ -20,6 +21,7 @@ BaseActObj::BaseActObj(Camera* camera, ObjModel* model, const DirectX::XMFLOAT3&
 	atkcoll.hitProc = [](GameObj* obj) {};
 	mycoll.hitProc = [&](GameObj* obj)
 	{
+		ParticleMgr::createParticle(particleMgr.get(), this->calcWorldPos(), 50ui16);
 		if (obj->damage(1ui16, true))
 		{
 			this->setCol(XMFLOAT4(0, 0, 0, 1));
@@ -27,6 +29,9 @@ BaseActObj::BaseActObj(Camera* camera, ObjModel* model, const DirectX::XMFLOAT3&
 		}
 		this->setCol({ 1,0,0,1 });
 	};
+
+	additionalUpdateProc.emplace("BaseActorObj::particleMgr", [&] { particleMgr->update(); });
+	additionalDrawProc.emplace("BaseActorObj::particleMgr", [&](Light*) { particleMgr->draw(); });
 }
 
 void BaseActObj::MoveProcess(const XMFLOAT3& dir)
