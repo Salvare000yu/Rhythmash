@@ -14,6 +14,8 @@ Player::Player(Camera* camera,
 	BaseActObj(camera, model, pos),
 	input(Input::ins())
 {
+	se1 = std::make_unique<Sound>("Resources/SE/Sys_Set03-click.wav");
+
 	moveSpeed = 20.f;
 
 	update_proc =
@@ -67,8 +69,9 @@ void Player::Move()
 
 void Player::Attack()
 {
-	if (input->hitKey(DIK_SPACE))
+	if (input->triggerKey(DIK_SPACE) && judgeRet)
 	{
+		Sound::SoundPlayWave(se1.get());
 		attackFlag = true;
 		this->setCol({ 0,0,1,1 });
 	}
@@ -87,6 +90,7 @@ void Player::Step()
 	float subRate = 5.0f;
 	if (input->triggerKey(DIK_LSHIFT) && judgeRet)
 	{
+		Sound::SoundPlayWave(se1.get());
 		SetSpeed(stepRange);	
 	}
 	float speed = GetSpeed();
