@@ -14,18 +14,12 @@ BaseActObj::BaseActObj(Camera* camera, ObjModel* model, const DirectX::XMFLOAT3&
 	Mycoll.hitProc = [&](GameObj* obj)
 	{
 		this->setCol({ 1,0,0,1 });
-		particlMgr->createParticle(particlMgr.get(), this->getPos(), 50);
-		if (obj->damage(1u, false))
-		{
-
-			obj->kill();
-			return;
-		}
+		particlMgr->createParticle(particlMgr.get(), this->getPos(), 10);
+		AttackProcess();
 	};
 
 	Atkcoll.hitProc = [&](GameObj* obj)
 	{
-	
-		
+		AttackFlag = false;
 	};
 }

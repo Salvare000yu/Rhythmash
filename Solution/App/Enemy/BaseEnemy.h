@@ -19,7 +19,10 @@ protected:
 	float minZ = -30.0f;
 	float maxZ = 30.0f;
 
-	int waitTime = 0;
+	int AtkWaitTime = 0;
+	int AttackTime = 0;
+
+	int MoveWaitTime = 0;
 	bool movestop = false;
 
 	// 攻撃対象へのポインタ

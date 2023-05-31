@@ -12,10 +12,6 @@ void Player::update()
 {
 	Move();
 	Attack();
-	if (!this->getAlive())
-	{
-		this->setCol({ 0,0,0,1 });
-	}
 }
 
 void Player::Move()
@@ -45,7 +41,7 @@ void Player::Move()
 
 void Player::Attack()
 {
-	if (input->hitKey(DIK_SPACE))
+	if (input->triggerKey(DIK_SPACE))
 	{
 		if (AttackFlag == false)
 		{
@@ -53,6 +49,15 @@ void Player::Attack()
 		}
 		this->setCol({ 0,0,1,1 });
 	}
-
-	AttackProcess();
+	if (AttackFlag == true)
+	{
+		WaitTime++;
+		if (WaitTime >= 2)
+		{
+			AttackFlag = false;
+			AtkObj->setCol({ 1,1,1,1 });
+			WaitTime = 0;
+		}
+	}
+	//AttackProcess();
 }
