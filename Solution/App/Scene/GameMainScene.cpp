@@ -89,6 +89,9 @@ void GameMainScene::update()
 		CollisionMgr::checkHitAll(player->atkcoll, enemy->mycoll);
 	}
 
+	const bool judgeRet = Timer::judge(nowBeatRaito, judgeOkRange);
+	player->setJudge(judgeRet);
+
 	cameraObj->update();
 }
 

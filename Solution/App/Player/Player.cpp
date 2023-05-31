@@ -1,5 +1,8 @@
 ﻿#include "Player.h"
-#include <Enemy/BaseEnemy.h>
+#include "Enemy/BaseEnemy.h"
+#include <InputMgr.h>
+#include <cmath>
+#include <Util/Timer.h>
 
 #include <Input/Input.h>
 
@@ -8,8 +11,13 @@ using namespace DirectX;
 Player::Player(Camera* camera,
 			   ObjModel* model,
 			   const DirectX::XMFLOAT3& pos) :
-	BaseActObj(camera, model, pos)
+	BaseActObj(camera, model, pos),
+	input(Input::ins())
 {
+	se1 = std::make_unique<Sound>("Resources/SE/Sys_Set03-click.wav");
+
+	moveSpeed = 20.f;
+
 	update_proc =
 		[&]
 	{
@@ -66,8 +74,9 @@ void Player::Move()
 
 void Player::Attack()
 {
-	if (Input::ins()->hitKey(DIK_SPACE))
+	if (input->triggerKey(DIK_SPACE) && judgeRet)
 	{
+		Sound::SoundPlayWave(se1.get());
 		attackFlag = true;
 		this->setCol({ 0,0,1,1 });
 	}
@@ -86,7 +95,7 @@ void Player::Step()
 	constexpr float dashSpeed = defSpeed * 3.f;
 	constexpr float speedAcc = -dashSpeed / 12.f;
 
-	if (Input::ins()->triggerKey(DIK_LSHIFT))
+	if (Input::ins()->triggerKey(DIK_LSHIFT) && judgeRet)
 	{
 		SetSpeed(dashSpeed);
 	} else
