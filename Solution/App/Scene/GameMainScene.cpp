@@ -27,6 +27,7 @@ GameMainScene::GameMainScene() :
 
 	cameraObj = std::make_unique<CameraObj>(nullptr);
 	cameraObj->easeRaito = 0.5f;
+	cameraObj->useParentRotaFlag = false;
 
 	// --------------------
 	// 背景

@@ -20,10 +20,10 @@ private:
 	DirectX::XMMATRIX matWorld{};
 
 public:
-	// 追従の補間強度
+	/// @brief 追従の補間強度
 	float easeRaito = 0.1f;
 
-	// 親の回転を反映させるかどうか
+	/// @brief 親の回転を反映させるかどうか
 	bool useParentRotaFlag = false;
 
 public:
