@@ -26,8 +26,8 @@ protected:
 	GameObj* targetObj = nullptr;
 
 
-	XMFLOAT3 pos = { 0,0,0 };
-	XMFLOAT3 tpos = { 0,0,0 };
+	DirectX::XMFLOAT3 pos = { 0,0,0 };
+	DirectX::XMFLOAT3 tpos = { 0,0,0 };
 
 	std::function<void()> phase;
 public:
@@ -45,7 +45,6 @@ public:
 
 	inline void setPhase(const std::function<void()>& _phase) { this->phase = _phase; }
 
-	void update();
 	//ターゲット方向に移動
 	void MovetoTarget();
 	//ランダムに移動地点を生成して移動

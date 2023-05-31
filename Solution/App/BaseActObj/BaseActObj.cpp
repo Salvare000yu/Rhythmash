@@ -1,4 +1,5 @@
 ﻿#include "BaseActObj.h"
+#include <3D/ParticleMgr.h>
 
 using namespace DirectX;
 
@@ -11,19 +12,20 @@ BaseActObj::BaseActObj(Camera* camera, ObjModel* model, const DirectX::XMFLOAT3&
 
 	auto atkObj = atkObjPt.lock();
 
-	atkObj->setParent(this->obj);
+	atkObj->setParent((BaseObj*)obj.get());
 	atkObj->setPos(XMFLOAT3(0, 0, 5));
 
-	atkcoll.group.emplace_front(CollisionMgr::ColliderType{ .obj = atkObj.get(), .colliderR = atkObj->getScaleF3().z });
+	atkcoll.group.emplace_front(CollisionMgr::ColliderType{.obj = atkObj.get(), .colliderR = atkObj->getScaleF3().z });
 
-	atkcoll.hitProc = [&](GameObj* obj) {};
+	atkcoll.hitProc = [](GameObj* obj) {};
 	mycoll.hitProc = [&](GameObj* obj)
 	{
-		this->setCol({ 1,0,0,1 });
 		if (obj->damage(1ui16, true))
 		{
+			this->setCol(XMFLOAT4(0, 0, 0, 1));
 			return;
 		}
+		this->setCol({ 1,0,0,1 });
 	};
 }
 
@@ -34,7 +36,7 @@ void BaseActObj::MoveProcess(const XMFLOAT3& dir)
 
 void BaseActObj::MoveProcess(const DirectX::XMVECTOR& dir)
 {
-	auto moveValVec = XMVector3Normalize(dir) * (moveSpeed / DX12Base::ins()->getFPS());
+	const auto moveValVec = XMVector3Normalize(dir) * (moveSpeed / DX12Base::ins()->getFPS());
 
 	XMFLOAT3 moveVal{};
 	XMStoreFloat3(&moveVal, moveValVec);

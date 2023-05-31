@@ -9,9 +9,11 @@ class Light;
 class BaseActObj
 	: public GameObj
 {
+public:
+	static constexpr float moveSpeedDef = 15.f;
 protected:
 	//移動スピード
-	float moveSpeed = 15.f;
+	float moveSpeed = moveSpeedDef;
 
 	int waitFrame = 0;
 
@@ -42,7 +44,7 @@ public:
 	virtual void Move() = 0;
 	virtual void Attack() = 0;
 
-	float GetSpeed() { return MoveSpeed; }
-	void SetSpeed(float speed) { MoveSpeed = speed; }
+	float GetSpeed() { return moveSpeed; }
+	void SetSpeed(float speed) { moveSpeed = speed; }
 };
 

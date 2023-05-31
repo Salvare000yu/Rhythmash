@@ -2,6 +2,22 @@
 
 using namespace DirectX;
 
+void GameObj::additionalUpdate()
+{
+	for (auto& i : additionalUpdateProc)
+	{
+		i.second();
+	}
+}
+
+void GameObj::additionalDraw(Light* light)
+{
+	for (auto& i : additionalDrawProc)
+	{
+		i.second(light);
+	}
+}
+
 bool GameObj::damage(uint16_t damegeNum, bool killFlag)
 {
 	if (damegeNum >= hp)
@@ -15,7 +31,7 @@ bool GameObj::damage(uint16_t damegeNum, bool killFlag)
 	return false;
 }
 
-XMFLOAT3 GameObj::move(const DirectX::XMVECTOR& dirNormal, float speed, bool moveYFlag)
+XMFLOAT3 GameObj::move(const DirectX::XMVECTOR& dirNormal, float speed, bool moveYFlag, bool moveFlag)
 {
 	XMVECTOR velVec = XMVector3Transform(dirNormal, obj->getMatRota());
 
@@ -33,9 +49,12 @@ XMFLOAT3 GameObj::move(const DirectX::XMVECTOR& dirNormal, float speed, bool mov
 	XMFLOAT3 vel{};
 	XMStoreFloat3(&vel, velVec);
 
-	obj->position.x += vel.x;
-	obj->position.y += vel.y;
-	obj->position.z += vel.z;
+	if(moveFlag)
+	{
+		obj->position.x += vel.x;
+		obj->position.y += vel.y;
+		obj->position.z += vel.z;
+	}
 
 	return vel;
 }
@@ -105,42 +124,30 @@ void GameObj::moveParentUp(float moveVel)
 GameObj::GameObj(Camera* camera,
 				 ObjModel* model,
 				 const DirectX::XMFLOAT3& pos)
-	: objObject(std::make_unique<Object3d>(camera,
-										   model)),
+	: obj(std::make_unique<Object3d>(camera, model)),
 	ppStateNum(Object3d::ppStateNum)
 {
-	obj = objObject.get();
 	setPos(pos);
-}
-
-GameObj::GameObj(Camera* camera)
-	: objObject(std::make_unique<Object3d>(camera, nullptr)),
-	ppStateNum(Object3d::ppStateNum)
-{
-	obj = objObject.get();
 }
 
 GameObj::~GameObj()
 {
-	objObject.reset(nullptr);
+	obj.reset(nullptr);
 }
 
 void GameObj::update()
 {
-	additionalUpdate();
 	obj->update();
 	for (auto& i : otherObj)
 	{
 		i.second->update();
 	}
+	additionalUpdate();
 }
 
 void GameObj::draw(Light* light)
 {
-	if (drawFlag)
-	{
-		obj->draw(light, ppStateNum);
-	}
+	obj->draw(light, ppStateNum);
 	for (auto& i : otherObj)
 	{
 		i.second->draw(light);
@@ -153,6 +160,4 @@ void GameObj::drawWithUpdate(Light* light)
 	update();
 
 	draw(light);
-
-	additionalDraw(light);
 }

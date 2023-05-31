@@ -6,65 +6,67 @@
 using namespace DirectX;
 
 Player::Player(Camera* camera,
-						 ObjModel* model,
-						 const DirectX::XMFLOAT3& pos) :
-	BaseActObj(camera, model, pos),
-	input(Input::ins())
+			   ObjModel* model,
+			   const DirectX::XMFLOAT3& pos) :
+	BaseActObj(camera, model, pos)
 {
-	moveSpeed = 20.f;
-
 	update_proc =
 		[&]
 	{
-		Move();
-		Attack();
-
 		if (!this->getAlive())
 		{
 			update_proc = [] {};
 			this->setCol({ 0,0,0,1 });
+			return;
 		}
 
+		Move();
+		Attack();
 		Step();
 	};
-}
 
-void Player::additionalUpdate()
-{
-	update_proc();
+	additionalUpdateProc.emplace("Player::update_proc", [&] { update_proc(); });
 }
 
 void Player::Move()
 {
-	bool moved = false;
-	XMFLOAT3 dir = { 0,0,0 };
+	// キー入力を取得
+	const bool hitW = Input::ins()->hitKey(DIK_W);
+	const bool hitA = Input::ins()->hitKey(DIK_A);
+	const bool hitS = Input::ins()->hitKey(DIK_S);
+	const bool hitD = Input::ins()->hitKey(DIK_D);
 
-	if (input->hitKey(DIK_W))
+	// 該当キーが押されていれば移動する
+	const bool moved = hitW || hitA || hitS || hitD;
+
+	// 移動しなければ終了
+	if (!moved) { return; }
+
+	// 移動方向を決める
+	XMFLOAT3 dir{};
+	if (hitW)
 	{
 		dir.z = 1.f;
-		moved = true;
-	} else if (input->hitKey(DIK_S))
+	} else if (hitS)
 	{
 		dir.z = -1.f;
-		moved = true;
 	}
 
-	if (input->hitKey(DIK_D))
+	if (hitD)
 	{
 		dir.x = 1.f;
-		moved = true;
-	} else if (input->hitKey(DIK_A))
+	} else if (hitA)
 	{
 		dir.x = -1.f;
-		moved = true;
 	}
 
-	if (moved) { MoveProcess(dir); }
+	// 移動する
+	MoveProcess(dir);
 }
 
 void Player::Attack()
 {
-	if (input->hitKey(DIK_SPACE))
+	if (Input::ins()->hitKey(DIK_SPACE))
 	{
 		attackFlag = true;
 		this->setCol({ 0,0,1,1 });
@@ -80,14 +82,15 @@ void Player::Attack()
 
 void Player::Step()
 {
-	if (input->triggerKey(DIK_LSHIFT))
+	constexpr float defSpeed = BaseActObj::moveSpeedDef;
+	constexpr float dashSpeed = defSpeed * 3.f;
+	constexpr float speedAcc = -dashSpeed / 12.f;
+
+	if (Input::ins()->triggerKey(DIK_LSHIFT))
 	{
-		SetSpeed(5.0f);
-	}
-	float speed = GetSpeed();
-	if (speed >= 2.0f)
+		SetSpeed(dashSpeed);
+	} else
 	{
-		speed -= 0.5f;
+		SetSpeed(std::max(defSpeed, GetSpeed() + speedAcc));
 	}
-	SetSpeed(speed);
 }

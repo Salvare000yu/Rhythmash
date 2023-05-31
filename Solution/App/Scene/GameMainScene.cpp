@@ -5,20 +5,18 @@
 #include <CollisionMgr.h>
 #include <Util/Timer.h>
 #include "Input/Input.h"
-// -----------------------
+
 #include "Player/Player.h"
-// -----------------------
+
 #include <Enemy/BaseEnemy.h>
 #include <3D/Obj/ObjModel.h>
 #include <GameObject/GameObj.h>
 #include <Camera/CameraObj.h>
-#include <2D/Sprite.h>
 
 using namespace DirectX;
 
 GameMainScene::GameMainScene() :
 	input(Input::ins()),
-	spCom(std::make_unique<SpriteBase>()),
 	light(std::make_unique<Light>()),
 	timer(std::make_unique<Timer>()),
 	bpm(120.f),
@@ -38,7 +36,7 @@ GameMainScene::GameMainScene() :
 	constexpr float groundSize = 1000.f;
 	groundObj->scale = XMFLOAT3(groundSize, 1.f, groundSize);
 	groundModel->setTexTilling(XMFLOAT2(groundSize, groundSize));
-	groundObj->color = XMFLOAT4(1,1,1,0.5f);
+	groundObj->color = XMFLOAT4(1, 1, 1, 0.5f);
 
 	// --------------------
 	// 自機
@@ -77,7 +75,7 @@ void GameMainScene::start()
 void GameMainScene::update()
 {
 	// 拍内進行度と拍数を更新
-	nowBeatRaito = Timer::calcNowBeatRaito((float)timer->getNowTime(), 120.f, nowCount);
+	nowBeatRaito = Timer::calcNowBeatRaito((float)timer->getNowTime(), bpm, nowCount);
 
 	if (enemy->attackFlag == true)
 	{
@@ -93,10 +91,8 @@ void GameMainScene::update()
 	cameraObj->update();
 }
 
-void GameMainScene::drawFrontSprite()
+void GameMainScene::drawObj3d()
 {
-	spCom->drawStart(DX12Base::getInstance()->getCmdList());
-
 	groundObj->drawWithUpdate(light.get());
 
 	player->drawWithUpdate(light.get());
@@ -104,23 +100,26 @@ void GameMainScene::drawFrontSprite()
 	{
 		enemy->drawWithUpdate(light.get());
 	}
+}
 
+void GameMainScene::drawFrontSprite()
+{
 	ImGui::SetNextWindowSize(ImVec2(400, 40));
 	ImGui::Begin("自機",
 				 nullptr,
 				 DX12Base::ImGuiWinFlagsNoTitleBar
 				 | ImGuiWindowFlags_::ImGuiWindowFlags_NoScrollbar);
-	{
-		constexpr float barWid = 400.f;
-		const bool judgeRet = Timer::judge(nowBeatRaito, judgeOkRange);
 
-		auto posLT = ImGui::GetWindowPos();
-		ImVec2 posRB = posLT;
-		posRB.x += barWid * nowBeatRaito;
-		posRB.y += 20.f;
+	constexpr float barWid = 400.f;
+	const bool judgeRet = Timer::judge(nowBeatRaito, judgeOkRange);
 
-		ImGui::GetWindowDrawList()->AddRectFilled(posLT, posRB, ImU32(0xff2222f8));
-		ImGui::Text(judgeRet ? "OK!!!" : "");
-	}
+	auto posLT = ImGui::GetWindowPos();
+	ImVec2 posRB = posLT;
+	posRB.x += barWid * nowBeatRaito;
+	posRB.y += 20.f;
+
+	ImGui::GetWindowDrawList()->AddRectFilled(posLT, posRB, ImU32(0xff2222f8));
+	ImGui::Text(judgeRet ? "OK!!!" : "");
+
 	ImGui::End();
 }

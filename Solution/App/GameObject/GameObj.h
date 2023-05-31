@@ -7,6 +7,7 @@
 #include <3D/BaseObj.h>
 #include <3D/Obj/Object3d.h>
 #include <unordered_map>
+#include <functional>
 
 /// @brief ゲームオブジェクト基底クラス
 class GameObj
@@ -14,19 +15,20 @@ class GameObj
 protected:
 	size_t ppStateNum;
 
-	BaseObj* obj = nullptr;
-
-	std::unique_ptr<Object3d> objObject;
+	std::unique_ptr<Object3d> obj;
 
 	std::unordered_map<std::string, std::shared_ptr<GameObj>> otherObj;
 
 	bool alive = true;
-	bool drawFlag = true;
 
 	uint16_t hp = 1ui16;
 
-	virtual void additionalUpdate() {};
-	virtual void additionalDraw(Light* light) {}
+	std::unordered_map<std::string, std::function<void()>> additionalUpdateProc;
+	std::unordered_map<std::string, std::function<void(Light*)>> additionalDrawProc;
+
+private:
+	void additionalUpdate();
+	void additionalDraw(Light* light);
 
 public:
 	inline void setPipelineStateNum(size_t num) { ppStateNum = num; }
@@ -60,8 +62,8 @@ public:
 	{
 		DirectX::XMFLOAT3 velF3{
 			targetPos.x - nowPos.x,
-			targetPos.y - nowPos.y,
-			targetPos.z - nowPos.z
+				targetPos.y - nowPos.y,
+				targetPos.z - nowPos.z
 		};
 
 		const DirectX::XMVECTOR velVec =
@@ -86,10 +88,10 @@ public:
 	/// @brief aliveをfalseにする
 	inline void kill() { alive = false; }
 
-	inline bool getDrawFlag() const { return drawFlag; }
-	inline void setDrawFlag(bool drawFlag) { this->drawFlag = drawFlag; }
+	inline bool getDrawFlag() const { return obj->drawFlag; }
+	inline void setDrawFlag(bool drawFlag) { this->obj->drawFlag = drawFlag; }
 
-	inline BaseObj* getObj() const { return obj; }
+	inline BaseObj* getObj() const { return obj.get(); }
 
 	inline void setPos(const DirectX::XMFLOAT3& pos) { obj->position = pos; }
 	inline const DirectX::XMFLOAT3& getPos() const { return obj->position; }
@@ -124,8 +126,9 @@ public:
 
 	inline DirectX::XMFLOAT3 calcWorldPos() const { return obj->calcWorldPos(); }
 
+	/// @param moveFlag 実際に移動させるかどうか
 	/// @return 移動量
-	DirectX::XMFLOAT3 move(const DirectX::XMVECTOR& dirNormal, float speed, bool moveYFlag = false);
+	DirectX::XMFLOAT3 move(const DirectX::XMVECTOR& dirNormal, float speed, bool moveYFlag = false, bool moveFlag = true);
 
 	/// @brief 視線方向に前進
 	/// @param moveVel 移動量
@@ -148,14 +151,14 @@ public:
 	GameObj(Camera* camera,
 			ObjModel* model,
 			const DirectX::XMFLOAT3& pos = { 0,0,0 });
-	GameObj(Camera* camera);
+	GameObj(Camera* camera) : GameObj(camera, nullptr, DirectX::XMFLOAT3()) {};
 	~GameObj();
 
 	// drawWithUpdate関数の頭で呼ばれる
-	void update();
+	virtual void update() final;
 
 	// drawWithUpdate関数で呼ばれる
-	void draw(Light* light);
+	virtual void draw(Light* light) final;
 
-	void drawWithUpdate(Light* light);
+	virtual void drawWithUpdate(Light* light) final;
 };

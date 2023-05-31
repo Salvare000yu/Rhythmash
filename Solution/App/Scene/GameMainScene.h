@@ -10,8 +10,6 @@ class ObjModel;
 class Object3d;
 class GameObj;
 class CameraObj;
-class SpriteBase;
-class Sprite;
 class Light;
 class Timer;
 
@@ -30,11 +28,6 @@ class GameMainScene :
 	const float judgeOkRange{};
 	float nowCount{};
 	float nowBeatRaito{};
-
-	// --------------------
-	// スプライト
-	// --------------------
-	std::unique_ptr<SpriteBase> spCom;
 
 	// --------------------
 	// 背景
@@ -62,6 +55,7 @@ public:
 	GameMainScene();
 	void start() override;
 	void update() override;
+	void drawObj3d() override;
 	void drawFrontSprite() override;
 };
 

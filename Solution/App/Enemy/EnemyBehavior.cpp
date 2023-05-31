@@ -27,7 +27,7 @@ EnemyBehavior::EnemyBehavior() :
 
 NODE_RESULT EnemyBehavior::Phase_move()
 {
-	this->enemy->Move();
+	//this->enemy->Move();
 	return NODE_RESULT::SUCCESS;
 }
 

@@ -5,39 +5,24 @@
 using namespace DirectX;
 
 BaseEnemy::BaseEnemy(Camera* camera, ObjModel* model, const DirectX::XMFLOAT3& pos)
-	:BaseActObj(camera, model, pos), enemyBehavior(std::make_unique<EnemyBehavior>(this))
+	:BaseActObj(camera, model, pos),
+	enemyBehavior(std::make_unique<EnemyBehavior>(this))
 {
-	this->setPos({ 20,0,0 });
-	AtkObj->setPos({ obj->position.x ,obj->position.y,obj->position.z + 5 });
-	//setPhase([&] { return enemyBehavior->run(); });
-
+	additionalUpdateProc.emplace("BaseEnemy::update_proc", [&] { enemyBehavior->run(); });
 }
 
 float BaseEnemy::TargetFromDistance()
 {
-
 	if (!this->targetObj) { return -1.f; }
+
 	const XMVECTOR pos = XMLoadFloat3(&this->calcWorldPos());
 	const XMVECTOR tpos = XMLoadFloat3(&this->targetObj->calcWorldPos());
 
 	return Collision::vecLength(pos - tpos);
 }
 
-void BaseEnemy::update()
-{
-	if (hp <= 0)
-	{
-		kill();
-		AtkObj->kill();
-	}
-	this->setCol({ 1,0,0,1 });
-	enemyBehavior->run();
-}
-
 void BaseEnemy::MovetoTarget()
 {
-
-
 	pos = this->getPos();
 	tpos = this->targetObj->calcWorldPos();
 	XMFLOAT3 vec = { pos.x - tpos.x, 0, pos.z - tpos.z };
@@ -57,12 +42,10 @@ void BaseEnemy::MovetoTarget()
 			waitTime = 0;
 		}
 	}
-
 }
 
 void BaseEnemy::Move()
 {
-
 	if (TargetFromDistance() < 20.0f)
 	{
 		MovetoTarget();
@@ -75,7 +58,6 @@ void BaseEnemy::Move()
 
 void BaseEnemy::RandomMove()
 {
-
 	if (movestop == false)
 	{
 		waitTime = 0;
@@ -98,14 +80,12 @@ void BaseEnemy::RandomMove()
 	{
 		dir = XMFLOAT3(RandomNum::getRandf(minX, maxX), 0.0f, RandomNum::getRandf(minZ, maxZ));
 		waitFrame = 0;
-		moved = true;
 	}
-
-
 }
 
 void BaseEnemy::Attack()
-	AttackFlag = true; 
+{
+	attackFlag = true;
 	AttackProcess();
 	this->setCol({ 0,0,0,1 });
 }
