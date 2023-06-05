@@ -1,6 +1,5 @@
 ﻿#include "GameMainScene.h"
-#include "GameOverScene.h"
-#include "GameClearScene.h"
+#include "TitleScene.h"
 #include "System/PostEffect.h"
 #include "System/SceneManager.h"
 #include <CollisionMgr.h>
@@ -93,12 +92,7 @@ void GameMainScene::update()
 		}
 	}
 
-	if (!player->getAlive())
-	{
-		SceneManager::getInstange()->changeScene<GameOverScene>();
-	}
 
-	
 	//if (input->triggerKey(DIK_SPACE) ||
 	//		input->triggerPadButton(Input::PAD::A) ||
 	//		input->triggerPadButton(Input::PAD::B))

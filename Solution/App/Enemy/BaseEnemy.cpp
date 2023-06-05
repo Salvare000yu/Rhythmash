@@ -5,6 +5,8 @@ BaseEnemy::BaseEnemy(Camera* camera, ObjModel* model, const DirectX::XMFLOAT3& p
 {
 	this->setPos({ 20,0,0 });
 	AtkObj->setPos({ obj->position.x ,obj->position.y,obj->position.z + 5 });
+	//setPhase([&] { return enemyBehavior->run(); });
+
 }
 
 float BaseEnemy::TargetFromDistance()
@@ -30,23 +32,25 @@ void BaseEnemy::update()
 
 void BaseEnemy::MovetoTarget()
 {
+
+
 	pos = this->getPos();
 	tpos = this->targetObj->calcWorldPos();
 	XMFLOAT3 vec = { pos.x - tpos.x, 0, pos.z - tpos.z };
-	dir = { -vec.x , 0, -vec.z };
+	dir = { -vec.x, 0, -vec.z };
 
-	if (TargetFromDistance() < 3.0f)
+	if (TargetFromDistance() < 0.5f)
 	{
 		movestop = true;
 	}
 	if (movestop == true)
 	{
 		dir = { 0, 0, 0 };
-		MoveWaitTime++;
-		if (MoveWaitTime > 50)
+		waitTime++;
+		if (waitTime > 50)
 		{
 			movestop = false;
-			MoveWaitTime = 0;
+			waitTime = 0;
 		}
 	}
 
@@ -70,7 +74,7 @@ void BaseEnemy::RandomMove()
 
 	if (movestop == false)
 	{
-		MoveWaitTime = 0;
+		waitTime = 0;
 		movestop = true;
 		std::random_device rd;
 		std::mt19937 gen(rd());
@@ -81,8 +85,8 @@ void BaseEnemy::RandomMove()
 
 	else if (movestop == true)
 	{
-		MoveWaitTime++;
-		if (MoveWaitTime >= 100)
+		waitTime++;
+		if (waitTime >= 100)
 		{
 			movestop = false;
 		}
@@ -93,21 +97,10 @@ void BaseEnemy::RandomMove()
 
 void BaseEnemy::Attack()
 {
-	if (AtkWaitTime > 20)
+	if (AttackFlag == false)
 	{
 		AttackFlag = true;
-		AtkWaitTime = 0;
 	}
-	if (AttackFlag == true)
-	{
-		AttackTime++;
-		if (AttackTime >= 2)
-		{
-			AttackFlag = false;
-			AtkObj->setCol({ 1,1,1,1 });
-			AttackTime = 0;
-		}
-	}
-	AtkWaitTime++;
+	AttackProcess();
 	this->setCol({ 0,0,0,1 });
 }

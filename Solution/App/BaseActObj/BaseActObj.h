@@ -14,7 +14,13 @@ protected:
 	//移動スピード
 	float MoveSpeed = 1.5;
 
+
+	//
+	int WaitTime = 0;
+
+	//float Rot = 0;
 	Light* light;
+
 public:
 	//攻撃フラグ
 	bool AttackFlag = false;
@@ -96,8 +102,30 @@ public:
 		obj->position.x += normal_x * MoveSpeed;
 		obj->position.z += normal_z * MoveSpeed;
 
+
 		AtkObj->setPos({ obj->position.x ,obj->position.y,obj->position.z + 5 });
 
+		//プレーヤーの向き回転計算
+	/*	if (normal_x < 0 || normal_z < 0)
+		{
+			if (normal_x < 0 && normal_z < 0)
+			{
+				normal_x = -normal_x;
+				normal_z = -normal_z;
+			}
+
+			else if (normal_x < 0)
+			{
+				normal_x = -normal_x;
+			} else if (normal_z < 0)
+			{
+				normal_z = -normal_z;
+			}
+		}
+		Rot = normal_x / normal_z;
+		Rot = atanf(Rot);
+		Rot = Rot * (180 / XM_PI);
+		this->setRotation({ 0,Rot,0 });*/
 	}
 
 
@@ -106,11 +134,16 @@ public:
 
 		this->setCol({ 1,1,1,1 });
 
-		if (this->damage(1u, false))
+		if (AttackFlag == true)
 		{
-
-			this->kill();
-			return;
+			
+			WaitTime++;
+			if (WaitTime >= 5)
+			{
+				AttackFlag = false;
+				AtkObj->setCol({ 1,1,1,1 });
+				WaitTime = 0;
+			}
 		}
 	}
 

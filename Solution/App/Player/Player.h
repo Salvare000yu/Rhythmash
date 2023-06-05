@@ -8,11 +8,8 @@ class Player
 {
 	Input* input = nullptr;
 
-	
-private:
 	DirectX::XMFLOAT3 dir = { 0,0,0 };
 
-	int WaitTime = 0;
 public:
 	Player(Camera* camera,
 				ObjModel* model,
