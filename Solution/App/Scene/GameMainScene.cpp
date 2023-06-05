@@ -124,6 +124,7 @@ GameMainScene::GameMainScene()
 	enemy->getAttack();
 	enemy->getHp();
 
+	sound = new Sound("Resources/SE/practiseBGM.wav");
 }
 
 void GameMainScene::start()
@@ -133,12 +134,13 @@ void GameMainScene::start()
 
 	player->Mycoll.group.emplace_front(player->createCollider());
 	enemy->Mycoll.group.emplace_front(enemy->createCollider());
-	
+	Sound::SoundPlayWave(sound, XAUDIO2_LOOP_INFINITE);
 	
 }
 
 void GameMainScene::update()
 {
+
 	{
 		cameraobj->update();
 		player->update();

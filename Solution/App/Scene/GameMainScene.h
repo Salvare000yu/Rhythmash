@@ -14,6 +14,7 @@
 #include "GameObject/GameObj.h"
 #include "Camera/CameraObj.h"
 #include "Util/Util.h"
+#include"Sound/Sound.h"
 class GameMainScene :
 	public GameScene
 {
@@ -49,6 +50,7 @@ class GameMainScene :
 
 	DirectX::XMFLOAT3 Enemypos = { 0,0,0 };
 
+	Sound* sound;
 public:
 	GameMainScene();
 	void start() override;
