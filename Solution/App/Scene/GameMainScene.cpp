@@ -44,6 +44,12 @@ GameMainScene::GameMainScene()
 
 	light.reset(new Light());
 
+
+	StageModel = std::make_unique<ObjModel>("Resources/ring/", "ring");
+	StageObj = std::make_unique<GameObj>(cameraobj.get(), StageModel.get());
+
+	StageObj->setScale({ 10 });
+	StageObj->setRotation({ 0,90,0 });
 	//csvの読み込み
 	const std::vector<std::string> fileNames = { "Resources/Csv/enemy.csv","Resources/Csv/player.csv" };
 	Util::CSVType csvData = Util::loadCsv(fileNames, true, ',', "//");
@@ -139,6 +145,7 @@ void GameMainScene::update()
 		player->AtkObj->update();
 		enemy->update();
 		enemy->AtkObj->update();
+		StageObj->update();
 	}
 	
 	Playerpos = player->getPos();
@@ -194,6 +201,6 @@ void GameMainScene::drawFrontSprite()
 		enemy->drawWithUpdate(light.get());
 		enemy->AtkObj->drawWithUpdate(light.get());
 	}
-
+	StageObj->drawWithUpdate(light.get());
 
 }

@@ -20,27 +20,46 @@ void Player::update()
 
 void Player::Move()
 {
-	dir = { 0,0,0 };
+	dir = { 0, 0, 0 };
 
-	if (input->hitKey(DIK_W))
+	float max = 40.0f;
+	float min = -40.0f;
+	if (obj->position.z < max)
 	{
-		dir.z = 5;
-		MoveProcess(dir);
-	} else if (input->hitKey(DIK_S))
-	{
-		dir.z = -5;
-		MoveProcess(dir);
+		if (input->hitKey(DIK_W))
+		{
+			dir.z = 5;
+			MoveProcess(dir);
+		}
 	}
+	if (obj->position.z > min)
+	{
+		if (input->hitKey(DIK_S))
+		{
+			dir.z = -5;
+			MoveProcess(dir);
+		}
+	}
+	
+	if (obj->position.x < max)
+	{
+		if (input->hitKey(DIK_D))
+		{
+			dir.x = 5;
+			MoveProcess(dir);
+		}
+	}
+	if (obj->position.x > min)
+	{
+		if (input->hitKey(DIK_A))
+		{
+			dir.x = -5;
+			MoveProcess(dir);
+		}
+	}
+	
 
-	if (input->hitKey(DIK_D))
-	{
-		dir.x = 5;
-		MoveProcess(dir);
-	} else if (input->hitKey(DIK_A))
-	{
-		dir.x = -5;
-		MoveProcess(dir);
-	}
+
 }
 
 void Player::Attack()

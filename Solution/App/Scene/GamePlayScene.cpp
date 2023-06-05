@@ -175,88 +175,15 @@ void GamePlayScene::drawObj3d()
 
 void GamePlayScene::drawFrontSprite()
 {
-	
 	ImGui::SetNextWindowSize(ImVec2(400, 260));
 	ImGui::Begin("自機", nullptr, DX12Base::imGuiWinFlagsDef);
 	{
-		{
-			const auto& pWPos = objs.at("player")->calcWorldPos();
-			ImGui::Text("自機ワールド座標：%.1f %.1f %.1f", pWPos.x, pWPos.y, pWPos.z);
-		}
-		{
-			const auto& camPos = cameraObj->getEye();
-			ImGui::Text("カメラワールド座標：%.1f %.1f %.1f", camPos.x, camPos.y, camPos.z);
-		}
-		{
-			XMFLOAT3 dir{};
-			XMStoreFloat3(&dir, light->getCircleShadowDir(0));
-			float num[3]{ dir.x,dir.y,dir.z };
-			ImGui::SliderFloat3("丸影向", num, -1.f, 1.f);
-			if (num[0] != dir.x ||
-				num[1] != dir.y ||
-				num[2] != dir.z)
-			{
-				light->setCircleShadowDir(0, XMLoadFloat3(&XMFLOAT3(num)));
-			}
-		}
-		{
-			const auto& att = light->getCircleShadowAtten(0);
-			float num[3]{ att.x,att.y,att.z };
-			ImGui::SliderFloat3("丸影減衰", num, 0.f, 1.f);
-			if (num[0] != att.x ||
-				num[1] != att.y ||
-				num[2] != att.z)
-			{
-				light->setCircleShadowAtten(0, XMFLOAT3(num));
-			}
-		}
-		{
-			const float& preNum = light->getCircleShadowCaster2LightDistance(0);
-			float num = preNum;
-			ImGui::SliderFloat("丸影距離", &num, 0.f, 200.f);
-			if (num != preNum)
-			{
-				light->setCircleShadowCaster2LightDistance(0, num);
-			}
-		}
-		{
-			static DirectX::XMFLOAT2 angle{ 0.f, 0.5f };
-			float nums[2]{ angle.x, angle.y };
-			ImGui::SliderFloat2("丸影角度", nums, 0.f, 1.f, "%.6f", ImGuiSliderFlags_::ImGuiSliderFlags_NoRoundToFormat);
-			angle = XMFLOAT2(nums);
-
-			nums[0] = XMConvertToRadians(nums[0]);
-			nums[1] = XMConvertToRadians(nums[1]);
-
-			light->setCircleShadowFactorAngleRad(0, XMFLOAT2(nums));
-		}
-		{
-			const auto& att = light->getSpotLightAtten(0);
-			float num[3]{ att.x,att.y,att.z };
-			ImGui::SliderFloat3("スポットAtten", num, 0.f, 1.f);
-			light->setSpotLightAtten(0, XMFLOAT3(num));
-		}
-		{
-			static XMFLOAT2 angle{ 3, 6 };
-			float nums[2]{ angle.x, angle.y };
-			ImGui::SliderFloat2("スポット角度", nums, 0.f, 10.f, "%.6f", ImGuiSliderFlags_::ImGuiSliderFlags_NoRoundToFormat);
-			angle = XMFLOAT2(nums);
-
-			nums[0] = XMConvertToRadians(nums[0]);
-			nums[1] = XMConvertToRadians(nums[1]);
-			light->setSpotLightFactorAngleRad(0, XMFLOAT2(nums));
-		}
+		
 		{
 			const auto& player = objs.at("player");
-			const auto& col = player->getCol();
-			float alpha = col.w;
-			ImGui::SliderFloat("自機透明度", &alpha, 0.f, 1.f, "%.3f", ImGuiSliderFlags_::ImGuiSliderFlags_AlwaysClamp);
-			if (alpha != col.w)
-			{
-				player->setCol(XMFLOAT4(col.x, col.y, col.z, alpha));
-			}
+			const auto& pos = player->getPos();
+			ImGui::Text("自機座標：%.1f %.1f %.1f", pos.x, pos.y, pos.z);
 		}
 	}
 	ImGui::End();
-	
 }

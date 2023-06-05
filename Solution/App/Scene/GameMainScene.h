@@ -42,6 +42,9 @@ class GameMainScene :
 	std::unique_ptr<CameraObj> cameraobj;
 	std::unique_ptr<Light> light;
 	// --------------------
+	std::unique_ptr<GameObj> StageObj;
+	std::unique_ptr<ObjModel> StageModel;
+
 	DirectX::XMFLOAT3 Playerpos = { 0,0,0 };
 
 	DirectX::XMFLOAT3 Enemypos = { 0,0,0 };
