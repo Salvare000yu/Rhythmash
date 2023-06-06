@@ -4,7 +4,7 @@
 #include <CollisionMgr.h>
 #include "3D/Obj/ObjModel.h"
 #include <3D/ParticleMgr.h>
-
+#include <Sound/Sound.h>
 class Light;
 class Camera;
 
@@ -16,6 +16,7 @@ public:
 
 private:
 	std::unique_ptr<ParticleMgr> particleMgr;
+	std::unique_ptr<Sound> damage;
 
 protected:
 	//移動スピード

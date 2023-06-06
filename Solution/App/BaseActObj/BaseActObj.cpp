@@ -11,20 +11,24 @@ BaseActObj::BaseActObj(Camera* camera, ObjModel* model, const DirectX::XMFLOAT3&
 
 	atkObjPt = otherObj.emplace("AtkObj", std::make_unique<GameObj>(camera, atkModel.get())).first->second;
 
+	damage = std::make_unique<Sound>("Resources/SE/damage.wav");
+
 	auto atkObj = atkObjPt.lock();
 
 	atkObj->setParent((BaseObj*)obj.get());
 	atkObj->setPos(XMFLOAT3(0, 0, 5));
 	atkObj->setCol(XMFLOAT4(1, 1, 1, 0.2f));
 
-	atkcoll.group.emplace_front(CollisionMgr::ColliderType{.obj = atkObj.get(), .colliderR = atkObj->getScaleF3().z });
+	atkcoll.group.emplace_front(CollisionMgr::ColliderType{ .obj = atkObj.get(), .colliderR = atkObj->getScaleF3().z });
 
 	atkcoll.hitProc = [](GameObj* obj) {};
 	mycoll.hitProc = [&](GameObj* obj)
 	{
 		ParticleMgr::createParticle(particleMgr.get(), this->calcWorldPos(), 50ui16);
+		Sound::SoundPlayWave(damage.get());
 		if (obj->damage(1ui16, true))
 		{
+
 			this->setCol(XMFLOAT4(0, 0, 0, 1));
 			return;
 		}
