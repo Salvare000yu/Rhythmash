@@ -44,9 +44,9 @@ GameMainScene::GameMainScene() :
 	// 自機
 	// --------------------
 
-	playerModel = std::make_unique<ObjModel>("Resources/cube/", "cube");
+	playerModel = std::make_unique<ObjModel>("Resources/player_robot/", "player_robot");
 	player = std::make_unique<Player>(cameraObj.get(), playerModel.get());
-	player->setHp(20u);
+	player->setHp(20u); 
 
 
 	cameraObj->setParentObj(player.get());
@@ -84,7 +84,7 @@ void GameMainScene::update()
 
 	if (player->attackFlag == true)
 	{
-		player->getAtkObjPt().lock()->setCol({ 0,1,0,1 });
+		//player->getAtkObjPt().lock()->setCol({ 0,1,0,1 });
 		CollisionMgr::checkHitAll(player->atkcoll, enemy->mycoll);
 	}
 

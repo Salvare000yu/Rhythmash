@@ -88,12 +88,12 @@ void Player::Step()
 {
 	float stepRange = 45.0f;
 	float subRate = 5.0f;
+	float speed = GetSpeed();
 	if (input->triggerKey(DIK_LSHIFT) && judgeRet)
 	{
 		Sound::SoundPlayWave(se1.get());
-		SetSpeed(stepRange);	
+		speed = stepRange;
 	}
-	float speed = GetSpeed();
 	if (speed > MOVE_SPEED)
 	{
 		speed -= subRate;
