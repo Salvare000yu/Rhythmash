@@ -8,15 +8,14 @@
 
 using namespace DirectX;
 
-Player::Player(Camera* camera,
-			   ObjModel* model,
-			   const DirectX::XMFLOAT3& pos) :
-	BaseActObj(camera, model, pos),
-	input(Input::ins())
+Player::Player(Camera* camera, ObjModel* model, const DirectX::XMFLOAT3& pos) :BaseActObj(camera, model, pos), input(Input::ins())
 {
 	se1 = std::make_unique<Sound>("Resources/SE/Sys_Set03-click.wav");
 
 	moveSpeed = 20.f;
+
+	auto atkObj = atkObjPt.lock();
+	//atkObj->setPos({ 0,0,0 });
 
 	update_proc =
 		[&]
@@ -74,19 +73,26 @@ void Player::Move()
 
 void Player::Attack()
 {
+	auto atkObj = atkObjPt.lock();
 	if (input->triggerKey(DIK_SPACE) && judgeRet)
 	{
 		Sound::SoundPlayWave(se1.get());
 		attackFlag = true;
 		this->setCol(XMFLOAT4(0, 0, 1, 1));
-		auto atkObj = atkObjPt.lock();
+		
 		atkObj->setCol(XMFLOAT4(0, 1, 0, atkObj->getCol().w));
 	}
 
 	AttackProcess();
 
-	if (!attackFlag)
+	if (attackFlag)
 	{
+		const XMFLOAT2 rot = GameObj::calcRotationSyncVelDeg({-0.5,0,0});
+		atkObj->setRotation(XMFLOAT3(rot.x, rot.y, getRotation().z));
+	}
+	else {
+		const XMFLOAT2 rot = GameObj::calcRotationSyncVelDeg({ 0,0,0 });
+		atkObj->setRotation(XMFLOAT3(rot.x, rot.y, getRotation().z));
 		this->setCol({ 1,1,1,1 });
 	}
 }
@@ -104,4 +110,4 @@ void Player::Step()
 	{
 		SetSpeed(std::max(defSpeed, GetSpeed() + speedAcc));
 	}
-}
+}	

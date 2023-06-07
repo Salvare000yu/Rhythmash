@@ -8,6 +8,7 @@ BaseActObj::BaseActObj(Camera* camera, ObjModel* model, const DirectX::XMFLOAT3&
 	particleMgr(std::make_unique<ParticleMgr>(L"Resources/white.png", camera))
 {
 	atkModel = std::make_unique<ObjModel>("Resources/Attack/", "Attack");
+	//atkModel = std::make_unique<ObjModel>("Resources/player_robot_arm/", "player_robot_arm");
 
 	atkObjPt = otherObj.emplace("AtkObj", std::make_unique<GameObj>(camera, atkModel.get())).first->second;
 
