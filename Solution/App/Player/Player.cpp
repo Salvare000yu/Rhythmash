@@ -43,6 +43,10 @@ void Player::Move()
 	const bool hitA = Input::ins()->hitKey(DIK_A);
 	const bool hitS = Input::ins()->hitKey(DIK_S);
 	const bool hitD = Input::ins()->hitKey(DIK_D);
+	dir = { 0, 0, 0 };
+
+	float max = 40.0f;
+	float min = -40.0f;
 
 	// 該当キーが押されていれば移動する
 	const bool moved = hitW || hitA || hitS || hitD;
@@ -52,24 +56,40 @@ void Player::Move()
 
 	// 移動方向を決める
 	XMFLOAT3 dir{};
-	if (hitW)
+	if (obj->position.z < max)
 	{
-		dir.z = 1.f;
-	} else if (hitS)
-	{
-		dir.z = -1.f;
+		if (hitW)
+		{
+			dir.z = 1.f;
+		}
 	}
-
-	if (hitD)
+	if (obj->position.z > min)
 	{
-		dir.x = 1.f;
-	} else if (hitA)
-	{
-		dir.x = -1.f;
+		if (hitS)
+		{
+			dir.z = -1.f;
+		}
 	}
+	if (obj->position.x < max)
+	{
+		if (hitD)
+		{
+			dir.x = 1.f;
+		}
+	}
+	if (obj->position.x > min)
+	{
+		if (hitA)
+		{
+			dir.x = -1.f;
+		}
+	}
+	
 
 	// 移動する
 	MoveProcess(dir);
+
+
 }
 
 void Player::Attack()

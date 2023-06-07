@@ -20,14 +20,14 @@ void GameObj::additionalDraw(Light* light)
 
 bool GameObj::damage(uint16_t damegeNum, bool killFlag)
 {
-	if (damegeNum >= hp)
+	if (damegeNum >= hpBar)
 	{
-		hp = 0u;
+		hpBar = 0u;
 		if (killFlag) { kill(); }
 		return true;
 	}
 
-	hp -= damegeNum;
+	hpBar -= damegeNum;
 	return false;
 }
 

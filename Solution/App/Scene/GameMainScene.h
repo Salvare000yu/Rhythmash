@@ -13,6 +13,10 @@ class GameObj;
 class CameraObj;
 class Light;
 class Timer;
+class SpriteBase;
+class Sprite;
+class Util;
+class Sound;
 
 class GameMainScene :
 	public GameScene
@@ -54,6 +58,10 @@ class GameMainScene :
 	std::unique_ptr<CameraObj> cameraObj;
 	std::unique_ptr<Light> light;
 	// --------------------
+	std::unique_ptr<GameObj> stageObj;
+	std::unique_ptr<ObjModel> stageModel;
+
+	std::unique_ptr<Sound> sound;
 public:
 	GameMainScene();
 	void start() override;
@@ -63,4 +71,3 @@ public:
 
 	void addEnemy(const DirectX::XMFLOAT3& pos);
 };
-

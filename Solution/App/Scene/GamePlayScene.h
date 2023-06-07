@@ -3,13 +3,14 @@
 #include <memory>
 #include <unordered_map>
 #include <string>
+#include "Util/Util.h"
+
 
 class GameObj;
 class Light;
 class CameraObj;
 class Object3d;
 class ObjModel;
-
 class GamePlayScene :
     public GameScene
 {
@@ -23,6 +24,7 @@ private:
 	std::unordered_map<std::string, std::unique_ptr<ObjModel>> models;
 	std::unique_ptr<Light> light;
 	std::unique_ptr<CameraObj> cameraObj;
+
 
 public:
 	GamePlayScene();

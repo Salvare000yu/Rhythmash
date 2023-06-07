@@ -21,7 +21,8 @@ protected:
 
 	bool alive = true;
 
-	uint16_t hp = 1ui16;
+	uint16_t hpBar = 1ui16;
+	uint16_t attack = 1ui16;
 
 	std::unordered_map<std::string, std::function<void()>> additionalUpdateProc;
 	std::unordered_map<std::string, std::function<void(Light*)>> additionalDrawProc;
@@ -34,8 +35,11 @@ public:
 	inline void setPipelineStateNum(size_t num) { ppStateNum = num; }
 	inline size_t getPipelineStateNum() const { return ppStateNum; }
 
-	inline void setHp(uint16_t hpNum) { hp = hpNum; }
-	inline uint16_t getHp() const { return hp; }
+	inline void setHp(uint16_t hpNum) { hpBar = hpNum; }
+	inline uint16_t getHp() const { return hpBar; }
+	
+	inline void setAttack(uint16_t attackNum) { attack = attackNum; }
+	inline uint16_t getAttack() const { return attack; }
 
 	/// @brief ダメージを与える
 	/// @param damegeNum 与えるダメージ数

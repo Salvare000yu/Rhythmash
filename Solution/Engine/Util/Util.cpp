@@ -4,42 +4,48 @@
 
 using namespace DirectX;
 
-Util::CSVType Util::loadCsv(const std::string& csvFilePath,
+Util::CSVType Util::loadCsv(const std::vector<std::string>& csvFilePath,
 							bool commentFlag,
 							char divChar,
 							const std::string& commentStartStr)
 {
 	CSVType csvData{};	// csvの中身を格納
 
-	std::ifstream ifs(csvFilePath);
-	if (!ifs)
+	for (const auto& fileName : csvFilePath)
 	{
-		return csvData;
-	}
 
-	std::string line{};
-	// 開いたファイルを一行読み込む(カーソルも動く)
-	while (std::getline(ifs, line))
-	{
-		// コメントが有効かつ行頭が//なら、その行は無視する
-		if (commentFlag && line.find(commentStartStr) == 0U)
+		//CSVType csvData{};	// csvの中身を格納
+
+		std::ifstream ifs(fileName);
+		if (!ifs)
 		{
-			continue;
+			return csvData;
 		}
-
-		// 行数を増やす
-		csvData.emplace_back();
-
-		std::istringstream stream(line);
-		std::string field;
-		// 読み込んだ行を','区切りで分割
-		while (std::getline(stream, field, divChar))
+		std::string line{};
+		// 開いたファイルを一行読み込む(カーソルも動く)
+		while (std::getline(ifs, line))
 		{
-			csvData.back().emplace_back(field);
-		}
-	}
+			// コメントが有効かつ行頭が//なら、その行は無視する
+			if (commentFlag && line.find(commentStartStr) == 0U)
+			{
+				continue;
+			}
 
+			// 行数を増やす
+			csvData.emplace_back();
+
+			std::istringstream stream(line);
+			std::string field;
+			// 読み込んだ行を','区切りで分割
+			while (std::getline(stream, field, divChar))
+			{
+				csvData.back().emplace_back(field);
+			}
+		}
+		// csvDatas.emplace_back(CsvData);
+	}
 	return csvData;
+
 }
 
 DirectX::XMVECTOR Util::splinePosition(const std::vector<DirectX::XMVECTOR>& points, const size_t& startIndex, float t)
