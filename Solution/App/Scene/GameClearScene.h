@@ -5,9 +5,13 @@
 #include "2D/DebugText.h"
 #include "Input/Input.h"
 
+class Timer;
+
 class GameClearScene :
 	public GameScene
 {
+	std::unique_ptr<Timer> timer;
+
 	// --------------------
 	// スプライト
 	// --------------------

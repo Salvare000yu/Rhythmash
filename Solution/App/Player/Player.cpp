@@ -48,7 +48,7 @@ void Player::Move()
 	float max = 40.0f;
 	float min = -40.0f;
 
-	// 該当キーが押されていれば移動する
+	// 該当キーが押されていればsound
 	const bool moved = hitW || hitA || hitS || hitD;
 
 	// 移動しなければ終了

@@ -16,7 +16,7 @@ public:
 
 private:
 	std::unique_ptr<ParticleMgr> particleMgr;
-	std::unique_ptr<Sound> damage;
+	std::weak_ptr<Sound> damage;
 
 protected:
 	//移動スピード
@@ -39,6 +39,8 @@ public:
 
 	std::unique_ptr<ObjModel> atkModel;
 
+	inline void setDamageSe(const std::weak_ptr<Sound>& damageSound) { damage = damageSound; }
+
 	inline auto& getAtkObjPt() const { return atkObjPt; }
 
 	//基本移動動作
@@ -47,7 +49,6 @@ public:
 
 	void AttackProcess();
 
-	virtual ~BaseActObj() {}
 	virtual void Move() = 0;
 	virtual void Attack() = 0;
 

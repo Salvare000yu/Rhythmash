@@ -43,6 +43,13 @@ GameMainScene::GameMainScene() :
 	groundModel->setTexTilling(XMFLOAT2(groundSize, groundSize));
 
 	groundObj->color = XMFLOAT4(1, 1, 1, 0.5f);
+
+	// --------------------
+	// 音
+	// --------------------
+	sound = std::make_unique<Sound>("Resources/SE/practiseBGM.wav");
+	damageSe = std::make_shared<Sound>("Resources/SE/damage.wav");
+
 	// --------------------
 	// 自機
 	// --------------------
@@ -50,6 +57,7 @@ GameMainScene::GameMainScene() :
 	playerModel = std::make_unique<ObjModel>("Resources/cube/", "cube");
 	player = std::make_unique<Player>(cameraObj.get(), playerModel.get());
 	player->setHp(20u);
+	player->setDamageSe(damageSe);
 
 	cameraObj->setParentObj(player.get());
 
@@ -57,11 +65,6 @@ GameMainScene::GameMainScene() :
 	// 敵
 	// --------------------
 	enemyModel = std::make_unique<ObjModel>("Resources/enemy/", "enemy");
-	enemy = std::make_unique<BaseEnemy>(cameraObj.get(), enemyModel.get());
-
-	enemy->setHp(20u);
-	enemy->setTargetObj(player.get());
-	enemy->setPos({ 20,0,0 });
 
 	light.reset(new Light());
 
@@ -118,19 +121,11 @@ GameMainScene::GameMainScene() :
 			{
 				// todo 敵の複数化に対応
 
-				enemy->setAttack(i.attack);
-				enemy->setHp(i.hp);
-				enemy->setPos(e);
+				auto tmp = addEnemy(e).lock();
+				tmp->setAttack(i.attack);
+				tmp->setHp(i.hp);
 			}
 		}
-	}
-
-	sound = std::make_unique<Sound>("Resources/SE/practiseBGM.wav");
-}
-	for (int i = 1; i < 4; i++)
-	{
-		XMFLOAT3 pos = { 15 * (float)i,0,20 * (float)i };
-		addEnemy(pos);
 	}
 }
 
@@ -167,6 +162,7 @@ void GameMainScene::update()
 			CollisionMgr::checkHitAll(player->atkcoll, i->mycoll);
 		}
 	}
+	enemy.remove_if([](const std::shared_ptr<BaseEnemy>& e) { return !e->getAlive(); });
 
 	{
 		const float raitoColor = std::lerp(0.25f, 1.f, 1.f - nowBeatRaito);
@@ -176,22 +172,16 @@ void GameMainScene::update()
 		player->setJudge(judgeRet);
 	}
 
-	cameraObj->update();
 	//シーン移行
 	if (!player->getAlive())
 	{
 		SceneManager::getInstange()->changeScene<GameOverScene>();
+	} else if (enemy.empty())
+	{
+		SceneManager::getInstange()->changeScene<GameClearScene>();
 	}
 
-	for (const auto& i : enemy)
-	{
-		NonEnemy = !i->getAlive();
-		if (!NonEnemy) { break; }
-		if (NonEnemy)
-		{
-			SceneManager::getInstange()->changeScene<GameClearScene>();
-		}
-	}
+	cameraObj->update();
 }
 
 void GameMainScene::drawObj3d()
@@ -233,12 +223,15 @@ void GameMainScene::drawFrontSprite()
 	ImGui::End();
 }
 
-void GameMainScene::addEnemy(const DirectX::XMFLOAT3& pos)
+std::weak_ptr<BaseEnemy> GameMainScene::addEnemy(const DirectX::XMFLOAT3& pos)
 {
 	auto& i = enemy.emplace_front(std::make_shared<BaseEnemy>(cameraObj.get(), enemyModel.get()));
 
 	i->setHp(3u);
 	i->setTargetObj(player.get());
 	i->setPos(pos);
+	i->setDamageSe(damageSe);
+
+	return i;
 }
 

@@ -53,15 +53,15 @@ class GameMainScene :
 	std::unique_ptr<ObjModel> enemyModel;
 	std::unique_ptr<GameObj> enemyObj;
 
-	bool NonEnemy = false;
-	// --------------------
+
 	std::unique_ptr<CameraObj> cameraObj;
 	std::unique_ptr<Light> light;
-	// --------------------
+
 	std::unique_ptr<GameObj> stageObj;
 	std::unique_ptr<ObjModel> stageModel;
 
 	std::unique_ptr<Sound> sound;
+	std::shared_ptr<Sound> damageSe;
 public:
 	GameMainScene();
 	void start() override;
@@ -69,5 +69,5 @@ public:
 	void drawObj3d() override;
 	void drawFrontSprite() override;
 
-	void addEnemy(const DirectX::XMFLOAT3& pos);
+	std::weak_ptr<BaseEnemy> addEnemy(const DirectX::XMFLOAT3& pos);
 };
