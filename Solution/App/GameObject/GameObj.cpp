@@ -2,11 +2,27 @@
 
 using namespace DirectX;
 
+void GameObj::additionalUpdate()
+{
+	for (auto& i : additionalUpdateProc)
+	{
+		i.second();
+	}
+}
+
+void GameObj::additionalDraw(Light* light)
+{
+	for (auto& i : additionalDrawProc)
+	{
+		i.second(light);
+	}
+}
+
 bool GameObj::damage(uint16_t damegeNum, bool killFlag)
 {
 	if (damegeNum >= hpBar)
 	{
-		//hp = 0u;
+		hpBar = 0u;
 		if (killFlag) { kill(); }
 		return true;
 	}
@@ -15,44 +31,42 @@ bool GameObj::damage(uint16_t damegeNum, bool killFlag)
 	return false;
 }
 
-void GameObj::moveForward(float moveVel, bool moveYFlag)
+XMFLOAT3 GameObj::move(const DirectX::XMVECTOR& dirNormal, float speed, bool moveYFlag, bool moveFlag)
 {
-	// Z方向のベクトルを、自機の向いている向きに回転
-	XMVECTOR velVec = XMVector3Transform(XMVectorSet(0, 0, moveVel, 1), obj->getMatRota());
+	XMVECTOR velVec = XMVector3Transform(dirNormal, obj->getMatRota());
 
 	// Y方向に移動しないならY成分を消す
 	if (!moveYFlag)
 	{
-		// absがあるのは、大きさのみ指定したいから。
-		// absがないと、moveVelがマイナスの場合に
-		// マイナス * マイナスでプラスになってしまう
-		velVec = XMVectorScale(XMVector3Normalize(XMVectorSetY(velVec, 0.f)),
-							   std::abs(moveVel));
+		velVec = XMVector3Normalize(XMVectorSetY(velVec, 0.f));
 	}
 
-	obj->position.x += XMVectorGetX(velVec);
-	obj->position.y += XMVectorGetY(velVec);
-	obj->position.z += XMVectorGetZ(velVec);
+	// absがあるのは、大きさのみ指定したいから。
+	// absがないと、moveVelがマイナスの場合に
+	// マイナス * マイナスでプラスになってしまう
+	velVec *= std::abs(speed);
+
+	XMFLOAT3 vel{};
+	XMStoreFloat3(&vel, velVec);
+
+	if(moveFlag)
+	{
+		obj->position.x += vel.x;
+		obj->position.y += vel.y;
+		obj->position.z += vel.z;
+	}
+
+	return vel;
+}
+
+void GameObj::moveForward(float moveVel, bool moveYFlag)
+{
+	move(XMVectorSet(0, 0, 1, 0), moveVel, moveYFlag);
 }
 
 void GameObj::moveRight(float moveVel, bool moveYFlag)
 {
-	// X方向のベクトルを、自機の向いている向きに回転
-	XMVECTOR velVec = XMVector3Transform(XMVectorSet(moveVel, 0, 0, 1), obj->getMatRota());
-
-	// Y方向に移動しないならY成分を消す
-	if (!moveYFlag)
-	{
-		// absがあるのは、大きさのみ指定したいから。
-		// absがないと、moveVelがマイナスの場合に
-		// マイナス * マイナスでプラスになってしまう
-		velVec = XMVectorScale(XMVector3Normalize(XMVectorSetY(velVec, 0.f)),
-							   std::abs(moveVel));
-	}
-
-	obj->position.x += XMVectorGetX(velVec);
-	obj->position.y += XMVectorGetY(velVec);
-	obj->position.z += XMVectorGetZ(velVec);
+	move(XMVectorSet(1, 0, 0, 0), moveVel, moveYFlag);
 }
 
 void GameObj::moveParentRight(float moveVel, bool moveYFlag)
@@ -110,37 +124,33 @@ void GameObj::moveParentUp(float moveVel)
 GameObj::GameObj(Camera* camera,
 				 ObjModel* model,
 				 const DirectX::XMFLOAT3& pos)
-	: objObject(std::make_unique<Object3d>(camera,
-										   model)),
+	: obj(std::make_unique<Object3d>(camera, model)),
 	ppStateNum(Object3d::ppStateNum)
 {
-	obj = objObject.get();
 	setPos(pos);
-}
-
-GameObj::GameObj(Camera* camera)
-	: objObject(std::make_unique<Object3d>(camera, nullptr)),
-	ppStateNum(Object3d::ppStateNum)
-{
-	obj = objObject.get();
 }
 
 GameObj::~GameObj()
 {
-	objObject.reset(nullptr);
+	obj.reset(nullptr);
 }
 
 void GameObj::update()
 {
-	additionalUpdate();
 	obj->update();
+	for (auto& i : otherObj)
+	{
+		i.second->update();
+	}
+	additionalUpdate();
 }
 
 void GameObj::draw(Light* light)
 {
-	if (drawFlag)
+	obj->draw(light, ppStateNum);
+	for (auto& i : otherObj)
 	{
-		obj->draw(light, ppStateNum);
+		i.second->draw(light);
 	}
 	additionalDraw(light);
 }
@@ -150,6 +160,4 @@ void GameObj::drawWithUpdate(Light* light)
 	update();
 
 	draw(light);
-
-	additionalDraw(light);
 }

@@ -16,6 +16,7 @@ class InputMgr
 {
 private:
 	Input* input = nullptr;
+	float rate;				//マウスの感度
 public:
 	InputMgr();
 	bool GetInput(ACTION act);

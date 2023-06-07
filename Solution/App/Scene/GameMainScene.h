@@ -1,46 +1,62 @@
 ﻿#pragma once
 #include "System/GameScene.h"
 #include <memory>
-#include <functional>
-#include <thread>
 #include <DirectXMath.h>
-#include "2D/DebugText.h"
-#include "Input/Input.h"
-// -----------------------
-#include "Player/Player.h"
-// -----------------------
-#include "Enemy/BaseEnemy.h"
-#include "3D/Obj/ObjModel.h"
-#include "GameObject/GameObj.h"
-#include "Camera/CameraObj.h"
-#include "Util/Util.h"
-#include"Sound/Sound.h"
+
+class Input;
+class Player;
+class BaseEnemy;
+class ObjModel;
+class Object3d;
+class GameObj;
+class CameraObj;
+class Light;
+class Timer;
+class SpriteBase;
+class Sprite;
+class Util;
+class Sound;
+
 class GameMainScene :
 	public GameScene
 {
-	// --------------------
-	// スプライト
-	// --------------------
-	std::unique_ptr<SpriteBase> spCom;
-	//std::unique_ptr<Sprite> clear;
-	std::unique_ptr<Sprite> titleBack;
-	std::unique_ptr<Sprite> hpBar;
-	// --------------------
-	// デバッグテキスト
-	// --------------------
-	std::unique_ptr<DebugText> debugText;
-
+	// シングルトンインスタンス格納変数
 	Input* input = nullptr;
+
+	// --------------------
+	// 時間関係
+	// --------------------
+	std::unique_ptr<Timer> timer;
+
+	float bpm{};
+	const float judgeOkRange{};
+	float nowCount{};
+	float nowBeatRaito{};
+
+	// --------------------
+	// 背景
+	//std::unique_ptr<SpriteBase> spCom;
+	////std::unique_ptr<Sprite> clear;
+	//std::unique_ptr<Sprite> titleBack;
+	//std::unique_ptr<Sprite> hpBar;
+	// --------------------
+	std::unique_ptr<ObjModel> groundModel;
+	std::unique_ptr<Object3d> groundObj;
+
+	// --------------------
+	// ゲームオブジェクト
+	// --------------------
+
 	//プレイヤーの生成
 	std::unique_ptr<Player> player;
-	std::unique_ptr<ObjModel> PlayerModel;
-	std::unique_ptr<GameObj> PlayerObj;
+	std::unique_ptr<ObjModel> playerModel;
+	std::unique_ptr<GameObj> playerObj;
 	// --------------------
 	std::unique_ptr<BaseEnemy> enemy;
-	std::unique_ptr<ObjModel> EnemyModel;
-	std::unique_ptr<GameObj> EnemyObj;
+	std::unique_ptr<ObjModel> enemyModel;
+	std::unique_ptr<GameObj> enemyObj;
 	// --------------------
-	std::unique_ptr<CameraObj> cameraobj;
+	std::unique_ptr<CameraObj> cameraObj;
 	std::unique_ptr<Light> light;
 	// --------------------
 	std::unique_ptr<GameObj> StageObj;
@@ -55,6 +71,7 @@ public:
 	GameMainScene();
 	void start() override;
 	void update() override;
+	void drawObj3d() override;
 	void drawFrontSprite() override;
 	float hpbar = -1;
 };

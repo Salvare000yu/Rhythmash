@@ -1,74 +1,127 @@
 ﻿#include "Player.h"
 #include "Enemy/BaseEnemy.h"
-Player::Player(Camera* camera,
-						 ObjModel* model,
-						 const DirectX::XMFLOAT3& pos)
-	:BaseActObj(camera, model, pos)
-{
-	input = Input::getInstance();
-}
+#include <InputMgr.h>
+#include <cmath>
+#include <Util/Timer.h>
 
-void Player::update()
+#include <Input/Input.h>
+
+using namespace DirectX;
+
+Player::Player(Camera* camera,
+			   ObjModel* model,
+			   const DirectX::XMFLOAT3& pos) :
+	BaseActObj(camera, model, pos),
+	input(Input::ins())
 {
-	Move();
-	Attack();
-	if (!this->getAlive())
+	se1 = std::make_unique<Sound>("Resources/SE/Sys_Set03-click.wav");
+
+	moveSpeed = 20.f;
+
+	update_proc =
+		[&]
 	{
-		this->setCol({ 0,0,0,1 });
-	}
+		if (!this->getAlive())
+		{
+			update_proc = [] {};
+			this->setCol({ 0,0,0,1 });
+			return;
+		}
+
+		Move();
+		Attack();
+		Step();
+	};
+
+	additionalUpdateProc.emplace("Player::update_proc", [&] { update_proc(); });
 }
 
 void Player::Move()
 {
+	// キー入力を取得
+	const bool hitW = Input::ins()->hitKey(DIK_W);
+	const bool hitA = Input::ins()->hitKey(DIK_A);
+	const bool hitS = Input::ins()->hitKey(DIK_S);
+	const bool hitD = Input::ins()->hitKey(DIK_D);
 	dir = { 0, 0, 0 };
 
 	float max = 40.0f;
 	float min = -40.0f;
+
+	// 該当キーが押されていれば移動する
+	const bool moved = hitW || hitA || hitS || hitD;
+
+	// 移動しなければ終了
+	if (!moved) { return; }
+
+	// 移動方向を決める
+	XMFLOAT3 dir{};
 	if (obj->position.z < max)
 	{
-		if (input->hitKey(DIK_W))
+		if (hitW)
 		{
-			dir.z = 5;
-			MoveProcess(dir);
+			dir.z = 1.f;
 		}
 	}
 	if (obj->position.z > min)
 	{
-		if (input->hitKey(DIK_S))
+		if (hitS)
 		{
-			dir.z = -5;
-			MoveProcess(dir);
+			dir.z = -1.f;
 		}
 	}
-	
 	if (obj->position.x < max)
 	{
-		if (input->hitKey(DIK_D))
+		if (hitD)
 		{
-			dir.x = 5;
-			MoveProcess(dir);
+			dir.x = 1.f;
 		}
 	}
 	if (obj->position.x > min)
 	{
-		if (input->hitKey(DIK_A))
+		if (hitA)
 		{
-			dir.x = -5;
-			MoveProcess(dir);
+			dir.x = -1.f;
 		}
 	}
 	
+
+	// 移動する
+	MoveProcess(dir);
 
 
 }
 
 void Player::Attack()
 {
-	if (input->hitKey(DIK_SPACE))
+	if (input->triggerKey(DIK_SPACE) && judgeRet)
 	{
-		AttackFlag = true;
-		this->setCol({ 0,0,1,1 });
+		Sound::SoundPlayWave(se1.get());
+		attackFlag = true;
+		this->setCol(XMFLOAT4(0, 0, 1, 1));
+		auto atkObj = atkObjPt.lock();
+		atkObj->setCol(XMFLOAT4(0, 1, 0, atkObj->getCol().w));
 	}
 
 	AttackProcess();
+
+	if (!attackFlag)
+	{
+		this->setCol({ 1,1,1,1 });
+	}
+}
+
+void Player::Step()
+{
+	constexpr float defSpeed = BaseActObj::moveSpeedDef;
+	constexpr float dashSpeed = defSpeed * 3.f;
+	constexpr float speedAcc = -dashSpeed / 12.f;
+
+	if (Input::ins()->triggerKey(DIK_LSHIFT) && judgeRet)
+	{
+		SetSpeed(dashSpeed);
+	} else
+	{
+		SetSpeed(std::max(defSpeed, GetSpeed() + speedAcc));
+	}
 }
