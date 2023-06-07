@@ -97,7 +97,7 @@ void Player::Step()
 	constexpr float dashSpeed = defSpeed * 3.f;
 	constexpr float speedAcc = -dashSpeed / 12.f;
 
-	if (Input::ins()->triggerKey(DIK_LSHIFT) && judgeRet)
+	if (Input::ins()->triggerKey(DIK_C) && judgeRet)
 	{
 		SetSpeed(dashSpeed);
 	} else

@@ -112,7 +112,7 @@ void GameMainScene::drawObj3d()
 
 void GameMainScene::drawFrontSprite()
 {
-	ImGui::SetNextWindowSize(ImVec2(400, 40));
+	ImGui::SetNextWindowSize(ImVec2(400, 400));
 	ImGui::Begin("自機",
 				 nullptr,
 				 DX12Base::ImGuiWinFlagsNoTitleBar
@@ -128,6 +128,10 @@ void GameMainScene::drawFrontSprite()
 
 	ImGui::GetWindowDrawList()->AddRectFilled(posLT, posRB, ImU32(0xff2222f8));
 	ImGui::Text(judgeRet ? "OK!!!" : "");
+
+	ImGui::Text("[WASD]: 移動");
+	ImGui::Text("移動 + リズムよく[C]: ダッシュ");
+	ImGui::Text("リズムよく[スペース]: 前方に攻撃");
 
 	ImGui::End();
 }
