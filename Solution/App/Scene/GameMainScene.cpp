@@ -12,7 +12,8 @@
 #include <3D/Obj/ObjModel.h>
 #include <GameObject/GameObj.h>
 #include <Camera/CameraObj.h>
-
+#include <Scene/GameOverScene.h>
+#include <Scene/GameClearScene.h>
 using namespace DirectX;
 
 GameMainScene::GameMainScene() :
@@ -54,11 +55,11 @@ GameMainScene::GameMainScene() :
 	// 敵
 	// --------------------
 	enemyModel = std::make_unique<ObjModel>("Resources/enemy/", "enemy");
-	enemy = std::make_unique<BaseEnemy>(cameraObj.get(), enemyModel.get());
-
-	enemy->setHp(20u);
-	enemy->setTargetObj(player.get());
-	enemy->setPos({ 20,0,0 });
+	for (int i = 1; i < 4; i++)
+	{
+		XMFLOAT3 pos = { 15 * (float)i,0,20 * (float)i };
+		addEnemy(pos);
+	}
 }
 
 void GameMainScene::start()
@@ -67,7 +68,11 @@ void GameMainScene::start()
 	input->changeDispMouseCursorFlag(true);
 
 	player->mycoll.group.emplace_front(player->createCollider());
-	enemy->mycoll.group.emplace_front(enemy->createCollider());
+	for (auto& i : enemy)
+	{
+		i->mycoll.group.emplace_front(i->createCollider());
+	}
+
 
 	// タイマーの起点時間をリセット
 	timer->reset();
@@ -77,15 +82,17 @@ void GameMainScene::update()
 {
 	// 拍内進行度と拍数を更新
 	nowBeatRaito = Timer::calcNowBeatRaito((float)timer->getNowTime(), bpm, nowCount);
-
-	if (enemy->attackFlag == true)
+	for (auto& i : enemy)
 	{
-		CollisionMgr::checkHitAll(enemy->atkcoll, player->mycoll);
-	}
+		if (i->attackFlag == true)
+		{
+			CollisionMgr::checkHitAll(i->atkcoll, player->mycoll);
+		}
 
-	if (player->attackFlag == true)
-	{
-		CollisionMgr::checkHitAll(player->atkcoll, enemy->mycoll);
+		if (player->attackFlag == true)
+		{
+			CollisionMgr::checkHitAll(player->atkcoll, i->mycoll);
+		}
 	}
 
 	{
@@ -97,6 +104,21 @@ void GameMainScene::update()
 	}
 
 	cameraObj->update();
+	//シーン移行
+	if (!player->getAlive())
+	{
+		SceneManager::getInstange()->changeScene<GameOverScene>();
+	}
+
+	for (const auto& i : enemy)
+	{
+		NonEnemy = !i->getAlive();
+		if (!NonEnemy) { break; }
+		if (NonEnemy)
+		{
+			SceneManager::getInstange()->changeScene<GameClearScene>();
+		}
+	}
 }
 
 void GameMainScene::drawObj3d()
@@ -104,9 +126,10 @@ void GameMainScene::drawObj3d()
 	groundObj->drawWithUpdate(light.get());
 
 	player->drawWithUpdate(light.get());
-	if (enemy->getAlive())
+	for (auto& i : enemy)
 	{
-		enemy->drawWithUpdate(light.get());
+		if (!i->getAlive()) { continue; }
+		i->drawWithUpdate(light.get());
 	}
 }
 
@@ -135,3 +158,13 @@ void GameMainScene::drawFrontSprite()
 
 	ImGui::End();
 }
+
+void GameMainScene::addEnemy(const DirectX::XMFLOAT3& pos)
+{
+	auto& i = enemy.emplace_front(std::make_shared<BaseEnemy>(cameraObj.get(), enemyModel.get()));
+
+	i->setHp(3u);
+	i->setTargetObj(player.get());
+	i->setPos(pos);
+}
+

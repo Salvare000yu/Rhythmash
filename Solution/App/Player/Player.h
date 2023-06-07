@@ -18,6 +18,7 @@ class Player
 	DirectX::XMFLOAT3 dir = { 0,0,0 };
 	bool judgeRet = false;
 
+	int AttackFrame = 0;
 public:
 	Player(Camera* camera,
 		   ObjModel* model,

@@ -1,8 +1,9 @@
 ﻿#pragma once
 #include "BaseActObj/BaseActObj.h"
-#include <memory>
+
 #include "EnemyBehavior.h"
 #include "Collision/Collision.h"
+
 class BaseEnemy :
 	public BaseActObj
 {
@@ -20,6 +21,8 @@ protected:
 	float maxZ = 30.0f;
 
 	int waitTime = 0;
+	int AtkwaitTime = 0;
+	int AtkTime = 0;
 	bool movestop = false;
 
 	// 攻撃対象へのポインタ

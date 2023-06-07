@@ -2,6 +2,7 @@
 #include "System/GameScene.h"
 #include <memory>
 #include <DirectXMath.h>
+#include <forward_list>
 
 class Input;
 class Player;
@@ -43,10 +44,12 @@ class GameMainScene :
 	std::unique_ptr<Player> player;
 	std::unique_ptr<ObjModel> playerModel;
 	std::unique_ptr<GameObj> playerObj;
-	// --------------------
-	std::unique_ptr<BaseEnemy> enemy;
+	// エネミー関連--------------------
+	std::forward_list<std::shared_ptr<BaseEnemy>> enemy;
 	std::unique_ptr<ObjModel> enemyModel;
 	std::unique_ptr<GameObj> enemyObj;
+
+	bool NonEnemy = false;
 	// --------------------
 	std::unique_ptr<CameraObj> cameraObj;
 	std::unique_ptr<Light> light;
@@ -57,5 +60,7 @@ public:
 	void update() override;
 	void drawObj3d() override;
 	void drawFrontSprite() override;
+
+	void addEnemy(const DirectX::XMFLOAT3& pos);
 };
 

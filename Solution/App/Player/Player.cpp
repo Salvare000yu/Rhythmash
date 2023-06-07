@@ -83,10 +83,19 @@ void Player::Attack()
 		atkObj->setCol(XMFLOAT4(0, 1, 0, atkObj->getCol().w));
 	}
 
-	AttackProcess();
-
+	//AttackProcess();
+	if (attackFlag==true)
+	{
+		AttackFrame++;
+		if (AttackFrame>=2)
+		{
+			attackFlag = false;
+			AttackFrame = 0;
+		}
+	}
 	if (!attackFlag)
 	{
+
 		this->setCol({ 1,1,1,1 });
 	}
 }

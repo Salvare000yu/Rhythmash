@@ -85,7 +85,21 @@ void BaseEnemy::RandomMove()
 
 void BaseEnemy::Attack()
 {
-	attackFlag = true;
-	AttackProcess();
+	AtkwaitTime++;
+	if (AtkwaitTime>20)
+	{
+		attackFlag = true;
+		AtkwaitTime = 0;
+	}
+	if (attackFlag==true)
+	{
+		AtkTime++;
+		if (AtkTime>=2)
+		{
+			attackFlag = false;
+			AtkTime = 0;
+		}
+	}
+	//AttackProcess();
 	this->setCol({ 0,0,0,1 });
 }
