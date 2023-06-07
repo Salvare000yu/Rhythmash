@@ -35,10 +35,6 @@ class GameMainScene :
 
 	// --------------------
 	// 背景
-	//std::unique_ptr<SpriteBase> spCom;
-	////std::unique_ptr<Sprite> clear;
-	//std::unique_ptr<Sprite> titleBack;
-	//std::unique_ptr<Sprite> hpBar;
 	// --------------------
 	std::unique_ptr<ObjModel> groundModel;
 	std::unique_ptr<Object3d> groundObj;
@@ -59,20 +55,14 @@ class GameMainScene :
 	std::unique_ptr<CameraObj> cameraObj;
 	std::unique_ptr<Light> light;
 	// --------------------
-	std::unique_ptr<GameObj> StageObj;
-	std::unique_ptr<ObjModel> StageModel;
+	std::unique_ptr<GameObj> stageObj;
+	std::unique_ptr<ObjModel> stageModel;
 
-	DirectX::XMFLOAT3 Playerpos = { 0,0,0 };
-
-	DirectX::XMFLOAT3 Enemypos = { 0,0,0 };
-
-	Sound* sound;
+	std::unique_ptr<Sound> sound;
 public:
 	GameMainScene();
 	void start() override;
 	void update() override;
 	void drawObj3d() override;
 	void drawFrontSprite() override;
-	float hpbar = -1;
 };
-

@@ -14,13 +14,14 @@
 #include <Camera/CameraObj.h>
 #include "Util/Util.h"
 #include"Sound/Sound.h"
+
 using namespace DirectX;
 
 GameMainScene::GameMainScene() :
 	input(Input::ins()),
 	light(std::make_unique<Light>()),
 	timer(std::make_unique<Timer>()),
-	bpm(120.f),
+	bpm(100.f),
 	judgeOkRange(0.25f)
 {
 	PostEffect::getInstance()->setAlpha(1.f);
@@ -48,13 +49,6 @@ GameMainScene::GameMainScene() :
 	player = std::make_unique<Player>(cameraObj.get(), playerModel.get());
 	player->setHp(20u);
 
-	
-	
-	/*hpBar = std::make_unique<Sprite>(spCom->loadTexture(L"Resources/hp.png"),
-									 spCom.get(),
-							 XMFLOAT2(0.f, 0.f));
-	hpBar->setSize(XMFLOAT2((float)WinAPI::window_width, (float)WinAPI::window_height));*/
-
 	cameraObj->setParentObj(player.get());
 
 	// --------------------
@@ -62,7 +56,6 @@ GameMainScene::GameMainScene() :
 	// --------------------
 	enemyModel = std::make_unique<ObjModel>("Resources/enemy/", "enemy");
 	enemy = std::make_unique<BaseEnemy>(cameraObj.get(), enemyModel.get());
-	
 
 	enemy->setHp(20u);
 	enemy->setTargetObj(player.get());
@@ -70,88 +63,67 @@ GameMainScene::GameMainScene() :
 
 	light.reset(new Light());
 
+	stageModel = std::make_unique<ObjModel>("Resources/ring/", "ring");
+	stageObj = std::make_unique<GameObj>(cameraObj.get(), stageModel.get());
 
-	StageModel = std::make_unique<ObjModel>("Resources/ring/", "ring");
-	StageObj = std::make_unique<GameObj>(cameraObj.get(), StageModel.get());
-
-	StageObj->setScale({ 10 });
-	StageObj->setRotation({ 0,90,0 });
-	StageObj->setPos({ 0,0,0 });
+	stageObj->setScale(10);
+	stageObj->setRotation({ 0,90,0 });
+	stageObj->setPos({ 0,0,0 });
 	//csvの読み込み
 	const std::vector<std::string> fileNames = { "Resources/Csv/enemy.csv","Resources/Csv/player.csv" };
 	Util::CSVType csvData = Util::loadCsv(fileNames, true, ',', "//");
-	
-	XMFLOAT3 csvpos{};
-	std::vector<XMFLOAT3> enemypos;
-	std::vector<XMFLOAT3> enemypos2;
-	std::vector<XMFLOAT3> enemypos3;
-	XMFLOAT3 playerpos;
-	std::string currentType;
-	float hp = 0.0f;
-	float attack = 0.0f;
 
-
-	for (size_t i = 0; i < csvData.size(); i++)
+	struct CavDataFormat
 	{
-		
-		if (csvData[i][0] == "type")
-		{
-			currentType = csvData[i][1];
-			continue;
+		std::string type = "";
+		uint16_t hp = 0ui16;
+		uint16_t attack = 0ui16;
+		std::forward_list<XMFLOAT3> pos{};
+	};
+	std::forward_list<CavDataFormat> loadedCsvData;
+	CavDataFormat* currentData = nullptr;
 
-		} else if (csvData[i][0] == "position")
+	for (const auto& i : csvData)
+	{
+		if (i[0] == "type")
 		{
-			csvpos.x = std::stof(csvData[i][1]);
-			csvpos.y = std::stof(csvData[i][2]);
-			csvpos.z = std::stof(csvData[i][3]);
-		} else if (csvData[i][0] == "hp")
+			loadedCsvData.emplace_front(CavDataFormat{ .type = i[1] });
+			currentData = &loadedCsvData.front();
+		} else if (currentData)
 		{
-			hp = std::stof(csvData[i][1]);
-			continue;
-		}else if (csvData[i][0] == "attack")
-		{
-			attack = std::stof(csvData[i][1]);
-			continue;
-		}
-
-		if (currentType == "enemy")
-		{
-			enemypos.push_back(csvpos);
-			if (hp > 0) { enemy->setHp(static_cast<uint16_t>(hp)); }
-			if (attack > 0) { enemy->setAttack(static_cast<uint16_t>(attack)); }
-			hp = 0;
-			attack = 0;
-			
-		}/* else if (currentType == "enemy2")
-		{
-			enemypos2.push_back(csvpos);
-			if (hp > 0) { enemy2->setHp(static_cast<uint16_t>(hp)); }
-			if (attack > 0) { enemy2->setAttack(static_cast<uint16_t>(attack)); }
-			hp = 0;
-			attack = 0;
-		}*//* else if (currentType == "enemy3")
-		{
-			enemypos3.push_back(csvpos);
-			if (hp > 0) { enemy3->setHp(static_cast<uint16_t>(hp)); }
-			if (attack > 0) { enemy3->setAttack(static_cast<uint16_t>(attack)); }
-			hp = 0;
-			attack=0;
-		}*/ else if (currentType == "player")
-		{
-			playerpos = csvpos;
-			if (hp > 0){ player->setHp(static_cast<uint16_t>(hp)); }
-			if (attack > 0) { player->setAttack(static_cast<uint16_t>(attack)); }
-			hp = 0;
-			attack = 0;
+			if (i[0] == "position")
+			{
+				currentData->pos.emplace_front(XMFLOAT3(std::stof(i[1]),
+														std::stof(i[2]),
+														std::stof(i[3])));
+			} else if (i[0] == "hp")
+			{
+				currentData->hp = static_cast<uint16_t>(std::stoul(i[1]));
+			}
 		}
 	}
-	//player->setPos(playerpos);
-	player->getAttack();
-	player->getHp();
-	enemy->getAttack();
-	enemy->getHp();
 
-	sound = new Sound("Resources/SE/practiseBGM.wav");
+	for (const auto& i : loadedCsvData)
+	{
+		if (i.type == "player")
+		{
+			player->setAttack(i.attack);
+			player->setHp(i.hp);
+			player->setPos(i.pos.front());
+		} else if (i.type == "enemy")
+		{
+			for (const auto& e : i.pos)
+			{
+				// todo 敵の複数化に対応
+
+				enemy->setAttack(i.attack);
+				enemy->setHp(i.hp);
+				enemy->setPos(e);
+			}
+		}
+	}
+
+	sound = std::make_unique<Sound>("Resources/SE/practiseBGM.wav");
 }
 
 void GameMainScene::start()
@@ -162,8 +134,8 @@ void GameMainScene::start()
 	player->mycoll.group.emplace_front(player->createCollider());
 	enemy->mycoll.group.emplace_front(enemy->createCollider());
 
-	Sound::SoundPlayWave(sound, XAUDIO2_LOOP_INFINITE);
-	
+	Sound::SoundPlayWave(sound.get(), XAUDIO2_LOOP_INFINITE);
+	timer->reset();
 }
 
 void GameMainScene::update()
@@ -171,17 +143,12 @@ void GameMainScene::update()
 	// 拍内進行度と拍数を更新
 	nowBeatRaito = Timer::calcNowBeatRaito((float)timer->getNowTime(), bpm, nowCount);
 
-	if (enemy->attackFlag == true)
-
+	if (enemy->attackFlag)
 	{
 		CollisionMgr::checkHitAll(enemy->atkcoll, player->mycoll);
-		cameraObj->update();
-		player->update();
-		enemy->update();
-		StageObj->update();
 	}
 
-	if (player->attackFlag == true)
+	if (player->attackFlag)
 	{
 		CollisionMgr::checkHitAll(player->atkcoll, enemy->mycoll);
 	}
@@ -193,30 +160,15 @@ void GameMainScene::update()
 		const bool judgeRet = Timer::judge(nowBeatRaito, judgeOkRange);
 		player->setJudge(judgeRet);
 	}
-	
-	if (hpbar < 0)
-	{
-		hpbar = player->getHp();
-	}
 
 	cameraObj->update();
-	if (hpbar > 0)
-	{
-		hpbar -= 0.1f;
-
-		//hpBar->setSize(XMFLOAT2(64 * hpbar, 360));
-	}
-	
 }
 
 void GameMainScene::drawObj3d()
 {
 	groundObj->drawWithUpdate(light.get());
 
-	//spCom->drawStart(DX12Base::getInstance()->getCmdList());
-	//titleBack->drawWithUpdate(DX12Base::ins(), spCom.get());
-	//hpBar->drawWithUpdate(DX12Base::ins(), spCom.get());
-	StageObj->drawWithUpdate(light.get());
+	stageObj->drawWithUpdate(light.get());
 	player->drawWithUpdate(light.get());
 	if (enemy->getAlive())
 	{
@@ -242,9 +194,6 @@ void GameMainScene::drawFrontSprite()
 
 	ImGui::GetWindowDrawList()->AddRectFilled(posLT, posRB, ImU32(0xff2222f8));
 	ImGui::Text(judgeRet ? "OK!!!" : "");
-		enemy->drawWithUpdate(light.get());
-	
-	
 
 	ImGui::End();
 }
