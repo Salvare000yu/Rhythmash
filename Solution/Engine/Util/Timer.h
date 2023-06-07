@@ -30,9 +30,10 @@ public:
 	/// @brief 一拍の時間を取得
 	/// @param bpm 一分間の拍数
 	/// @return 一拍の時間
-	static inline timeType calc1BeatTime(double bpm)
+	template <class floatType = double>
+	static constexpr timeType calc1BeatTime(floatType bpm)
 	{
-		return timeType((double)std::chrono::duration_cast<timeUnit>(std::chrono::seconds(60ll)).count() / bpm);
+		return timeType((floatType)std::chrono::duration_cast<timeUnit>(std::chrono::seconds(60ll)).count() / bpm);
 	};
 
 	/// @brief エポックからの経過時間を取得
@@ -68,7 +69,7 @@ public:
 	/// @return 現在の拍内での進行度
 	static inline float calcNowBeatRaito(float nowTime, float bpm, float& nowCount)
 	{
-		return std::modf(nowTime / (float)calc1BeatTime((double)bpm), &nowCount);
+		return std::modf(nowTime / (float)calc1BeatTime(bpm), &nowCount);
 	}
 
 	~Timer();

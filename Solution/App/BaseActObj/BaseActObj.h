@@ -3,15 +3,23 @@
 #include "GameObject/GameObj.h"
 #include <CollisionMgr.h>
 #include "3D/Obj/ObjModel.h"
+#include <3D/ParticleMgr.h>
 
 class Light;
+class Camera;
 
 class BaseActObj
 	: public GameObj
 {
+public:
+	static constexpr float moveSpeedDef = 15.f;
+
+private:
+	std::unique_ptr<ParticleMgr> particleMgr;
+
 protected:
 	//移動スピード
-	float moveSpeed = 15.f;
+	float moveSpeed = moveSpeedDef;
 
 	int waitFrame = 0;
 

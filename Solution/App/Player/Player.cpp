@@ -9,8 +9,8 @@
 using namespace DirectX;
 
 Player::Player(Camera* camera,
-						 ObjModel* model,
-						 const DirectX::XMFLOAT3& pos) :
+			   ObjModel* model,
+			   const DirectX::XMFLOAT3& pos) :
 	BaseActObj(camera, model, pos),
 	input(Input::ins())
 {
@@ -21,50 +21,55 @@ Player::Player(Camera* camera,
 	update_proc =
 		[&]
 	{
-		Move();
-		Attack();
-
 		if (!this->getAlive())
 		{
 			update_proc = [] {};
 			this->setCol({ 0,0,0,1 });
+			return;
 		}
 
+		Move();
+		Attack();
 		Step();
 	};
-}
 
-void Player::additionalUpdate()
-{
-	update_proc();
+	additionalUpdateProc.emplace("Player::update_proc", [&] { update_proc(); });
 }
 
 void Player::Move()
 {
-	bool moved = false;
-	XMFLOAT3 dir = { 0,0,0 };
+	// キー入力を取得
+	const bool hitW = Input::ins()->hitKey(DIK_W);
+	const bool hitA = Input::ins()->hitKey(DIK_A);
+	const bool hitS = Input::ins()->hitKey(DIK_S);
+	const bool hitD = Input::ins()->hitKey(DIK_D);
 
-	if (input->hitKey(DIK_W))
+	// 該当キーが押されていれば移動する
+	const bool moved = hitW || hitA || hitS || hitD;
+
+	// 移動しなければ終了
+	if (!moved) { return; }
+
+	// 移動方向を決める
+	XMFLOAT3 dir{};
+	if (hitW)
 	{
 		dir.z = 1.f;
-		moved = true;
-	} else if (input->hitKey(DIK_S))
+	} else if (hitS)
 	{
 		dir.z = -1.f;
-		moved = true;
 	}
 
-	if (input->hitKey(DIK_D))
+	if (hitD)
 	{
 		dir.x = 1.f;
-		moved = true;
-	} else if (input->hitKey(DIK_A))
+	} else if (hitA)
 	{
 		dir.x = -1.f;
-		moved = true;
 	}
 
-	if (moved) { MoveProcess(dir); }
+	// 移動する
+	MoveProcess(dir);
 }
 
 void Player::Attack()
@@ -73,7 +78,9 @@ void Player::Attack()
 	{
 		Sound::SoundPlayWave(se1.get());
 		attackFlag = true;
-		this->setCol({ 0,0,1,1 });
+		this->setCol(XMFLOAT4(0, 0, 1, 1));
+		auto atkObj = atkObjPt.lock();
+		atkObj->setCol(XMFLOAT4(0, 1, 0, atkObj->getCol().w));
 	}
 
 	AttackProcess();
@@ -86,18 +93,15 @@ void Player::Attack()
 
 void Player::Step()
 {
-	float stepRange = 45.0f;
-	float subRate = 5.0f;
-	float speed = GetSpeed();
-	if (input->triggerKey(DIK_LSHIFT) && judgeRet)
+	constexpr float defSpeed = BaseActObj::moveSpeedDef;
+	constexpr float dashSpeed = defSpeed * 3.f;
+	constexpr float speedAcc = -dashSpeed / 12.f;
+
+	if (Input::ins()->triggerKey(DIK_C) && judgeRet)
 	{
-		Sound::SoundPlayWave(se1.get());
-		speed = stepRange;
-	}
-	if (speed > MOVE_SPEED)
+		SetSpeed(dashSpeed);
+	} else
 	{
-		speed -= subRate;
-		speed = std::max(speed, MOVE_SPEED);
+		SetSpeed(std::max(defSpeed, GetSpeed() + speedAcc));
 	}
-	SetSpeed(speed);
 }

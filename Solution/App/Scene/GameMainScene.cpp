@@ -5,20 +5,18 @@
 #include <CollisionMgr.h>
 #include <Util/Timer.h>
 #include "Input/Input.h"
-// -----------------------
+
 #include "Player/Player.h"
-// -----------------------
+
 #include <Enemy/BaseEnemy.h>
 #include <3D/Obj/ObjModel.h>
 #include <GameObject/GameObj.h>
 #include <Camera/CameraObj.h>
-#include <2D/Sprite.h>
 
 using namespace DirectX;
 
 GameMainScene::GameMainScene() :
 	input(Input::ins()),
-	spCom(std::make_unique<SpriteBase>()),
 	light(std::make_unique<Light>()),
 	timer(std::make_unique<Timer>()),
 	bpm(120.f),
@@ -29,6 +27,7 @@ GameMainScene::GameMainScene() :
 
 	cameraObj = std::make_unique<CameraObj>(nullptr);
 	cameraObj->easeRaito = 0.5f;
+	cameraObj->useParentRotaFlag = false;
 
 	// --------------------
 	// 背景
@@ -38,7 +37,7 @@ GameMainScene::GameMainScene() :
 	constexpr float groundSize = 1000.f;
 	groundObj->scale = XMFLOAT3(groundSize, 1.f, groundSize);
 	groundModel->setTexTilling(XMFLOAT2(groundSize, groundSize));
-	groundObj->color = XMFLOAT4(1,1,1,0.5f);
+	groundObj->color = XMFLOAT4(1, 1, 1, 0.5f);
 
 	// --------------------
 	// 自機
@@ -57,7 +56,9 @@ GameMainScene::GameMainScene() :
 	enemyModel = std::make_unique<ObjModel>("Resources/enemy/", "enemy");
 	enemy = std::make_unique<BaseEnemy>(cameraObj.get(), enemyModel.get());
 
-	enemy->setHp(2u);
+	enemy->setHp(20u);
+	enemy->setTargetObj(player.get());
+	enemy->setPos({ 20,0,0 });
 }
 
 void GameMainScene::start()
@@ -75,7 +76,7 @@ void GameMainScene::start()
 void GameMainScene::update()
 {
 	// 拍内進行度と拍数を更新
-	nowBeatRaito = Timer::calcNowBeatRaito((float)timer->getNowTime(), 120.f, nowCount);
+	nowBeatRaito = Timer::calcNowBeatRaito((float)timer->getNowTime(), bpm, nowCount);
 
 	if (enemy->attackFlag == true)
 	{
@@ -84,20 +85,22 @@ void GameMainScene::update()
 
 	if (player->attackFlag == true)
 	{
-		//player->getAtkObjPt().lock()->setCol({ 0,1,0,1 });
 		CollisionMgr::checkHitAll(player->atkcoll, enemy->mycoll);
 	}
 
-	const bool judgeRet = Timer::judge(nowBeatRaito, judgeOkRange);
-	player->setJudge(judgeRet);
+	{
+		const float raitoColor = std::lerp(0.25f, 1.f, 1.f - nowBeatRaito);
+		player->setCol(XMFLOAT4(raitoColor, raitoColor, raitoColor, 1.f));
+
+		const bool judgeRet = Timer::judge(nowBeatRaito, judgeOkRange);
+		player->setJudge(judgeRet);
+	}
 
 	cameraObj->update();
 }
 
-void GameMainScene::drawFrontSprite()
+void GameMainScene::drawObj3d()
 {
-	spCom->drawStart(DX12Base::getInstance()->getCmdList());
-
 	groundObj->drawWithUpdate(light.get());
 
 	player->drawWithUpdate(light.get());
@@ -105,23 +108,30 @@ void GameMainScene::drawFrontSprite()
 	{
 		enemy->drawWithUpdate(light.get());
 	}
+}
 
-	ImGui::SetNextWindowSize(ImVec2(400, 40));
+void GameMainScene::drawFrontSprite()
+{
+	ImGui::SetNextWindowSize(ImVec2(400, 400));
 	ImGui::Begin("自機",
 				 nullptr,
 				 DX12Base::ImGuiWinFlagsNoTitleBar
 				 | ImGuiWindowFlags_::ImGuiWindowFlags_NoScrollbar);
-	{
-		constexpr float barWid = 400.f;
-		const bool judgeRet = Timer::judge(nowBeatRaito, judgeOkRange);
 
-		auto posLT = ImGui::GetWindowPos();
-		ImVec2 posRB = posLT;
-		posRB.x += barWid * nowBeatRaito;
-		posRB.y += 20.f;
+	constexpr float barWid = 400.f;
+	const bool judgeRet = Timer::judge(nowBeatRaito, judgeOkRange);
 
-		ImGui::GetWindowDrawList()->AddRectFilled(posLT, posRB, ImU32(0xff2222f8));
-		ImGui::Text(judgeRet ? "OK!!!" : "");
-	}
+	auto posLT = ImGui::GetWindowPos();
+	ImVec2 posRB = posLT;
+	posRB.x += barWid * nowBeatRaito;
+	posRB.y += 20.f;
+
+	ImGui::GetWindowDrawList()->AddRectFilled(posLT, posRB, ImU32(0xff2222f8));
+	ImGui::Text(judgeRet ? "OK!!!" : "");
+
+	ImGui::Text("[WASD]: 移動");
+	ImGui::Text("移動 + リズムよく[C]: ダッシュ");
+	ImGui::Text("リズムよく[スペース]: 前方に攻撃");
+
 	ImGui::End();
 }
