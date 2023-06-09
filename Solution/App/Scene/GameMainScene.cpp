@@ -76,7 +76,7 @@ GameMainScene::GameMainScene() :
 	stageObj->setPos({ 0,0,0 });
 	//csvの読み込み
 	const std::vector<std::string> fileNames = { "Resources/Csv/enemy.csv","Resources/Csv/player.csv" };
-	Util::CSVType csvData = Util::loadCsv(fileNames, true, ',', "//");
+	Util::CSVType csvData = Util::loadCsvs(fileNames, true, ',', "//");
 
 	struct CavDataFormat
 	{

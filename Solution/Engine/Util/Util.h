@@ -22,7 +22,18 @@ public:
 	/// @param divChar フィールドの区切り文字
 	/// @param commentStartStr コメント開始文字列
 	/// @return 読み込んだcsvの中身。失敗したらデフォルトコンストラクタで初期化された空のvector2次元配列が返る
-	static CSVType loadCsv(const std::vector<std::string>& csvFilePath,
+	static CSVType loadCsv(const std::string& csvFilePath,
+						   bool commentFlag = true,
+						   char divChar = ',',
+						   const std::string& commentStartStr = "//");
+
+	/// @brief loacCsv関数の複数ファイルから読み込むもの
+	/// @param csvFilePath 読み込むCSVファイルパスの配列
+	/// @param commentFlag //で始まる行を無視するかどうか(trueで無視)
+	/// @param divChar フィールドの区切り文字
+	/// @param commentStartStr コメント開始文字列
+	/// @return 読み込んだcsvの中身。失敗したらデフォルトコンストラクタで初期化された空のvector2次元配列が返る
+	static CSVType loadCsvs(const std::vector<std::string>& csvFilePath,
 						   bool commentFlag = true,
 						   char divChar = ',',
 						   const std::string& commentStartStr = "//");
