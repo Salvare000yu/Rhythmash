@@ -56,45 +56,30 @@ void Player::Move()
 
 	// 移動方向を決める
 	XMFLOAT3 dir{};
-	if (obj->position.z < max)
+	if (hitW)
 	{
-		if (hitW)
-		{
-			dir.z = 1.f;
-		}
+		dir.z = 1.f;
 	}
-	if (obj->position.z > min)
+	if (hitS)
 	{
-		if (hitS)
-		{
-			dir.z = -1.f;
-		}
+		dir.z = -1.f;
 	}
-	if (obj->position.x < max)
+	if (hitD)
 	{
-		if (hitD)
-		{
-			dir.x = 1.f;
-		}
+		dir.x = 1.f;
 	}
-	if (obj->position.x > min)
+	if (hitA)
 	{
-		if (hitA)
-		{
-			dir.x = -1.f;
-		}
+		dir.x = -1.f;
 	}
-	
 
 	// 移動する
 	MoveProcess(dir);
-
-
 }
 
 void Player::Attack()
 {
-	if (input->triggerKey(DIK_SPACE) && judgeRet)
+	if (input->triggerKey(DIK_SPACE) && judge())
 	{
 		Sound::SoundPlayWave(se1.get());
 		attackFlag = true;
@@ -103,19 +88,15 @@ void Player::Attack()
 		atkObj->setCol(XMFLOAT4(0, 1, 0, atkObj->getCol().w));
 	}
 
-	//AttackProcess();
-	if (attackFlag==true)
+	if (attackFlag)
 	{
-		AttackFrame++;
-		if (AttackFrame>=2)
+		if (++AttackFrame >= 2)
 		{
 			attackFlag = false;
 			AttackFrame = 0;
 		}
-	}
-	if (!attackFlag)
+	} else
 	{
-
 		this->setCol({ 1,1,1,1 });
 	}
 }
@@ -126,7 +107,7 @@ void Player::Step()
 	constexpr float dashSpeed = defSpeed * 3.f;
 	constexpr float speedAcc = -dashSpeed / 12.f;
 
-	if (Input::ins()->triggerKey(DIK_C) && judgeRet)
+	if (Input::ins()->triggerKey(DIK_C) && judge())
 	{
 		SetSpeed(dashSpeed);
 	} else
