@@ -1,6 +1,7 @@
 playerData:
   speed: 20.0
-  dashSpeedRate: 3.0
+  dashSpeedRate: 5.0
+  dashSpeedAttRate: 0.0625
   hp: 20
   attack: 1
   position:

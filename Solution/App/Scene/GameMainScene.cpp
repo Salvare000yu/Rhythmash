@@ -221,7 +221,6 @@ void GameMainScene::drawFrontSprite()
 	ImGui::Text("[WASD]: 移動");
 	ImGui::Text("移動 + リズムよく[C]: ダッシュ");
 	ImGui::Text("リズムよく[スペース]: 前方に攻撃");
-	ImGui::Text("%.3f", player->GetSpeed());
 
 	ImGui::End();
 

@@ -20,6 +20,7 @@ class Player
 
 	float normalSpeed = moveSpeedDef;
 	float dashSpeed = moveSpeedDef;
+	float dashSpeedAttenuation = 1.f;
 
 private:
 	bool loadYamlFile();

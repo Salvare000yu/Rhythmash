@@ -39,7 +39,8 @@ bool Player::loadYamlFile()
 	auto& pNode = root["playerData"];
 	moveSpeed = pNode["speed"].As<float>();
 	normalSpeed = moveSpeed;
-	dashSpeed = moveSpeed * pNode["dashSpeedRate"].As<float>();
+	dashSpeed = normalSpeed * pNode["dashSpeedRate"].As<float>();
+	dashSpeedAttenuation = -normalSpeed * pNode["dashSpeedAttRate"].As<float>();
 	setHp(pNode["hp"].As<uint16_t>());
 	setAttack(pNode["attack"].As<uint16_t>());
 
@@ -145,13 +146,13 @@ void Player::Attack()
 
 void Player::Step()
 {
-	constexpr float speedAcc = -12.f;
 
 	if (Input::ins()->triggerKey(DIK_C) && judge())
 	{
 		SetSpeed(dashSpeed);
 	} else
 	{
-		SetSpeed(std::max(normalSpeed, moveSpeed + dashSpeed / speedAcc));
+		const float acc = normalSpeed * dashSpeedAttenuation;
+		SetSpeed(std::max(normalSpeed, moveSpeed + acc));
 	}
 }
