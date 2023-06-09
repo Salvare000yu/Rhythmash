@@ -119,13 +119,17 @@ GameMainScene::GameMainScene() :
 		{
 			for (const auto& e : i.pos)
 			{
-				// todo 敵の複数化に対応
-
 				auto tmp = addEnemy(e).lock();
 				tmp->setAttack(i.attack);
 				tmp->setHp(i.hp);
 			}
 		}
+	}
+
+	player->setJudgeProc([&] { return Timer::judge(player->getNowBeatRaito(), judgeOkRange); });
+	for (auto& i : enemy)
+	{
+		i->setJudgeProc([&] { return Timer::judge(i->getNowBeatRaito(), judgeOkRange); });
 	}
 }
 
@@ -137,7 +141,7 @@ void GameMainScene::start()
 	player->mycoll.group.emplace_front(player->createCollider());
 	for (auto& i : enemy)
 	{
-		i->mycoll.group.emplace_front(i->createCollider());
+		i->mycoll.group.emplace_front(CollisionMgr::ColliderType::create(i.get()));
 	}
 
 	Sound::SoundPlayWave(sound.get(), XAUDIO2_LOOP_INFINITE);
@@ -152,12 +156,12 @@ void GameMainScene::update()
 	nowBeatRaito = Timer::calcNowBeatRaito((float)timer->getNowTime(), bpm, nowCount);
 	for (auto& i : enemy)
 	{
-		if (i->attackFlag)
+		if (i->getAttackFlag())
 		{
 			CollisionMgr::checkHitAll(i->atkcoll, player->mycoll);
 		}
 
-		if (player->attackFlag)
+		if (player->getAttackFlag())
 		{
 			CollisionMgr::checkHitAll(player->atkcoll, i->mycoll);
 		}
@@ -168,8 +172,12 @@ void GameMainScene::update()
 		const float raitoColor = std::lerp(0.25f, 1.f, 1.f - nowBeatRaito);
 		player->setCol(XMFLOAT4(raitoColor, raitoColor, raitoColor, 1.f));
 
-		const bool judgeRet = Timer::judge(nowBeatRaito, judgeOkRange);
-		player->setJudge(judgeRet);
+		player->setNowBeatRaito(nowBeatRaito);
+		for (auto& i : enemy)
+		{
+			i->setNowBeatRaito(nowBeatRaito);
+			i->setNowBeatCount((uint32_t)nowCount);
+		}
 	}
 
 	//シーン移行
@@ -199,13 +207,13 @@ void GameMainScene::drawObj3d()
 
 void GameMainScene::drawFrontSprite()
 {
-	ImGui::SetNextWindowSize(ImVec2(400, 400));
+	constexpr float barWid = 300.f;
+	ImGui::SetNextWindowSize(ImVec2(barWid, 150));
 	ImGui::Begin("自機",
 				 nullptr,
 				 DX12Base::ImGuiWinFlagsNoTitleBar
 				 | ImGuiWindowFlags_::ImGuiWindowFlags_NoScrollbar);
 
-	constexpr float barWid = 400.f;
 	const bool judgeRet = Timer::judge(nowBeatRaito, judgeOkRange);
 
 	auto posLT = ImGui::GetWindowPos();
@@ -221,6 +229,10 @@ void GameMainScene::drawFrontSprite()
 	ImGui::Text("リズムよく[スペース]: 前方に攻撃");
 
 	ImGui::End();
+
+	ImGui::SetNextWindowSize(ImVec2(100, 100));
+	ImGui::SetNextWindowPos(ImVec2(0, 0));
+	enemy.front()->drawIdmGui();
 }
 
 std::weak_ptr<BaseEnemy> GameMainScene::addEnemy(const DirectX::XMFLOAT3& pos)
