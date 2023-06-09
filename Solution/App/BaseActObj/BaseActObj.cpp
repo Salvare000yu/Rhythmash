@@ -24,10 +24,10 @@ BaseActObj::BaseActObj(Camera* camera, ObjModel* model, const DirectX::XMFLOAT3&
 	mycoll.hitProc = [&](GameObj* obj)
 	{
 		ParticleMgr::createParticle(particleMgr.get(), this->calcWorldPos(), 50ui16);
-		if (!damage.expired())
+		/*if (!damage.expired())
 		{
-			//Sound::SoundPlayWave(damage.lock().get());
-		}
+			Sound::SoundPlayWave(damage.lock().get());
+		}*/
 		if (obj->damage(1ui16, true))
 		{
 

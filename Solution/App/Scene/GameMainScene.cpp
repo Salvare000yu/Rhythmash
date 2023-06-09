@@ -56,8 +56,8 @@ GameMainScene::GameMainScene() :
 
 	playerModel = std::make_unique<ObjModel>("Resources/cube/", "cube");
 	player = std::make_unique<Player>(cameraObj.get(), playerModel.get());
-	player->setHp(20u);
 	player->setDamageSe(damageSe);
+	player->setJudgeProc([&] { return Timer::judge(player->getNowBeatRaito(), judgeOkRange); });
 
 	cameraObj->setParentObj(player.get());
 
@@ -75,7 +75,7 @@ GameMainScene::GameMainScene() :
 	stageObj->setRotation({ 0,90,0 });
 	stageObj->setPos({ 0,0,0 });
 	//csvの読み込み
-	const std::vector<std::string> fileNames = { "Resources/Csv/enemy.csv","Resources/Csv/player.csv" };
+	const std::vector<std::string> fileNames = { "Resources/DataFile/enemy.csv" };
 	Util::CSVType csvData = Util::loadCsvs(fileNames, true, ',', "//");
 
 	struct CavDataFormat
@@ -110,12 +110,7 @@ GameMainScene::GameMainScene() :
 
 	for (const auto& i : loadedCsvData)
 	{
-		if (i.type == "player")
-		{
-			player->setAttack(i.attack);
-			player->setHp(i.hp);
-			player->setPos(i.pos.front());
-		} else if (i.type == "enemy")
+		if (i.type == "enemy")
 		{
 			for (const auto& e : i.pos)
 			{
@@ -126,7 +121,6 @@ GameMainScene::GameMainScene() :
 		}
 	}
 
-	player->setJudgeProc([&] { return Timer::judge(player->getNowBeatRaito(), judgeOkRange); });
 	for (auto& i : enemy)
 	{
 		i->setJudgeProc([&] { return Timer::judge(i->getNowBeatRaito(), judgeOkRange); });
@@ -227,6 +221,7 @@ void GameMainScene::drawFrontSprite()
 	ImGui::Text("[WASD]: 移動");
 	ImGui::Text("移動 + リズムよく[C]: ダッシュ");
 	ImGui::Text("リズムよく[スペース]: 前方に攻撃");
+	ImGui::Text("%.3f", player->GetSpeed());
 
 	ImGui::End();
 
