@@ -6,7 +6,53 @@
 
 #include <Input/Input.h>
 
+#include <fstream>
+#include <Yaml.hpp>
+
 using namespace DirectX;
+
+bool Player::loadYamlFile()
+{
+	constexpr const char filePath[] = "Resources/DataFile/player.yml";
+
+	std::string data{};
+	{
+		std::ifstream ifs(filePath);
+		if (!ifs) { return true; }
+
+		std::string line{};
+		while (std::getline(ifs, line))
+		{
+			data += line + "\n";
+		}
+		ifs.close();
+	}
+	Yaml::Node root{};
+	try
+	{
+		Yaml::Parse(root, data);
+	} catch (...)
+	{
+		return true;
+	}
+
+	auto& pNode = root["playerData"];
+	moveSpeed = pNode["speed"].As<float>();
+	normalSpeed = moveSpeed;
+	dashSpeed = normalSpeed * pNode["dashSpeedRate"].As<float>();
+	dashSpeedAttenuation = -normalSpeed * pNode["dashSpeedAttRate"].As<float>();
+	setHp(pNode["hp"].As<uint16_t>());
+	setAttack(pNode["attack"].As<uint16_t>());
+
+	auto& posNode = pNode["position"];
+	setPos(XMFLOAT3(
+		posNode["x"].As<float>(),
+		posNode["y"].As<float>(),
+		posNode["z"].As<float>()
+	));
+
+	return false;
+}
 
 Player::Player(Camera* camera,
 			   ObjModel* model,
@@ -16,7 +62,7 @@ Player::Player(Camera* camera,
 {
 	se1 = std::make_unique<Sound>("Resources/SE/Sys_Set03-click.wav");
 
-	moveSpeed = 20.f;
+	loadYamlFile();
 
 	update_proc =
 		[&]
@@ -44,9 +90,6 @@ void Player::Move()
 	const bool hitS = Input::ins()->hitKey(DIK_S);
 	const bool hitD = Input::ins()->hitKey(DIK_D);
 	dir = { 0, 0, 0 };
-
-	float max = 40.0f;
-	float min = -40.0f;
 
 	// 該当キーが押されていればsound
 	const bool moved = hitW || hitA || hitS || hitD;
@@ -103,15 +146,13 @@ void Player::Attack()
 
 void Player::Step()
 {
-	constexpr float defSpeed = BaseActObj::moveSpeedDef;
-	constexpr float dashSpeed = defSpeed * 3.f;
-	constexpr float speedAcc = -dashSpeed / 12.f;
 
 	if (Input::ins()->triggerKey(DIK_C) && judge())
 	{
 		SetSpeed(dashSpeed);
 	} else
 	{
-		SetSpeed(std::max(defSpeed, GetSpeed() + speedAcc));
+		const float acc = normalSpeed * dashSpeedAttenuation;
+		SetSpeed(std::max(normalSpeed, moveSpeed + acc));
 	}
 }

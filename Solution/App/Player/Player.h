@@ -17,6 +17,14 @@ class Player
 	DirectX::XMFLOAT3 dir = { 0,0,0 };
 
 	int AttackFrame = 0;
+
+	float normalSpeed = moveSpeedDef;
+	float dashSpeed = moveSpeedDef;
+	float dashSpeedAttenuation = 1.f;
+
+private:
+	bool loadYamlFile();
+
 public:
 	Player(Camera* camera,
 		   ObjModel* model,
