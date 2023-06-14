@@ -54,7 +54,7 @@ GameMainScene::GameMainScene() :
 	// 自機
 	// --------------------
 
-	playerModel = std::make_unique<ObjModel>("Resources/cube/", "cube");
+	playerModel = std::make_unique<ObjModel>("Resources/player_robot/", "player_robot");
 	player = std::make_unique<Player>(cameraObj.get(), playerModel.get());
 	player->setDamageSe(damageSe);
 	player->setJudgeProc([&] { return Timer::judge(player->getNowBeatRaito(), judgeOkRange); });

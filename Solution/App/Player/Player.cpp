@@ -64,6 +64,9 @@ Player::Player(Camera* camera,
 
 	loadYamlFile();
 
+	auto atkObj = atkObjPt.lock();
+	//atkObj->setPos({ 0,0,0 });
+
 	update_proc =
 		[&]
 	{
@@ -122,13 +125,23 @@ void Player::Move()
 
 void Player::Attack()
 {
+	std::shared_ptr<GameObj> atkObj = nullptr;
+	const bool atkObjAlive = !atkObjPt.expired();
+	if (atkObjAlive)
+	{
+		atkObj = atkObjPt.lock();
+	}
+
 	if (input->triggerKey(DIK_SPACE) && judge())
 	{
 		Sound::SoundPlayWave(se1.get());
 		attackFlag = true;
 		this->setCol(XMFLOAT4(0, 0, 1, 1));
-		auto atkObj = atkObjPt.lock();
-		atkObj->setCol(XMFLOAT4(0, 1, 0, atkObj->getCol().w));
+
+		if (atkObjAlive)
+		{
+			atkObj->setCol(XMFLOAT4(0, 1, 0, atkObj->getCol().w));
+		}
 	}
 
 	if (attackFlag)
@@ -138,9 +151,10 @@ void Player::Attack()
 			attackFlag = false;
 			AttackFrame = 0;
 		}
-	} else
+	} else if (atkObjAlive)
 	{
-		this->setCol({ 1,1,1,1 });
+		const XMFLOAT2 rot = GameObj::calcRotationSyncVelDeg({ -0.5,0,0 });
+		atkObj->setRotation(XMFLOAT3(rot.x, rot.y, getRotation().z));
 	}
 }
 
