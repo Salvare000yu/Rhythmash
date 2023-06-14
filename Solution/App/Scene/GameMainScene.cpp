@@ -26,6 +26,9 @@ GameMainScene::GameMainScene() :
 	bpm(100.f),
 	judgeOkRange(0.25f)
 {
+	light->setDirLightActive(0, true);
+	light->setCircleShadowActive(0, true);
+
 	PostEffect::getInstance()->setAlpha(1.f);
 	PostEffect::getInstance()->setMosaicNum(DirectX::XMFLOAT2(WinAPI::window_width, WinAPI::window_height));
 
@@ -38,6 +41,7 @@ GameMainScene::GameMainScene() :
 	// --------------------
 	groundModel = std::make_unique<ObjModel>("Resources/ground/", "ground");
 	groundObj = std::make_unique<Object3d>(cameraObj.get(), groundModel.get());
+	groundObj->position.y -= 10.f;
 	constexpr float groundSize = 1000.f;
 	groundObj->scale = XMFLOAT3(groundSize, 1.f, groundSize);
 	groundModel->setTexTilling(XMFLOAT2(groundSize, groundSize));
@@ -66,14 +70,10 @@ GameMainScene::GameMainScene() :
 	// --------------------
 	enemyModel = std::make_unique<ObjModel>("Resources/enemy/", "enemy");
 
-	light.reset(new Light());
-
 	stageModel = std::make_unique<ObjModel>("Resources/ring/", "ring");
 	stageObj = std::make_unique<GameObj>(cameraObj.get(), stageModel.get());
-
 	stageObj->setScale(10);
-	stageObj->setRotation({ 0,90,0 });
-	stageObj->setPos({ 0,0,0 });
+
 	//csvの読み込み
 	const std::vector<std::string> fileNames = { "Resources/DataFile/enemy.csv" };
 	Util::CSVType csvData = Util::loadCsvs(fileNames, true, ',', "//");
@@ -160,7 +160,7 @@ void GameMainScene::update()
 			CollisionMgr::checkHitAll(player->atkcoll, i->mycoll);
 		}
 	}
-	enemy.remove_if([](const std::shared_ptr<BaseEnemy>& e) { return !e->getAlive(); });
+	std::erase_if(enemy, [](const std::shared_ptr<BaseEnemy>& e) { return !e->getAlive(); });
 
 	{
 		const float raitoColor = std::lerp(0.25f, 1.f, 1.f - nowBeatRaito);
@@ -183,19 +183,37 @@ void GameMainScene::update()
 		SceneManager::getInstange()->changeScene<GameClearScene>();
 	}
 
+	groundObj->update();
+	stageObj->update();
+	{
+		light->setCircleShadowActiveAll(false);
+
+		player->update();
+		light->setCircleShadowActive(0, true);
+		light->setCircleShadowCasterPos(0, player->calcWorldPos());
+		for (unsigned i = 0u, len = (unsigned)enemy.size(); i < len; ++i)
+		{
+			if (!enemy[i]->getAlive()) { continue; }
+			enemy[i]->update();
+			light->setCircleShadowActive(1 + i, true);
+			light->setCircleShadowCasterPos(1 + i, enemy[i]->calcWorldPos());
+		}
+	}
+
 	cameraObj->update();
+	light->update();
 }
 
 void GameMainScene::drawObj3d()
 {
-	groundObj->drawWithUpdate(light.get());
+	groundObj->draw(light.get());
 
-	stageObj->drawWithUpdate(light.get());
-	player->drawWithUpdate(light.get());
+	stageObj->draw(light.get());
+	player->draw(light.get());
 	for (auto& i : enemy)
 	{
 		if (!i->getAlive()) { continue; }
-		i->drawWithUpdate(light.get());
+		i->draw(light.get());
 	}
 }
 
@@ -231,12 +249,19 @@ void GameMainScene::drawFrontSprite()
 
 std::weak_ptr<BaseEnemy> GameMainScene::addEnemy(const DirectX::XMFLOAT3& pos)
 {
-	auto& i = enemy.emplace_front(std::make_shared<BaseEnemy>(cameraObj.get(), enemyModel.get()));
+	auto& i = enemy.emplace_back(std::make_shared<BaseEnemy>(cameraObj.get(), enemyModel.get()));
 
 	i->setHp(3u);
 	i->setTargetObj(player.get());
 	i->setPos(pos);
 	i->setDamageSe(damageSe);
+
+	const auto enemyNum = (unsigned)enemy.size();
+	if (enemyNum < Light::CircleShadowCountMax)
+	{
+		light->setCircleShadowActive(enemyNum, true);
+		light->setCircleShadowCaster2LightDistance(enemyNum, 50.f);
+	}
 
 	return i;
 }

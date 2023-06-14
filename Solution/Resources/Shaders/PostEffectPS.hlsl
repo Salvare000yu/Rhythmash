@@ -168,13 +168,6 @@ float4 main(VSOutput input) : SV_TARGET
 	float vignNum = vignatte(uv);
 
 	// --------------------
-	// 走査線のようなもの
-	// --------------------
-	float sinNum = uv.y * slnDivLevel + time * slnSpeed;
-	float sLineNum = fracNoise(float2(time, uv.y)) * sin(sinNum) * sin(sinNum + 0.75f) + 1.f;
-	sLineNum /= -slnPower;
-
-	// --------------------
 	// rgbずらし&ディザリング
 	// --------------------
 	const float ditherSize = winSize.y / 512.f;
@@ -197,7 +190,7 @@ float4 main(VSOutput input) : SV_TARGET
 	// 合わせる
 	// --------------------
 	
-	float4 drawCol = float4(texColor0.rgb + sLineNum + vignNum + noiseNum + speedLineNum, alpha);
+	float4 drawCol = float4(texColor0.rgb + vignNum + noiseNum + speedLineNum, alpha);
 	
 	// 色数を減らす
 	drawCol.rgb = floor(drawCol.rgb * colorNum) / colorNum;

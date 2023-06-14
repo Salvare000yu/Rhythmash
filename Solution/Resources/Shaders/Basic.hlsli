@@ -52,7 +52,7 @@ struct SpotLight
 
 // 丸影の最大数
 // CPP側と合わせる
-#define CircleShadowCountMax uint(3)
+#define CircleShadowCountMax uint(50)
 
 struct CircleShadow
 {

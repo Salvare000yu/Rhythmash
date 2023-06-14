@@ -2,7 +2,7 @@
 #include "System/GameScene.h"
 #include <memory>
 #include <DirectXMath.h>
-#include <forward_list>
+#include <vector>
 
 class Input;
 class Player;
@@ -49,7 +49,7 @@ class GameMainScene :
 	std::unique_ptr<ObjModel> playerModel;
 	std::unique_ptr<GameObj> playerObj;
 	// エネミー関連--------------------
-	std::forward_list<std::shared_ptr<BaseEnemy>> enemy;
+	std::vector<std::shared_ptr<BaseEnemy>> enemy;
 	std::unique_ptr<ObjModel> enemyModel;
 	std::unique_ptr<GameObj> enemyObj;
 
