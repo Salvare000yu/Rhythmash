@@ -1,6 +1,7 @@
 ﻿#include "BaseEnemy.h"
 #include <Util/RandomNum.h>
 #include <BehaviorTree/Sequencer.h>
+#include <Util/RandomNum.h>
 
 using namespace DirectX;
 
@@ -9,6 +10,7 @@ BaseEnemy::BaseEnemy(Camera* camera, ObjModel* model, const DirectX::XMFLOAT3& p
 	enemyBehavior(std::make_unique<EnemyBehavior>(this))
 {
 	additionalUpdateProc.emplace("BaseEnemy::update_proc", [&] { enemyBehavior->run(); });
+	additionalUpdateProc.emplace("BaseEnemy::カウント更新", [&] { enemyBehavior->setPreBeatCount(nowBeatCount); });
 }
 
 float BaseEnemy::TargetFromDistance()
@@ -21,71 +23,7 @@ float BaseEnemy::TargetFromDistance()
 	return Collision::vecLength(pos - tpos);
 }
 
-void BaseEnemy::MovetoTarget()
+void BaseEnemy::drawIdmGui()
 {
-	pos = this->getPos();
-	tpos = this->targetObj->calcWorldPos();
-	XMFLOAT3 vec = { pos.x - tpos.x, 0, pos.z - tpos.z };
-	dir = { -vec.x, 0, -vec.z };
-
-	if (TargetFromDistance() < 0.5f)
-	{
-		movestop = true;
-	}
-	if (movestop == true)
-	{
-		dir = { 0, 0, 0 };
-		waitTime++;
-		if (waitTime > 50)
-		{
-			movestop = false;
-			waitTime = 0;
-		}
-	}
-}
-
-void BaseEnemy::Move()
-{
-	if (TargetFromDistance() < 20.0f)
-	{
-		MovetoTarget();
-	} else
-	{
-		RandomMove();
-	}
-	MoveProcess(dir);
-}
-
-void BaseEnemy::RandomMove()
-{
-	if (movestop == false)
-	{
-		waitTime = 0;
-		movestop = true;
-		std::random_device rd;
-		std::mt19937 gen(rd());
-		std::uniform_real_distribution<float> random_posX(minX, maxX);
-		std::uniform_real_distribution<float> random_posZ(minZ, maxZ);
-		dir = { random_posX(gen) ,0.0f,random_posZ(gen) };
-	}
-
-	else if (movestop == true)
-	{
-		waitTime++;
-		if (waitTime >= 100)
-		{
-			movestop = false;
-		}
-	} else
-	{
-		dir = XMFLOAT3(RandomNum::getRandf(minX, maxX), 0.0f, RandomNum::getRandf(minZ, maxZ));
-		waitFrame = 0;
-	}
-}
-
-void BaseEnemy::Attack()
-{
-	attackFlag = true;
-	AttackProcess();
-	this->setCol({ 0,0,0,1 });
+	enemyBehavior->drawImGui();
 }

@@ -16,10 +16,17 @@ class Player
 	std::unique_ptr<Sound> se1;
 
 	std::function<void()> update_proc;
-	const float MOVE_SPEED = GetSpeed();
 
 	DirectX::XMFLOAT3 dir = { 0,0,0 };
-	bool judgeRet = false;
+
+	int AttackFrame = 0;
+
+	float normalSpeed = moveSpeedDef;
+	float dashSpeed = moveSpeedDef;
+	float dashSpeedAttenuation = 1.f;
+
+private:
+	bool loadYamlFile();
 
 public:
 	Player(Camera* camera,
@@ -31,7 +38,6 @@ public:
 	void Attack() override;
 	void Step();
 	void ViewShift();
-	void setJudge(bool judge) { judgeRet = judge; }
 	void setCameraObj(CameraObj* cameraObj) { this->cameraObj = cameraObj; }
 };
 

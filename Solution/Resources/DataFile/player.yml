@@ -1,0 +1,16 @@
+playerData:
+  # 通常移動の速さ
+  speed: 20.0
+  # ダッシュの速さ(speedの何倍か)
+  dashSpeedRate: 5.0
+  # ダッシュの減衰値(speedの何倍か)
+  dashSpeedAttRate: 0.0625
+  # 体力
+  hp: 20
+  # 攻撃力
+  attack: 1
+  # 初期位置
+  position:
+    x: 16.0
+    y: 4.0
+    z: 0.0

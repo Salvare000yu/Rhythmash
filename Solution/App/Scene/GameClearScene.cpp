@@ -11,32 +11,39 @@ GameClearScene::GameClearScene()
 
 	input = Input::getInstance();
 
+	timer = std::make_unique<Timer>();
+
 	spCom.reset(new SpriteBase());
 
 	// デバッグテキスト用のテクスチャ読み込み
 	debugText.reset(new DebugText(spCom->loadTexture(L"Resources/debugfont.png"), spCom.get()));
 
 	clear.reset(new Sprite(spCom->loadTexture(L"Resources/GameClear/gameClear.png"),
-						 spCom.get(),
-						 DirectX::XMFLOAT2(0.f, 0.f)));
+						   spCom.get(),
+						   DirectX::XMFLOAT2(0.f, 0.f)));
 
 	clear->setSize(DirectX::XMFLOAT2((float)WinAPI::window_width,
-								   (float)WinAPI::window_height));
+									 (float)WinAPI::window_height));
 }
 
 void GameClearScene::start()
 {
 	// マウスカーソルは表示する
 	input->changeDispMouseCursorFlag(true);
+
+	timer->reset();
 }
 
 void GameClearScene::update()
 {
-	if (input->triggerKey(DIK_SPACE) ||
-		input->triggerPadButton(Input::PAD::A) ||
-		input->triggerPadButton(Input::PAD::B))
+	if (timer->getNowTime() > Timer::oneSec)
 	{
-		SceneManager::getInstange()->changeScene<TitleScene>();
+		if (input->triggerKey(DIK_SPACE) ||
+			input->triggerPadButton(Input::PAD::A) ||
+			input->triggerPadButton(Input::PAD::B))
+		{
+			SceneManager::getInstange()->changeScene<TitleScene>();
+		}
 	}
 }
 

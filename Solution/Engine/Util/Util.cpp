@@ -42,6 +42,50 @@ Util::CSVType Util::loadCsv(const std::string& csvFilePath,
 	return csvData;
 }
 
+Util::CSVType Util::loadCsvs(const std::vector<std::string>& csvFilePath,
+							bool commentFlag,
+							char divChar,
+							const std::string& commentStartStr)
+{
+	CSVType csvData{};	// csvの中身を格納
+
+	for (const auto& fileName : csvFilePath)
+	{
+
+		//CSVType csvData{};	// csvの中身を格納
+
+		std::ifstream ifs(fileName);
+		if (!ifs)
+		{
+			return csvData;
+		}
+		std::string line{};
+		// 開いたファイルを一行読み込む(カーソルも動く)
+		while (std::getline(ifs, line))
+		{
+			// コメントが有効かつ行頭が//なら、その行は無視する
+			if (commentFlag && line.find(commentStartStr) == 0U)
+			{
+				continue;
+			}
+
+			// 行数を増やす
+			csvData.emplace_back();
+
+			std::istringstream stream(line);
+			std::string field;
+			// 読み込んだ行を','区切りで分割
+			while (std::getline(stream, field, divChar))
+			{
+				csvData.back().emplace_back(field);
+			}
+		}
+		// csvDatas.emplace_back(CsvData);
+	}
+	return csvData;
+
+}
+
 DirectX::XMVECTOR Util::splinePosition(const std::vector<DirectX::XMVECTOR>& points, const size_t& startIndex, float t)
 {
 	if (startIndex < 1) { return points[1]; }

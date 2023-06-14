@@ -5,7 +5,8 @@ using namespace DirectX;
 
 BaseActObj::BaseActObj(Camera* camera, ObjModel* model, const DirectX::XMFLOAT3& pos) :
 	GameObj(camera, model, pos),
-	particleMgr(std::make_unique<ParticleMgr>(L"Resources/white.png", camera))
+	particleMgr(std::make_unique<ParticleMgr>(L"Resources/white.png", camera)),
+	judge([] { return true; })
 {
 	atkModel = std::make_unique<ObjModel>("Resources/Attack/", "Attack");
 	//atkModel = std::make_unique<ObjModel>("Resources/player_robot_arm/", "player_robot_arm");
@@ -24,8 +25,13 @@ BaseActObj::BaseActObj(Camera* camera, ObjModel* model, const DirectX::XMFLOAT3&
 	mycoll.hitProc = [&](GameObj* obj)
 	{
 		ParticleMgr::createParticle(particleMgr.get(), this->calcWorldPos(), 50ui16);
+		/*if (!damage.expired())
+		{
+			Sound::SoundPlayWave(damage.lock().get());
+		}*/
 		if (obj->damage(1ui16, true))
 		{
+
 			this->setCol(XMFLOAT4(0, 0, 0, 1));
 			return;
 		}
@@ -50,6 +56,9 @@ void BaseActObj::MoveProcess(const DirectX::XMVECTOR& dir)
 	obj->position.x += moveVal.x;
 	obj->position.y += moveVal.y;
 	obj->position.z += moveVal.z;
+
+	obj->position.x = std::clamp(obj->position.x, -40.f, 40.f);
+	obj->position.z = std::clamp(obj->position.z, -40.f, 40.f);
 
 	const XMFLOAT2 angleDeg = GameObj::calcRotationSyncVelDeg(moveVal);
 	this->setRotation(XMFLOAT3(angleDeg.x, angleDeg.y, this->getRotation().z));
