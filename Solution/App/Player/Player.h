@@ -3,13 +3,16 @@
 #include <DirectXMath.h>
 #include <functional>
 #include <Sound/Sound.h>
+#include <memory>
 
-class Input;
+class InputMgr;
+class CameraObj;
 
 class Player
 	: public BaseActObj
 {
-	Input* input = nullptr;
+	InputMgr* inputMgr = nullptr;
+	CameraObj* cameraObj = nullptr;
 	std::unique_ptr<Sound> se1;
 
 	std::function<void()> update_proc;
@@ -27,6 +30,8 @@ public:
 	void Move()  override;
 	void Attack() override;
 	void Step();
+	void ViewShift();
 	void setJudge(bool judge) { judgeRet = judge; }
+	void setCameraObj(CameraObj* cameraObj) { this->cameraObj = cameraObj; }
 };
 

@@ -1,6 +1,7 @@
 ﻿#include "Player.h"
 #include "Enemy/BaseEnemy.h"
 #include <InputMgr.h>
+#include <Camera/CameraObj.h>
 #include <cmath>
 #include <Util/Timer.h>
 
@@ -8,7 +9,7 @@
 
 using namespace DirectX;
 
-Player::Player(Camera* camera, ObjModel* model, const DirectX::XMFLOAT3& pos) :BaseActObj(camera, model, pos), input(Input::ins())
+Player::Player(Camera* camera, ObjModel* model, const DirectX::XMFLOAT3& pos) :BaseActObj(camera, model, pos), inputMgr(InputMgr::ins())
 {
 	se1 = std::make_unique<Sound>("Resources/SE/Sys_Set03-click.wav");
 
@@ -30,6 +31,7 @@ Player::Player(Camera* camera, ObjModel* model, const DirectX::XMFLOAT3& pos) :B
 		Move();
 		Attack();
 		Step();
+		ViewShift();
 	};
 
 	additionalUpdateProc.emplace("Player::update_proc", [&] { update_proc(); });
@@ -74,7 +76,7 @@ void Player::Move()
 void Player::Attack()
 {
 	auto atkObj = atkObjPt.lock();
-	if (input->triggerKey(DIK_SPACE) && judgeRet)
+	if (InputMgr::ins()->GetInput(ACTION::WEEKATTACK) && judgeRet)
 	{
 		Sound::SoundPlayWave(se1.get());
 		attackFlag = true;
@@ -103,11 +105,20 @@ void Player::Step()
 	constexpr float dashSpeed = defSpeed * 3.f;
 	constexpr float speedAcc = -dashSpeed / 12.f;
 
-	if (Input::ins()->triggerKey(DIK_C) && judgeRet)
+	if (InputMgr::ins()->GetInput(ACTION::STEP) && judgeRet)
 	{
 		SetSpeed(dashSpeed);
 	} else
 	{
 		SetSpeed(std::max(defSpeed, GetSpeed() + speedAcc));
 	}
-}	
+}
+void Player::ViewShift()
+{
+	DirectX::XMFLOAT2 inp = InputMgr::ins()->GetThumbValue(ACTION::CAMERA);
+	DirectX::XMFLOAT3 relativeRotaDeg = cameraObj->getRelativeRotaDeg();
+
+	relativeRotaDeg.x += inp.y;
+	relativeRotaDeg.y += inp.x;
+	cameraObj->setRelativeRotaDeg(relativeRotaDeg);
+}

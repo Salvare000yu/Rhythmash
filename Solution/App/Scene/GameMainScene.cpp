@@ -46,9 +46,9 @@ GameMainScene::GameMainScene() :
 	playerModel = std::make_unique<ObjModel>("Resources/player_robot/", "player_robot");
 	player = std::make_unique<Player>(cameraObj.get(), playerModel.get());
 	player->setHp(20u); 
-
-
 	cameraObj->setParentObj(player.get());
+
+	player->setCameraObj(cameraObj.get());
 
 	// --------------------
 	// 敵
@@ -64,7 +64,7 @@ GameMainScene::GameMainScene() :
 void GameMainScene::start()
 {
 	// マウスカーソルは表示する
-	input->changeDispMouseCursorFlag(true);
+	input->changeDispMouseCursorFlag(false);
 
 	player->mycoll.group.emplace_front(player->createCollider());
 	enemy->mycoll.group.emplace_front(enemy->createCollider());
