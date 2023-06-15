@@ -17,6 +17,11 @@ public:
 	// 音声データの読み込み
 	SoundData(const char* filename);
 
+	SoundData(float Hz, float sec = 1ui16) :SoundData() { createSoundData(Hz, sec); }
+
+private:
+	void createSoundData(float hz, float sec);
+
 private:
 #pragma region チャンク
 	// チャンクヘッダ

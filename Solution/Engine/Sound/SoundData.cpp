@@ -89,6 +89,47 @@ SoundData::SoundData(const char* filename)
 	createSourceVoice(this);
 }
 
+void SoundData::createSoundData(float hz, float sec)
+{
+	constexpr DWORD samplingRate = 44100;
+	constexpr WORD bitDepth = 8;
+	constexpr WORD channelNum = 1;
+
+	constexpr WORD blockSizeData = bitDepth / 8 * channelNum;
+	constexpr DWORD bufEstimation = samplingRate * blockSizeData;
+
+	WAVEFORMATEX& format = this->wfex;
+	format.wFormatTag = WAVE_FORMAT_PCM;
+	format.nChannels = channelNum;			// チャンネル数(1: モノラル、2: ステレオ)
+	format.wBitsPerSample = bitDepth;	// 1サンプルのビット数
+	format.nSamplesPerSec = samplingRate;		// サンプリングレート
+	format.nBlockAlign = blockSizeData;
+	format.nAvgBytesPerSec = bufEstimation;
+
+	// sec秒分のバッファ
+	const size_t dataSize = static_cast<size_t>(static_cast<float>(bufEstimation) * sec);
+	BYTE* data = new BYTE[dataSize];
+
+	{
+		constexpr float PI = 3.1415926535897932384626433832795f;
+		const float length = (float)format.nSamplesPerSec / hz;
+
+		for (size_t i = 0ui64; i < dataSize; ++i)
+		{
+			// sin波を[0 ~ 1]にしたもの
+			const float s = (std::sin((float)i * PI / length) + 1.f) / 2.f;
+
+			// 上の値を[0 ~ 255]にして格納
+			data[i] = BYTE(255.f * s);
+		}
+	}
+
+	createSourceVoice(this);
+
+	bufferSize = (unsigned int)dataSize;
+	pBuffer = reinterpret_cast<BYTE*>(data);
+}
+
 void SoundData::createSourceVoice(SoundData* soundData)
 {
 	//波形フォーマットをもとにSourceVoiceの生成
