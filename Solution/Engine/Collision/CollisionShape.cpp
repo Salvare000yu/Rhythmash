@@ -2,6 +2,8 @@
 
 using namespace DirectX;
 
+using namespace CollisionShape;
+
 void Triangle::ComputeNormal()
 {
 	//外積により。2辺に垂直なベクトルを算出

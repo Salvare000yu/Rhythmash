@@ -84,8 +84,7 @@ void ParticleMgr::init(const wchar_t* texFilePath)
 	assert(SUCCEEDED(result));
 }
 
-void ParticleMgr::createParticle(ParticleMgr* particleMgr,
-								 const XMFLOAT3& pos,
+void ParticleMgr::createParticle(const XMFLOAT3& pos,
 								 const uint16_t particleNum,
 								 const float startScale,
 								 const float vel,
@@ -114,10 +113,10 @@ void ParticleMgr::createParticle(ParticleMgr* particleMgr,
 		constexpr float startRota = 0.f, endRota = 0.f;
 
 		// 追加
-		particleMgr->add(life, pos, vel, acc,
-						 startScale, endScale,
-						 startRota, endRota,
-						 startCol, endCol);
+		add(life, pos, vel, acc,
+			startScale, endScale,
+			startRota, endRota,
+			startCol, endCol);
 	}
 }
 

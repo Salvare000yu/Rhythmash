@@ -22,8 +22,3 @@ float BaseEnemy::TargetFromDistance()
 
 	return Collision::vecLength(pos - tpos);
 }
-
-void BaseEnemy::drawIdmGui()
-{
-	enemyBehavior->drawImGui();
-}

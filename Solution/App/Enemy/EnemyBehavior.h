@@ -41,8 +41,5 @@ public:
 	EnemyBehavior(BaseEnemy* enemy);
 
 	EnemyBehavior();
-
-	void drawImGui();
-
 };
 

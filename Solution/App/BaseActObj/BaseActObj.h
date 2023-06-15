@@ -3,8 +3,8 @@
 #include "GameObject/GameObj.h"
 #include <CollisionMgr.h>
 #include "3D/Obj/ObjModel.h"
-#include <3D/ParticleMgr.h>
 #include <Sound/Sound.h>
+
 class Light;
 class Camera;
 
@@ -15,8 +15,7 @@ public:
 	static constexpr float moveSpeedDef = 15.f;
 
 private:
-	std::unique_ptr<ParticleMgr> particleMgr;
-	std::weak_ptr<Sound> damage;
+	std::weak_ptr<SoundData> damage;
 
 	float nowBeatRaito = 0.f;
 
@@ -39,7 +38,7 @@ public:
 			  ObjModel* model,
 			  const DirectX::XMFLOAT3& pos = { 0,0,0 });
 
-	CollisionMgr::ColliderSet mycoll{}, atkcoll{};
+	CollisionMgr::ColliderType mycoll{}, atkcoll{};
 
 	std::unique_ptr<ObjModel> atkModel;
 
@@ -51,7 +50,7 @@ public:
 
 	inline bool getAttackFlag() const { return attackFlag; }
 
-	inline void setDamageSe(const std::weak_ptr<Sound>& damageSound) { damage = damageSound; }
+	inline void setDamageSe(const std::weak_ptr<SoundData>& damageSound) { damage = damageSound; }
 
 	inline auto& getAtkObjPt() const { return atkObjPt; }
 

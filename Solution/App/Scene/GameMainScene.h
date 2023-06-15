@@ -1,5 +1,6 @@
 ﻿#pragma once
 #include "System/GameScene.h"
+#include <CollisionMgr.h>
 #include <memory>
 #include <DirectXMath.h>
 #include <vector>
@@ -17,6 +18,8 @@ class SpriteBase;
 class Sprite;
 class Util;
 class Sound;
+class ParticleMgr;
+class SoundData;
 
 class GameMainScene :
 	public GameScene
@@ -44,15 +47,22 @@ class GameMainScene :
 	// ゲームオブジェクト
 	// --------------------
 
-	//プレイヤーの生成
+	// パーティクル
+	std::unique_ptr<ParticleMgr> particleMgr;
+
+	// 自機
 	std::unique_ptr<Player> player;
 	std::unique_ptr<ObjModel> playerModel;
 	std::unique_ptr<GameObj> playerObj;
-	// エネミー関連--------------------
+	CollisionMgr::ColliderSet playerCols;
+	CollisionMgr::ColliderSet playerAtkCols;
+
+	// 敵
 	std::vector<std::shared_ptr<BaseEnemy>> enemy;
 	std::unique_ptr<ObjModel> enemyModel;
 	std::unique_ptr<GameObj> enemyObj;
-
+	CollisionMgr::ColliderSet enemyCols;
+	CollisionMgr::ColliderSet enemyAtkCols;
 
 	std::unique_ptr<CameraObj> cameraObj;
 	std::unique_ptr<Light> light;
@@ -60,10 +70,12 @@ class GameMainScene :
 	std::unique_ptr<GameObj> stageObj;
 	std::unique_ptr<ObjModel> stageModel;
 
-	std::unique_ptr<Sound> sound;
-	std::shared_ptr<Sound> damageSe;
+	std::weak_ptr<SoundData> bgm;
+	std::weak_ptr<SoundData> damageSe;
 public:
 	GameMainScene();
+	~GameMainScene();
+
 	void start() override;
 	void update() override;
 	void drawObj3d() override;

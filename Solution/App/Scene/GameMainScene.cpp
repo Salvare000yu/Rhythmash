@@ -13,10 +13,12 @@
 #include <GameObject/GameObj.h>
 #include <Camera/CameraObj.h>
 #include "Util/Util.h"
-#include"Sound/Sound.h"
+#include "Sound/Sound.h"
+#include <3D/ParticleMgr.h>
 
 #include <Scene/GameOverScene.h>
 #include <Scene/GameClearScene.h>
+
 using namespace DirectX;
 
 GameMainScene::GameMainScene() :
@@ -37,6 +39,11 @@ GameMainScene::GameMainScene() :
 	cameraObj->useParentRotaFlag = false;
 
 	// --------------------
+	// パーティクル
+	// --------------------
+	particleMgr = std::make_unique<ParticleMgr>(L"Resources/white.png", cameraObj.get());
+
+	// --------------------
 	// 背景
 	// --------------------
 	groundModel = std::make_unique<ObjModel>("Resources/ground/", "ground");
@@ -51,8 +58,8 @@ GameMainScene::GameMainScene() :
 	// --------------------
 	// 音
 	// --------------------
-	sound = std::make_unique<Sound>("Resources/SE/practiseBGM.wav");
-	damageSe = std::make_shared<Sound>("Resources/SE/damage.wav");
+	bgm = Sound::ins()->loadWave("Resources/SE/practiseBGM.wav");
+	damageSe = Sound::ins()->loadWave("Resources/SE/damage.wav");
 
 	// --------------------
 	// 自機
@@ -62,6 +69,11 @@ GameMainScene::GameMainScene() :
 	player = std::make_unique<Player>(cameraObj.get(), playerModel.get());
 	player->setDamageSe(damageSe);
 	player->setJudgeProc([&] { return Timer::judge(player->getNowBeatRaito(), judgeOkRange); });
+	player->setCol(XMFLOAT4(1, 1, 1, 0.8f));
+
+	playerCols.group.emplace_front(CollisionMgr::ColliderType::create(player.get(), player->getScaleF3().z));
+	auto pAtk = player->getAtkObjPt().lock();
+	playerAtkCols.group.emplace_front(CollisionMgr::ColliderType::create(pAtk.get(), pAtk->getScaleF3().z));
 
 	cameraObj->setParentObj(player.get());
 
@@ -125,6 +137,30 @@ GameMainScene::GameMainScene() :
 	{
 		i->setJudgeProc([&] { return Timer::judge(i->getNowBeatRaito(), judgeOkRange); });
 	}
+
+	// --------------------
+	// コライダー衝突時関数
+	// --------------------
+	std::function<void(GameObj*)> hitProc = [&](GameObj* obj)
+	{
+		Sound::playWave(damageSe);
+		particleMgr->createParticle(obj->calcWorldPos(), 50ui16);
+		if (obj->damage(1ui16, true))
+		{
+
+			obj->setCol(XMFLOAT4(0, 0, 0, 1));
+			return;
+		}
+		obj->setCol({ 1,0,0,obj->getCol().w});
+	};
+
+	playerCols.hitProc = hitProc;
+	enemyCols.hitProc = hitProc;
+}
+
+GameMainScene::~GameMainScene()
+{
+	Sound::stopWave(bgm);
 }
 
 void GameMainScene::start()
@@ -132,13 +168,7 @@ void GameMainScene::start()
 	// マウスカーソルは表示する
 	input->changeDispMouseCursorFlag(true);
 
-	player->mycoll.group.emplace_front(player->createCollider());
-	for (auto& i : enemy)
-	{
-		i->mycoll.group.emplace_front(CollisionMgr::ColliderType::create(i.get()));
-	}
-
-	Sound::SoundPlayWave(sound.get(), XAUDIO2_LOOP_INFINITE);
+	Sound::playWave(bgm, XAUDIO2_LOOP_INFINITE);
 
 	// タイマーの起点時間をリセット
 	timer->reset();
@@ -148,23 +178,38 @@ void GameMainScene::update()
 {
 	// 拍内進行度と拍数を更新
 	nowBeatRaito = Timer::calcNowBeatRaito((float)timer->getNowTime(), bpm, nowCount);
+
+	// 敵コライダーを初期化
+	enemyCols.group.clear();
+	enemyAtkCols.group.clear();
 	for (auto& i : enemy)
 	{
+		if (i->getAlive())
+		{
+			enemyCols.group.emplace_front(CollisionMgr::ColliderType::create(i.get(), i->getScaleF3().z));
+		}
+
 		if (i->getAttackFlag())
 		{
-			CollisionMgr::checkHitAll(i->atkcoll, player->mycoll);
-		}
-
-		if (player->getAttackFlag())
-		{
-			CollisionMgr::checkHitAll(player->atkcoll, i->mycoll);
+			auto atk = i->getAtkObjPt().lock();
+			enemyAtkCols.group.emplace_front(CollisionMgr::ColliderType::create(atk.get(), atk->getScaleF3().z));
 		}
 	}
+
+	// 当たり判定をする
+	if (player->getAttackFlag())
+	{
+		CollisionMgr::checkHitAll(playerAtkCols, enemyCols);
+	}
+	CollisionMgr::checkHitAll(enemyAtkCols, playerCols);
+
+	// 死んだ敵は消す
 	std::erase_if(enemy, [](const std::shared_ptr<BaseEnemy>& e) { return !e->getAlive(); });
 
+	// 拍情報更新
 	{
 		const float raitoColor = std::lerp(0.25f, 1.f, 1.f - nowBeatRaito);
-		player->setCol(XMFLOAT4(raitoColor, raitoColor, raitoColor, 1.f));
+		player->setCol(XMFLOAT4(raitoColor, raitoColor, raitoColor, player->getCol().w));
 
 		player->setNowBeatRaito(nowBeatRaito);
 		for (auto& i : enemy)
@@ -174,7 +219,7 @@ void GameMainScene::update()
 		}
 	}
 
-	//シーン移行
+	// シーン移行
 	if (!player->getAlive())
 	{
 		SceneManager::getInstange()->changeScene<GameOverScene>();
@@ -215,6 +260,7 @@ void GameMainScene::drawObj3d()
 		if (!i->getAlive()) { continue; }
 		i->draw(light.get());
 	}
+	particleMgr->drawWithUpdate();
 }
 
 void GameMainScene::drawFrontSprite()
@@ -239,12 +285,12 @@ void GameMainScene::drawFrontSprite()
 	ImGui::Text("[WASD]: 移動");
 	ImGui::Text("移動 + リズムよく[C]: ダッシュ");
 	ImGui::Text("リズムよく[スペース]: 前方に攻撃");
+	ImGui::Text("自機体力: %u", player->getHp());
 
 	ImGui::End();
 
 	ImGui::SetNextWindowSize(ImVec2(100, 100));
 	ImGui::SetNextWindowPos(ImVec2(0, 0));
-	enemy.front()->drawIdmGui();
 }
 
 std::weak_ptr<BaseEnemy> GameMainScene::addEnemy(const DirectX::XMFLOAT3& pos)

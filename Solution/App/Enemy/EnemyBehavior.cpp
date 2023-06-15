@@ -11,7 +11,7 @@ EnemyBehavior::EnemyBehavior(BaseEnemy* enemy) :
 	movePhase->addChild(Task(std::bind(&EnemyBehavior::Phase_move, this)));
 
 	attackPhase = std::make_unique<Selector>();
-	attackPhase->addChild(Task([&] { return this->enemy->TargetFromDistance() < 10.0f ? NODE_RESULT::SUCCESS : NODE_RESULT::FAIL; }));
+	attackPhase->addChild(Task([&] { return this->enemy->TargetFromDistance() > 10.0f ? NODE_RESULT::SUCCESS : NODE_RESULT::FAIL; }));
 	attackPhase->addChild(Task(std::bind(&EnemyBehavior::Phase_Attack, this)));
 
 	Phase = std::make_unique<Sequencer>();
@@ -27,9 +27,6 @@ EnemyBehavior::EnemyBehavior(BaseEnemy* enemy) :
 
 EnemyBehavior::EnemyBehavior() :
 	EnemyBehavior(nullptr)
-{}
-
-void EnemyBehavior::drawImGui()
 {}
 
 NODE_RESULT EnemyBehavior::Phase_move()
@@ -66,4 +63,3 @@ NODE_RESULT EnemyBehavior::Phase_Attack()
 
 	return NODE_RESULT::RUNNING;
 }
-

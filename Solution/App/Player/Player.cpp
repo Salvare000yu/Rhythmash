@@ -60,7 +60,7 @@ Player::Player(Camera* camera,
 	BaseActObj(camera, model, pos),
 	input(Input::ins())
 {
-	se1 = std::make_unique<Sound>("Resources/SE/Sys_Set03-click.wav");
+	se1 = Sound::ins()->loadWave("Resources/SE/Sys_Set03-click.wav");
 
 	loadYamlFile();
 
@@ -73,7 +73,7 @@ Player::Player(Camera* camera,
 		if (!this->getAlive())
 		{
 			update_proc = [] {};
-			this->setCol({ 0,0,0,1 });
+			this->setCol({ 0,0,0,getCol().w});
 			return;
 		}
 
@@ -134,9 +134,9 @@ void Player::Attack()
 
 	if (input->triggerKey(DIK_SPACE) && judge())
 	{
-		Sound::SoundPlayWave(se1.get());
+		Sound::playWave(se1);
 		attackFlag = true;
-		this->setCol(XMFLOAT4(0, 0, 1, 1));
+		this->setCol(XMFLOAT4(0, 0, 1, getCol().w));
 
 		if (atkObjAlive)
 		{
