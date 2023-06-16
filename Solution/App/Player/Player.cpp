@@ -163,10 +163,10 @@ void Player::Step()
 
 	if (Input::ins()->triggerKey(DIK_C) && judge())
 	{
-		SetSpeed(dashSpeed);
+		setSpeed(dashSpeed);
 	} else
 	{
 		const float acc = normalSpeed * dashSpeedAttenuation;
-		SetSpeed(std::max(normalSpeed, moveSpeed + acc));
+		setSpeed(std::max(normalSpeed, moveSpeed + acc));
 	}
 }

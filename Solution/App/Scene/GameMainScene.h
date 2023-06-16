@@ -48,7 +48,7 @@ class GameMainScene :
 	// --------------------
 
 	// パーティクル
-	std::unique_ptr<ParticleMgr> particleMgr;
+	std::shared_ptr<ParticleMgr> particleMgr;
 
 	// 自機
 	std::unique_ptr<Player> player;
