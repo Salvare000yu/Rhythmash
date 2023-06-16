@@ -50,4 +50,3 @@ public:
 	static void checkHitAll(const ColliderSet& collider1,
 							const ColliderSet& collider2);
 };
-

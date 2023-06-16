@@ -30,4 +30,3 @@ public:
 	//ターゲットとの距離間
 	float TargetFromDistance();
 };
-

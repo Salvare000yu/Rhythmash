@@ -49,7 +49,7 @@ XMFLOAT3 GameObj::move(const DirectX::XMVECTOR& dirNormal, float speed, bool mov
 	XMFLOAT3 vel{};
 	XMStoreFloat3(&vel, velVec);
 
-	if(moveFlag)
+	if (moveFlag)
 	{
 		obj->position.x += vel.x;
 		obj->position.y += vel.y;

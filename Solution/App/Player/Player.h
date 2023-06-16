@@ -34,4 +34,3 @@ public:
 	void Attack() override;
 	void Step();
 };
-

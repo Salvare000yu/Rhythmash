@@ -310,4 +310,3 @@ std::weak_ptr<BaseEnemy> GameMainScene::addEnemy(const DirectX::XMFLOAT3& pos)
 
 	return i;
 }
-

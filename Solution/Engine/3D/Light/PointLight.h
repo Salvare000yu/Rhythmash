@@ -41,4 +41,3 @@ public:
 	inline void setAtten(const DirectX::XMFLOAT3& atten) { this->atten = atten; }
 	inline const DirectX::XMFLOAT3& getAtten() const { return atten; }
 };
-

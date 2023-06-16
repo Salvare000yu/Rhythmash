@@ -73,7 +73,7 @@ Player::Player(Camera* camera,
 		if (!this->getAlive())
 		{
 			update_proc = [] {};
-			this->setCol({ 0,0,0,getCol().w});
+			this->setCol({ 0,0,0,getCol().w });
 			return;
 		}
 
@@ -160,7 +160,6 @@ void Player::Attack()
 
 void Player::Step()
 {
-
 	if (Input::ins()->triggerKey(DIK_C) && judge())
 	{
 		setSpeed(dashSpeed);

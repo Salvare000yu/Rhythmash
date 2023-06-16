@@ -42,4 +42,3 @@ public:
 
 	EnemyBehavior();
 };
-

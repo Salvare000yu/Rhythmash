@@ -37,7 +37,7 @@ public:
 
 	inline void setHp(uint16_t hpNum) { hpBar = hpNum; }
 	inline uint16_t getHp() const { return hpBar; }
-	
+
 	inline void setAttack(uint16_t attackNum) { attack = attackNum; }
 	inline uint16_t getAttack() const { return attack; }
 
