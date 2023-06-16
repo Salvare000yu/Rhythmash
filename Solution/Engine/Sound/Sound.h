@@ -28,6 +28,8 @@ public:
 
 	std::weak_ptr<SoundData> loadWave(const std::string& filePath);
 
+	std::weak_ptr<SoundData> loadWave(float hz, float sec = 1.f);
+
 	/// @brief 音を再生
 	/// @param data 再生するデータ
 	/// @param loopCount 0で繰り返し無し、XAUDIO2_LOOP_INFINITEで永遠

@@ -23,6 +23,21 @@ std::weak_ptr<SoundData> Sound::loadWave(const std::string& filePath)
 	return ret;
 }
 
+std::weak_ptr<SoundData> Sound::loadWave(float hz, float sec)
+{
+	std::shared_ptr<SoundData>& ret = datas["." + std::to_string(hz)];
+
+	// 重複防止
+	if (ret)
+	{
+		return ret;
+	}
+
+	ret = std::make_shared<SoundData>(hz, sec);
+
+	return ret;
+}
+
 bool Sound::playWave(std::weak_ptr<SoundData>& data, uint32_t loopCount, float volume)
 {
 	if (data.expired()) { return true; }
