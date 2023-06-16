@@ -41,7 +41,7 @@ GameMainScene::GameMainScene() :
 	// --------------------
 	// パーティクル
 	// --------------------
-	particleMgr = std::make_unique<ParticleMgr>(L"Resources/white.png", cameraObj.get());
+	particleMgr = std::make_shared<ParticleMgr>(L"Resources/white.png", cameraObj.get());
 
 	// --------------------
 	// 背景
@@ -147,11 +147,10 @@ GameMainScene::GameMainScene() :
 		particleMgr->createParticle(obj->calcWorldPos(), 50ui16);
 		if (obj->damage(1ui16, true))
 		{
-
 			obj->setCol(XMFLOAT4(0, 0, 0, 1));
 			return;
 		}
-		obj->setCol({ 1,0,0,obj->getCol().w});
+		obj->setCol({ 1,0,0,obj->getCol().w });
 	};
 
 	playerCols.hitProc = hitProc;
