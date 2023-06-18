@@ -17,6 +17,14 @@ private:
 	std::unordered_map<std::string, std::shared_ptr<SoundData>> datas;
 
 public:
+	enum class WAVEFORM : uint8_t
+	{
+		SAWTOOTH,	// のこぎり波
+		SIN,		// 正弦波
+		SQUARE		// 矩形波
+	};
+
+public:
 	~Sound();
 
 	static inline Sound* getInstance()
@@ -28,7 +36,7 @@ public:
 
 	std::weak_ptr<SoundData> loadWave(const std::string& filePath);
 
-	std::weak_ptr<SoundData> loadWave(float hz, float sec = 1.f);
+	std::weak_ptr<SoundData> loadWave(WAVEFORM waveform, float hz, float sec = 1.f);
 
 	/// @brief 音を再生
 	/// @param data 再生するデータ
