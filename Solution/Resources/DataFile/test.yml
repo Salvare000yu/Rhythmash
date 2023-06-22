@@ -1,0 +1,18 @@
+Enemy_1:
+    speed: 20
+    dashSpeedRate: 5
+    dashSpeedAttRate: 0.0625
+    hp: 50
+    attack: 1
+Enemy_2:
+    speed: 10
+    dashSpeedRate: 2.5
+    dashSpeedAttRate: 0.0625
+    hp: 50
+    attack: 3
+Enemy_Boss:
+    speed: 10
+    dashSpeedRate: 2.5
+    dashSpeedAttRate: 0.0625
+    hp: 1
+    attack: 5

@@ -81,8 +81,6 @@ GameMainScene::GameMainScene() :
 	struct CavDataFormat
 	{
 		std::string type = "";
-		uint16_t hp = 0ui16;
-		uint16_t attack = 0ui16;
 		std::forward_list<XMFLOAT3> pos{};
 	};
 	std::forward_list<CavDataFormat> loadedCsvData;
@@ -90,22 +88,14 @@ GameMainScene::GameMainScene() :
 
 	for (const auto& i : csvData)
 	{
-		if (i[0] == "type")
+		if (i[1] == "enemy")
 		{
 			loadedCsvData.emplace_front(CavDataFormat{ .type = i[1] });
 			currentData = &loadedCsvData.front();
-		} else if (currentData)
-		{
-			if (i[0] == "position")
-			{
-				currentData->pos.emplace_front(XMFLOAT3(std::stof(i[1]),
-														std::stof(i[2]),
-														std::stof(i[3])));
-			} else if (i[0] == "hp")
-			{
-				currentData->hp = static_cast<uint16_t>(std::stoul(i[1]));
-			}
-		}
+			currentData->pos.emplace_front(XMFLOAT3(std::stof(i[2]),
+													std::stof(i[3]),
+													std::stof(i[4])));
+		} 
 	}
 
 	for (const auto& i : loadedCsvData)
@@ -115,8 +105,6 @@ GameMainScene::GameMainScene() :
 			for (const auto& e : i.pos)
 			{
 				auto tmp = addEnemy(e).lock();
-				tmp->setAttack(i.attack);
-				tmp->setHp(i.hp);
 			}
 		}
 	}
@@ -226,14 +214,14 @@ void GameMainScene::drawFrontSprite()
 
 	ImGui::SetNextWindowSize(ImVec2(100, 100));
 	ImGui::SetNextWindowPos(ImVec2(0, 0));
-	enemy.front()->drawIdmGui();
+	//enemy.front()->drawIdmGui();
 }
 
 std::weak_ptr<BaseEnemy> GameMainScene::addEnemy(const DirectX::XMFLOAT3& pos)
 {
 	auto& i = enemy.emplace_front(std::make_shared<BaseEnemy>(cameraObj.get(), enemyModel.get()));
 
-	i->setHp(3u);
+	//i->setHp(1u);
 	i->setTargetObj(player.get());
 	i->setPos(pos);
 	i->setDamageSe(damageSe);

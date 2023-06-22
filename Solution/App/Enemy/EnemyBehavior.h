@@ -5,7 +5,16 @@
 #include <DirectXMath.h>
 
 class BaseEnemy;
+struct EnemyData
+{
+	float moveSpeed;
+	float normalSpeed;
+	float dashSpeed;
+	float dashSpeedAttenuation;
+	uint16_t hp;
+	uint16_t attack;
 
+};
 class EnemyBehavior :
 	public Sequencer
 {
@@ -29,6 +38,8 @@ private://メンバ変数
 	DirectX::XMVECTOR moveVel = DirectX::XMVectorSet(0, 0, 10, 1);
 	DirectX::XMVECTOR moveVelRotaQuaternion{};
 
+	
+
 private://メンバ関数
 
 	NODE_RESULT Phase_move();
@@ -41,7 +52,7 @@ public:
 	EnemyBehavior(BaseEnemy* enemy);
 
 	EnemyBehavior();
-
+	
 	void drawImGui();
 
 };

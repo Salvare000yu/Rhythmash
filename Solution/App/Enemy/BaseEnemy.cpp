@@ -13,6 +13,7 @@ BaseEnemy::BaseEnemy(Camera* camera, ObjModel* model, const DirectX::XMFLOAT3& p
 	additionalUpdateProc.emplace("BaseEnemy::カウント更新", [&] { enemyBehavior->setPreBeatCount(nowBeatCount); });
 }
 
+
 float BaseEnemy::TargetFromDistance()
 {
 	if (!this->targetObj) { return -1.f; }
