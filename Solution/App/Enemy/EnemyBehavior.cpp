@@ -21,62 +21,60 @@ EnemyBehavior::EnemyBehavior(BaseEnemy* enemy) :
 	Phase->addChild(*attackPhase);
 
 	addChild(*Phase);
-	enemy->loadYamlFile();
+	loadEnemyData();
 	moveVelRotaQuaternion = XMQuaternionRotationRollPitchYaw(0, XM_PIDIV2, 0);
 	
 	enemy->moveSpeed = BaseActObj::moveSpeedDef * 10.f;
 }
 
-
-std::optional<EnemyData> BaseEnemy::loadYamlFile()
+void EnemyBehavior::loadEnemyData()
 {
-	constexpr const char filePath[] = "Resources/DataFile/enemy.yml";
+	std::string fullpath = "Resources/DataFile/enemy.yml";
 
-	std::string data{};
+	std::string Data;
+	std::ifstream file(fullpath);
+	if (file.fail())
 	{
-		std::ifstream ifs(filePath);
-		if (!ifs) { return std::nullopt; }
-
-		std::string line{};
-		while (std::getline(ifs, line))
-		{
-			data += line + "\n";
-		}
-		ifs.close();
+		return ;
 	}
-
-	Yaml::Node root{};
+	std::string line{};
+	while (std::getline(file, line))
+	{
+		Data += line+ "\n";
+	}
 	
-	auto& Enemy_1 = root["Enemy_1"];
-	Enemy_1["speed"].As<float>();
-	enemy1Data.moveSpeed = Enemy_1["speed"].As<float>();
-	enemy1Data.normalSpeed = enemy1Data.moveSpeed;
-	enemy1Data.dashSpeed = enemy1Data.normalSpeed * Enemy_1["dashSpeedRate"].As<float>();
-	enemy1Data.dashSpeedAttenuation = enemy1Data.normalSpeed * Enemy_1["dashSpeedAttRate"].As<float>();
-	enemy1Data.hp = Enemy_1["hp"].As<uint16_t>();
-	enemy1Data.attack = Enemy_1["attack"].As<uint16_t>();
+	Yaml::Node node{};
+	try
+	{
+		Yaml::Parse(node, Data);
+		auto& Enemy_1 = node["Enemy_1"];
+		enemy1Data.moveSpeed = Enemy_1["speed"].As<float>();
+		enemy1Data.dashSpeed = Enemy_1["dashSpeedRate"].As<float>();
+		enemy1Data.dashSpeedAttenuation = Enemy_1["dashSpeedAttRate"].As<float>();
+		enemy1Data.hp = Enemy_1["hp"].As<uint16_t>();
+		enemy1Data.attack = Enemy_1["attack"].As<uint16_t>();
 
-	auto& Enemy_2 = root["Enemy_2"];
-	Enemy_2["speed"].As<float>();
-	enemy2Data.moveSpeed = Enemy_2["speed"].As<float>();
-	enemy2Data.normalSpeed = enemy2Data.moveSpeed;
-	enemy2Data.dashSpeed = enemy2Data.normalSpeed * Enemy_2["dashSpeedRate"].As<float>();
-	enemy2Data.dashSpeedAttenuation = enemy2Data.normalSpeed * Enemy_2["dashSpeedAttRate"].As<float>();
-	enemy2Data.hp = Enemy_2["hp"].As<uint16_t>();
-	enemy2Data.attack = Enemy_2["attack"].As<uint16_t>();
+		auto& Enemy_2 = node["Enemy_2"];
+		enemy2Data.moveSpeed = Enemy_2["speed"].As<float>();
+		enemy2Data.dashSpeed = Enemy_2["dashSpeedRate"].As<float>();
+		enemy2Data.dashSpeedAttenuation = Enemy_2["dashSpeedAttRate"].As<float>();
+		enemy2Data.hp = Enemy_2["hp"].As<uint16_t>();
+		enemy2Data.attack = Enemy_2["attack"].As<uint16_t>();
 
-	auto& Enemy_Boss = root["Enemy_Boss"];
-	Enemy_Boss["speed"].As<float>();
-	bossData.moveSpeed = Enemy_Boss["speed"].As<float>();
-	bossData.normalSpeed = bossData.moveSpeed;
-	bossData.dashSpeed = bossData.normalSpeed * Enemy_Boss["dashSpeedRate"].As<float>();
-	bossData.dashSpeedAttenuation = bossData.normalSpeed * Enemy_Boss["dashSpeedAttRate"].As<float>();
-	bossData.hp = Enemy_Boss["hp"].As<uint16_t>();
-	bossData.attack = Enemy_Boss["attack"].As<uint16_t>();
-
-
-	return std::optional<EnemyData>(enemy1Data);
+		auto& Enemy_Boss = node["Enemy_Boss"];
+		bossData.moveSpeed = Enemy_Boss["speed"].As<float>();
+		bossData.dashSpeed = Enemy_Boss["dashSpeedRate"].As<float>();
+		bossData.dashSpeedAttenuation = Enemy_Boss["dashSpeedAttRate"].As<float>();
+		bossData.hp = Enemy_Boss["hp"].As<uint16_t>();
+		bossData.attack = Enemy_Boss["attack"].As<uint16_t>();
+	} 
+	catch (const Yaml::Exception)
+	{
+		return ;
+	}
+	
 }
+
 
 
 EnemyBehavior::EnemyBehavior() :

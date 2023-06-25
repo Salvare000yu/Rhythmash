@@ -9,12 +9,9 @@ class BaseEnemy : public BaseActObj
 
 	std::unique_ptr<EnemyBehavior> enemyBehavior;
 
-	std::optional<EnemyData> loadYamlFile();
+	
 
 
-	EnemyData enemy1Data;
-	EnemyData enemy2Data;
-	EnemyData bossData;
 protected:
 	GameObj* targetObj = nullptr;
 	uint32_t nowBeatCount = 0ui16;
