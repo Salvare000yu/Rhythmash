@@ -1,15 +1,12 @@
 ﻿#pragma once
 #include "BaseActObj/BaseActObj.h"
 
-#include "EnemyBehavior.h"
-#include "Collision/Collision.h"
+class BaseComposite;
 
 class BaseEnemy :
 	public BaseActObj
 {
-	friend class EnemyBehavior;
-
-	std::unique_ptr<EnemyBehavior> enemyBehavior;
+	std::unique_ptr<BaseComposite> enemyBehavior;
 
 protected:
 	// 攻撃対象へのポインタ

@@ -58,6 +58,7 @@ public:
 	float getSpeed() { return moveSpeed; }
 	void setSpeed(float speed) { moveSpeed = speed; }
 
+	inline void setAttackFlag(bool flag) { this->attackFlag = flag; }
 	inline bool getAttackFlag() const { return attackFlag; }
 
 	inline void setDamageSe(const std::weak_ptr<SoundData>& damageSound) { damage = damageSound; }

@@ -14,24 +14,30 @@ EnemyBehavior::EnemyBehavior(BaseEnemy* enemy) :
 	attackPhase->addChild(Task([&] { return this->enemy->TargetFromDistance() > 10.0f ? NODE_RESULT::SUCCESS : NODE_RESULT::FAIL; }));
 	attackPhase->addChild(Task(std::bind(&EnemyBehavior::Phase_Attack, this)));
 
-	Phase = std::make_unique<Sequencer>();
-	Phase->addChild(*movePhase);
-	Phase->addChild(*attackPhase);
+	mainPhase = std::make_unique<Sequencer>();
+	mainPhase->addChild(*movePhase);
+	mainPhase->addChild(*attackPhase);
 
-	addChild(*Phase);
+	addChild(Task([&]
+				  {
+					  // メインの行動をし、結果を取得
+					  const NODE_RESULT ret = mainPhase->run();
+
+					  // 拍数を更新
+					  preBeatCount = this->enemy->getNowBeatCount();
+
+					  // 行動の結果を返す
+					  return ret;
+				  }));
 
 	moveVelRotaQuaternion = XMQuaternionRotationRollPitchYaw(0, XM_PIDIV2, 0);
 
-	enemy->moveSpeed = BaseActObj::moveSpeedDef * 10.f;
+	enemy->setSpeed(BaseActObj::moveSpeedDef * 10.f);
 }
-
-EnemyBehavior::EnemyBehavior() :
-	EnemyBehavior(nullptr)
-{}
 
 NODE_RESULT EnemyBehavior::Phase_move()
 {
-	if (preBeatCount != enemy->nowBeatCount)
+	if (preBeatCount != enemy->getNowBeatCount())
 	{
 		enemy->MoveProcess(moveVel);
 		if (++moveCount > moveCountMax)
@@ -48,13 +54,13 @@ NODE_RESULT EnemyBehavior::Phase_move()
 
 NODE_RESULT EnemyBehavior::Phase_Attack()
 {
-	if (preBeatCount != enemy->nowBeatCount)
+	if (preBeatCount != enemy->getNowBeatCount())
 	{
-		enemy->attackFlag = true;
+		enemy->setAttackFlag(true);
 		enemy->setCol(XMFLOAT4(0.5f, 1, 1, 1));
 		if (++attackCount > attackCountMax)
 		{
-			enemy->attackFlag = false;
+			enemy->setAttackFlag(false);
 			attackCount = 0ui16;
 			enemy->setCol(XMFLOAT4(1, 1, 1, 1));
 			return NODE_RESULT::SUCCESS;

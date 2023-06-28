@@ -1,7 +1,7 @@
 ﻿#include "BaseEnemy.h"
-#include <Util/RandomNum.h>
-#include <BehaviorTree/Sequencer.h>
-#include <Util/RandomNum.h>
+#include <Collision/Collision.h>
+#include <BehaviorTree/BaseComposite.h>
+#include <Enemy/EnemyBehavior.h>
 
 using namespace DirectX;
 
@@ -10,7 +10,6 @@ BaseEnemy::BaseEnemy(Camera* camera, ObjModel* model, const DirectX::XMFLOAT3& p
 	enemyBehavior(std::make_unique<EnemyBehavior>(this))
 {
 	additionalUpdateProc.emplace("BaseEnemy::update_proc", [&] { enemyBehavior->run(); });
-	additionalUpdateProc.emplace("BaseEnemy::カウント更新", [&] { enemyBehavior->setPreBeatCount(nowBeatCount); });
 }
 
 float BaseEnemy::TargetFromDistance()
