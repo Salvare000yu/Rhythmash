@@ -20,6 +20,8 @@
 #include <Scene/GameOverScene.h>
 #include <Scene/GameClearScene.h>
 
+#include <BehaviorTree/BaseComposite.h>
+
 using namespace DirectX;
 
 GameMainScene::GameMainScene() :
