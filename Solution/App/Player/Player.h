@@ -20,6 +20,7 @@ class Player
 	DirectX::XMFLOAT3 dir = { 0,0,0 };
 
 	bool invincibleFrag;
+	int INVINCIBLE_FRAME;
 
 	int AttackFrame = 0;
 	int invincibleFrame = 0;

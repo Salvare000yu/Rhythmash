@@ -44,6 +44,7 @@ bool Player::loadYamlFile()
 	dashSpeedAttenuation = -normalSpeed * pNode["dashSpeedAttRate"].As<float>();
 	setHp(pNode["hp"].As<uint16_t>());
 	setAttack(pNode["attack"].As<uint16_t>());
+	INVINCIBLE_FRAME = pNode["invincible"].As<uint16_t>();
 
 	auto& posNode = pNode["position"];
 	setPos(XMFLOAT3(
@@ -176,7 +177,7 @@ void Player::ViewShift()
 void Player::Invincible()
 {
 	if (!invincibleFrag)return;
-	if (++invincibleFrame > 120)
+	if (++invincibleFrame > INVINCIBLE_FRAME)
 	{
 		invincibleFrame = 0;
 		invincibleFrag = false;

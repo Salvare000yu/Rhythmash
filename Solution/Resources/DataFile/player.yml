@@ -9,6 +9,8 @@ playerData:
   hp: 20
   # 攻撃力
   attack: 1
+  # 無敵時間(フレーム)
+  invincible: 120
   # 初期位置
   position:
     x: 16.0
