@@ -66,7 +66,6 @@ Player::Player(Camera* camera,
 	loadYamlFile();
 
 	auto atkObj = atkObjPt.lock();
-	//atkObj->setPos({ 0,0,0 });
 
 	update_proc =
 		[&]
@@ -81,7 +80,6 @@ Player::Player(Camera* camera,
 		Move();
 		Attack();
 		Step();
-		ViewShift();
 	};
 
 	additionalUpdateProc.emplace("Player::update_proc", [&] { update_proc(); });

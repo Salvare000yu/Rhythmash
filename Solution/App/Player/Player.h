@@ -5,7 +5,7 @@
 #include <Sound/Sound.h>
 #include <memory>
 
-class InputMgr;
+class Input;
 class CameraObj;
 
 class Player
@@ -35,6 +35,4 @@ public:
 	void Move()  override;
 	void Attack() override;
 	void Step();
-	void ViewShift();
-	void setCameraObj(CameraObj* cameraObj) { this->cameraObj = cameraObj; }
 };
