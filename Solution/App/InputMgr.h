@@ -18,6 +18,16 @@ private:
 	Input* input = nullptr;
 	float rate;				//マウスの感度
 public:
+	inline static InputMgr* getInstance()
+	{
+		static InputMgr inputMgr{};
+		return &inputMgr;
+	}
+	inline static InputMgr* ins()
+	{
+		return getInstance();
+	}
+
 	InputMgr();
 	bool GetInput(ACTION act);
 	DirectX::XMFLOAT2 GetThumbValue(ACTION act);

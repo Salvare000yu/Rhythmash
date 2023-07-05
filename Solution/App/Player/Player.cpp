@@ -1,6 +1,7 @@
 ﻿#include "Player.h"
 #include "Enemy/BaseEnemy.h"
 #include <InputMgr.h>
+#include <Camera/CameraObj.h>
 #include <cmath>
 #include <Util/Timer.h>
 
@@ -80,6 +81,7 @@ Player::Player(Camera* camera,
 		Move();
 		Attack();
 		Step();
+		ViewShift();
 	};
 
 	additionalUpdateProc.emplace("Player::update_proc", [&] { update_proc(); });

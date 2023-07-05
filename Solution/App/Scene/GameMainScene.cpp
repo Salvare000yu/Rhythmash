@@ -165,7 +165,7 @@ GameMainScene::~GameMainScene()
 void GameMainScene::start()
 {
 	// マウスカーソルは表示する
-	input->changeDispMouseCursorFlag(true);
+	input->changeDispMouseCursorFlag(false);
 
 	Sound::playWave(bgm, XAUDIO2_LOOP_INFINITE);
 

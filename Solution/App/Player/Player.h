@@ -3,8 +3,10 @@
 #include <DirectXMath.h>
 #include <functional>
 #include <Sound/Sound.h>
+#include <memory>
 
-class Input;
+class InputMgr;
+class CameraObj;
 
 class Player
 	: public BaseActObj
@@ -33,4 +35,6 @@ public:
 	void Move()  override;
 	void Attack() override;
 	void Step();
+	void ViewShift();
+	void setCameraObj(CameraObj* cameraObj) { this->cameraObj = cameraObj; }
 };
