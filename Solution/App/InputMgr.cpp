@@ -3,7 +3,7 @@
 InputMgr::InputMgr()
 {
 	input = Input::getInstance();
-	rate = 1000.0f;
+	rate = 10.0f;
 }
 
 bool InputMgr::GetInput(ACTION act)
@@ -13,16 +13,16 @@ bool InputMgr::GetInput(ACTION act)
 	switch (act)
 	{
 	case ACTION::WEEKATTACK:
-		if (input->triggerPadButton(Input::PAD::X) && input->triggerMouseButton(Input::MOUSE::LEFT))inp = true;
+		if (input->triggerPadButton(Input::PAD::X) || input->triggerMouseButton(Input::MOUSE::LEFT))inp = true;
 		break;
 	case ACTION::HARDATTACK:
-		if (input->triggerPadButton(Input::PAD::Y) && input->triggerMouseButton(Input::MOUSE::RIGHT))inp = true;
+		if (input->triggerPadButton(Input::PAD::Y) || input->triggerMouseButton(Input::MOUSE::RIGHT))inp = true;
 		break;
 	case ACTION::JUMP:
-		if (input->triggerPadButton(Input::PAD::A) && input->triggerKey(DIK_SPACE))inp = true;
+		if (input->triggerPadButton(Input::PAD::A) || input->triggerKey(DIK_SPACE))inp = true;
 		break;
 	case ACTION::STEP:
-		if (input->triggerPadButton(Input::PAD::RB) && input->triggerKey(DIK_LSHIFT))inp = true;
+		if (input->triggerPadButton(Input::PAD::RB) || input->triggerKey(DIK_C))inp = true;
 		break;
 	default:
 		inp = false;

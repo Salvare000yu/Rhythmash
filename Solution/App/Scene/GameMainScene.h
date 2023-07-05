@@ -81,5 +81,9 @@ public:
 	void drawObj3d() override;
 	void drawFrontSprite() override;
 
+private:
+	/// @brief 敵リストに要素を追加
+	/// @param pos 追加する敵の位置
+	/// @return 追加した敵を示すweak_ptr
 	std::weak_ptr<BaseEnemy> addEnemy(const DirectX::XMFLOAT3& pos);
 };

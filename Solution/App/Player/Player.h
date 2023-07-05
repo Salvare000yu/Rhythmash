@@ -3,8 +3,10 @@
 #include <DirectXMath.h>
 #include <functional>
 #include <Sound/Sound.h>
+#include <memory>
 
 class Input;
+class CameraObj;
 
 class Player
 	: public BaseActObj

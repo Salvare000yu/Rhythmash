@@ -4,17 +4,18 @@
 #include "System/SceneManager.h"
 #include <CollisionMgr.h>
 #include <Util/Timer.h>
-#include "Input/Input.h"
+#include <Input/Input.h>
 
-#include "Player/Player.h"
+#include <Player/Player.h>
 
 #include <Enemy/BaseEnemy.h>
 #include <3D/Obj/ObjModel.h>
 #include <GameObject/GameObj.h>
 #include <Camera/CameraObj.h>
-#include "Util/Util.h"
-#include "Sound/Sound.h"
+#include <Util/Util.h>
+#include <Sound/Sound.h>
 #include <3D/ParticleMgr.h>
+#include <InputMgr.h>
 
 #include <Scene/GameOverScene.h>
 #include <Scene/GameClearScene.h>
@@ -167,7 +168,7 @@ GameMainScene::~GameMainScene()
 void GameMainScene::start()
 {
 	// マウスカーソルは表示する
-	input->changeDispMouseCursorFlag(true);
+	input->changeDispMouseCursorFlag(false);
 
 	Sound::playWave(bgm, XAUDIO2_LOOP_INFINITE);
 
