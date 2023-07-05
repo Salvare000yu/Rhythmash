@@ -2,6 +2,14 @@
 #include "BaseActObj/BaseActObj.h"
 #include "EnemyBehavior.h"
 #include "Collision/Collision.h"
+struct EnemyData
+{
+	float moveSpeed;
+	float dashSpeed;
+	float dashSpeedAttenuation;
+	uint16_t hp;
+	uint16_t attack;
+};
 
 class BaseEnemy : public BaseActObj
 {
@@ -25,7 +33,45 @@ public:
 	inline uint32_t getNowBeatCount() const { return nowBeatCount; }
 
 	inline void setTargetObj(GameObj* obj) { targetObj = obj; }
+	
+	
+	inline uint16_t getHp(int number)
+	{
+		switch (number)
+		{
+		case 1:
+			return enemy1Data.hp;
+		case 2:
+			return enemy2Data.hp;
+		case 3:
+			return bossData.hp;
+		default:
+			return 0;
+		};
+	 }	
+	inline uint16_t getAttack(int number)
+	{
+		switch (number)
+		{
+		case 1:
+			return enemy1Data.attack;
+		case 2:
+			return enemy2Data.attack;
+		case 3:
+			return bossData.attack;
+		default:
+			return 0;
+		};
+	 }
+	
 
 	float TargetFromDistance();
 	void drawIdmGui();
+
+	void loadEnemyData();	
+	EnemyData enemy1Data;
+	EnemyData enemy2Data;
+	EnemyData bossData;
+
+
 };

@@ -220,8 +220,9 @@ void GameMainScene::drawFrontSprite()
 std::weak_ptr<BaseEnemy> GameMainScene::addEnemy(const DirectX::XMFLOAT3& pos)
 {
 	auto& i = enemy.emplace_front(std::make_shared<BaseEnemy>(cameraObj.get(), enemyModel.get()));
-
-	//i->setHp(1u);
+	
+	uint16_t enemyHp = i->getHp(1);
+	i->setHp(enemyHp);
 	i->setTargetObj(player.get());
 	i->setPos(pos);
 	i->setDamageSe(damageSe);
