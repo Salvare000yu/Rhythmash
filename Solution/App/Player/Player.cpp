@@ -1,6 +1,7 @@
 ﻿#include "Player.h"
 #include "Enemy/BaseEnemy.h"
 #include <InputMgr.h>
+#include <Camera/CameraObj.h>
 #include <cmath>
 #include <Util/Timer.h>
 
@@ -65,7 +66,6 @@ Player::Player(Camera* camera,
 	loadYamlFile();
 
 	auto atkObj = atkObjPt.lock();
-	//atkObj->setPos({ 0,0,0 });
 
 	update_proc =
 		[&]

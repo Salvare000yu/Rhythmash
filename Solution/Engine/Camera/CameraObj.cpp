@@ -1,4 +1,6 @@
 ﻿#include "CameraObj.h"
+#include <InputMgr.h>
+#include <algorithm>
 
 using namespace DirectX;
 
@@ -6,7 +8,20 @@ CameraObj::CameraObj(GameObj* parent)
 	:Camera(WinAPI::window_width,
 			WinAPI::window_height),
 	parentObj(parent)
-{}
+{
+}
+
+void CameraObj::rotaCameraPos()
+{
+	const DirectX::XMFLOAT2 inp = InputMgr::ins()->GetThumbValue(ACTION::CAMERA);
+
+	relativeRotaDeg.x += inp.y;
+	relativeRotaDeg.y += inp.x;
+
+	constexpr float vAngleMax = 80.f;
+	relativeRotaDeg.x = std::clamp(relativeRotaDeg.x, 0.f, vAngleMax);
+	relativeRotaDeg.y = std::fmod(relativeRotaDeg.y, 360.f);
+}
 
 void CameraObj::updateMatWorld()
 {
@@ -32,21 +47,21 @@ void CameraObj::updateMatWorld()
 		}
 	}
 
-	matRot = XMMatrixIdentity();
-	matRot *= XMMatrixRotationZ(XMConvertToRadians(rota.z));
+	matRot = XMMatrixRotationZ(XMConvertToRadians(rota.z));
 	matRot *= XMMatrixRotationX(XMConvertToRadians(rota.x));
 	matRot *= XMMatrixRotationY(XMConvertToRadians(rota.y));
 
 	matTrans = XMMatrixTranslation(eye.x, eye.y, eye.z);
 
-	matWorld = XMMatrixIdentity();
-	matWorld *= matRot;
+	matWorld = matRot;
 	matWorld *= matTrans;
 }
 
 void CameraObj::preUpdate()
 {
-	if (parentObj == nullptr) return;
+	if (parentObj == nullptr) { return; }
+
+	rotaCameraPos();
 
 	// カメラ操作を反転するかどうか
 	constexpr bool invCamOperFlag = false;
