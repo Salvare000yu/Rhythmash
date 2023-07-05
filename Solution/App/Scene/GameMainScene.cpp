@@ -152,9 +152,10 @@ void GameMainScene::update()
 	nowBeatRaito = Timer::calcNowBeatRaito((float)timer->getNowTime(), bpm, nowCount);
 	for (auto& i : enemy)
 	{
-		if (i->getAttackFlag())
+		if (i->getAttackFlag() && !player->getInvincibleFrag())
 		{
 			CollisionMgr::checkHitAll(i->atkcoll, player->mycoll);
+			player->setInvincibleFrag(true);
 		}
 
 		if (player->getAttackFlag())

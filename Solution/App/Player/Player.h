@@ -19,7 +19,10 @@ class Player
 
 	DirectX::XMFLOAT3 dir = { 0,0,0 };
 
+	bool invincibleFrag;
+
 	int AttackFrame = 0;
+	int invincibleFrame = 0;
 
 	float normalSpeed = moveSpeedDef;
 	float dashSpeed = moveSpeedDef;
@@ -39,5 +42,9 @@ public:
 	void Step();
 	void ViewShift();
 	void setCameraObj(CameraObj* cameraObj) { this->cameraObj = cameraObj; }
+	void Invincible();
+
+	void setInvincibleFrag(bool frag) { invincibleFrag = frag; }
+	bool getInvincibleFrag() { return invincibleFrag; }
 };
 

@@ -82,6 +82,7 @@ Player::Player(Camera* camera,
 		Attack();
 		Step();
 		ViewShift();
+		Invincible();
 	};
 
 	additionalUpdateProc.emplace("Player::update_proc", [&] { update_proc(); });
@@ -170,4 +171,14 @@ void Player::ViewShift()
 	relativeRotaDeg.x += inp.y;
 	relativeRotaDeg.y += inp.x;
 	cameraObj->setRelativeRotaDeg(relativeRotaDeg);
+}
+
+void Player::Invincible()
+{
+	if (!invincibleFrag)return;
+	if (++invincibleFrame > 120)
+	{
+		invincibleFrame = 0;
+		invincibleFrag = false;
+	}
 }
