@@ -23,9 +23,9 @@ std::weak_ptr<SoundData> Sound::loadWave(const std::string& filePath)
 	return ret;
 }
 
-std::weak_ptr<SoundData> Sound::loadWave(float hz, float sec)
+std::weak_ptr<SoundData> Sound::loadWave(WAVEFORM waveform, float hz, float sec)
 {
-	std::shared_ptr<SoundData>& ret = datas["." + std::to_string(hz)];
+	std::shared_ptr<SoundData>& ret = datas["/\\." + std::to_string(hz) + std::to_string((uint8_t)waveform)];
 
 	// 重複防止
 	if (ret)
@@ -33,7 +33,7 @@ std::weak_ptr<SoundData> Sound::loadWave(float hz, float sec)
 		return ret;
 	}
 
-	ret = std::make_shared<SoundData>(hz, sec);
+	ret = std::make_shared<SoundData>(waveform, hz, sec);
 
 	return ret;
 }

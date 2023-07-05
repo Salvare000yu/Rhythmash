@@ -4,6 +4,34 @@
 
 #include <fstream>
 #include <cassert>
+#include <functional>
+
+namespace
+{
+	inline float sin01(float i, float length)
+	{
+		constexpr float PI2 = static_cast<float>(2.0 * 3.1415926535897932384626433832795);
+		return std::sin(PI2 * i / length);
+	}
+
+	// のこぎり波
+	float sawtoothSound(float i, float length)
+	{
+		return (std::fmod(i / length, 1.f) + 1.f) / 2.f;
+	}
+
+	// sin波を[0 ~ 1]にしたもの
+	float sinSound(float i, float length)
+	{
+		return (sin01(i, length) + 1.f) / 2.f;
+	}
+
+	// 矩形波
+	float squareSound(float i, float length)
+	{
+		return sin01(i, length) > 0.f ? 1.f : 0.f;
+	}
+}
 
 SoundData::~SoundData()
 {
@@ -89,7 +117,7 @@ SoundData::SoundData(const char* filename)
 	createSourceVoice(this);
 }
 
-void SoundData::createSoundData(float hz, float sec)
+void SoundData::createSoundData(WAVEFORM waveform, float hz, float sec)
 {
 	constexpr DWORD samplingRate = 44100;
 	constexpr WORD bitDepth = 8;
@@ -101,8 +129,8 @@ void SoundData::createSoundData(float hz, float sec)
 	WAVEFORMATEX& format = this->wfex;
 	format.wFormatTag = WAVE_FORMAT_PCM;
 	format.nChannels = channelNum;			// チャンネル数(1: モノラル、2: ステレオ)
-	format.wBitsPerSample = bitDepth;	// 1サンプルのビット数
-	format.nSamplesPerSec = samplingRate;		// サンプリングレート
+	format.wBitsPerSample = bitDepth;		// 1サンプルのビット数
+	format.nSamplesPerSec = samplingRate;	// サンプリングレート
 	format.nBlockAlign = blockSizeData;
 	format.nAvgBytesPerSec = bufEstimation;
 
@@ -111,13 +139,27 @@ void SoundData::createSoundData(float hz, float sec)
 	BYTE* data = new BYTE[dataSize];
 
 	{
-		constexpr float PI = 3.1415926535897932384626433832795f;
 		const float length = (float)format.nSamplesPerSec / hz;
+
+		float(*soundFunc)(float i, float length) = sawtoothSound;
+
+		switch (waveform)
+		{
+		case SoundData::WAVEFORM::SIN:
+			soundFunc = sinSound;
+			break;
+		case SoundData::WAVEFORM::SQUARE:
+			soundFunc = squareSound;
+			break;
+		case SoundData::WAVEFORM::SAWTOOTH:
+		default:
+			soundFunc = sawtoothSound;
+			break;
+		}
 
 		for (size_t i = 0ui64; i < dataSize; ++i)
 		{
-			// sin波を[0 ~ 1]にしたもの
-			const float s = (std::sin((float)i * PI / length) + 1.f) / 2.f;
+			const float s = soundFunc(static_cast<float>(i), length);
 
 			// 上の値を[0 ~ 255]にして格納
 			data[i] = BYTE(255.f * s);

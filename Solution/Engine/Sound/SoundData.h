@@ -17,10 +17,12 @@ public:
 	// 音声データの読み込み
 	SoundData(const char* filename);
 
-	SoundData(float Hz, float sec = 1ui16) :SoundData() { createSoundData(Hz, sec); }
+	using WAVEFORM = Sound::WAVEFORM;
+
+	SoundData(WAVEFORM waveform, float Hz, float sec = 1ui16) :SoundData() { createSoundData(waveform, Hz, sec); }
 
 private:
-	void createSoundData(float hz, float sec);
+	void createSoundData(WAVEFORM waveform, float hz, float sec);
 
 private:
 #pragma region チャンク
