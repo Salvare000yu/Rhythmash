@@ -71,5 +71,9 @@ public:
 
 	std::weak_ptr<BaseEnemy> addEnemy(const DirectX::XMFLOAT3& pos);
 	
+	std::weak_ptr<BaseEnemy> addEnemy2(const DirectX::XMFLOAT3& pos);
+	
+	std::weak_ptr<BaseEnemy> addBoss(const DirectX::XMFLOAT3& pos);
+	
 
 };

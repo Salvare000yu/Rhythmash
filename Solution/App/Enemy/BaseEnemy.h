@@ -62,6 +62,45 @@ public:
 		default:
 			return 0;
 		};
+	 }inline float getmoveSpeed(int number)
+	{
+		switch (number)
+		{
+		case 1:
+			return enemy1Data.moveSpeed;
+		case 2:
+			return enemy2Data.moveSpeed;
+		case 3:
+			return bossData.moveSpeed;
+		default:
+			return 0;
+		};
+	 }inline float getdashSpeed(int number)
+	{
+		switch (number)
+		{
+		case 1:
+			return enemy1Data.moveSpeed * enemy1Data.dashSpeed;
+		case 2:
+			return enemy2Data.moveSpeed * enemy2Data.dashSpeed;
+		case 3:
+			return bossData.moveSpeed * bossData.dashSpeed;
+		default:
+			return 0;
+		};
+	 }inline float getdashSpeedAttenuation(int number)
+	{
+		switch (number)
+		{
+		case 1:
+			return -enemy1Data.moveSpeed * enemy1Data.dashSpeedAttenuation;
+		case 2:
+			return -enemy2Data.moveSpeed * enemy2Data.dashSpeedAttenuation;
+		case 3:
+			return bossData.moveSpeed * bossData.dashSpeedAttenuation;
+		default:
+			return 0;
+		};
 	 }
 	
 

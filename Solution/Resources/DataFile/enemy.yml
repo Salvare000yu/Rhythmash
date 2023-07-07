@@ -8,11 +8,11 @@ Enemy_2:
   speed: 10
   dashSpeedRate: 2.5
   dashSpeedAttRate: 0.0625
-  hp: 50
+  hp: 1
   attack: 3
 Enemy_Boss:
   speed: 10
   dashSpeedRate: 2.5
   dashSpeedAttRate: 0.0625
-  hp: 1
+  hp: 50
   attack: 5

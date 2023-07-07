@@ -82,31 +82,51 @@ GameMainScene::GameMainScene() :
 	{
 		std::string type = "";
 		std::forward_list<XMFLOAT3> pos{};
+		std::forward_list<float> wave{};
 	};
 	std::forward_list<CavDataFormat> loadedCsvData;
 	CavDataFormat* currentData = nullptr;
 
 	for (const auto& i : csvData)
 	{
-		if (i[1] == "enemy")
+		if (i[0] == "enemy"|| i[0] == "boss")
 		{
-			loadedCsvData.emplace_front(CavDataFormat{ .type = i[1] });
+			loadedCsvData.emplace_front(CavDataFormat{ .type = i[0] });
 			currentData = &loadedCsvData.front();
 			currentData->pos.emplace_front(XMFLOAT3(std::stof(i[2]),
 													std::stof(i[3]),
 													std::stof(i[4])));
-		} 
+			currentData->wave.emplace_front(std::stof(i[1]));
+		}
 	}
 
 	for (const auto& i : loadedCsvData)
 	{
 		if (i.type == "enemy")
 		{
-			for (const auto& e : i.pos)
+			if (i.wave.front() == 1.f)
 			{
-				auto tmp = addEnemy(e).lock();
+				for (const auto& e : i.pos)
+				{
+					auto tmp = addEnemy(e).lock();
+				}
+			}
+			else if (i.wave.front() == 2.f)
+			{
+				for (const auto& e : i.pos)
+				{
+					auto tmp = addEnemy2(e).lock();
+				}
 			}
 		}
+		if (i.type == "boss")
+		{
+			for (const auto& e : i.pos)
+			{
+				auto tmp = addBoss(e).lock();
+			}
+		}
+		
 	}
 
 	for (auto& i : enemy)
@@ -221,8 +241,42 @@ std::weak_ptr<BaseEnemy> GameMainScene::addEnemy(const DirectX::XMFLOAT3& pos)
 {
 	auto& i = enemy.emplace_front(std::make_shared<BaseEnemy>(cameraObj.get(), enemyModel.get()));
 	
-	uint16_t enemyHp = i->getHp(1);
-	i->setHp(enemyHp);
+	
+	i->setHp(i->getHp(1));
+	i->setAttack(i->getAttack(1));
+	//i->SetSpeed(i->getmoveSpeed(1));
+	i->SetSpeed(i->getdashSpeed(1));
+	i->setTargetObj(player.get());
+	i->setPos(pos);
+	i->setDamageSe(damageSe);
+
+	return i;
+}
+
+std::weak_ptr<BaseEnemy> GameMainScene::addEnemy2(const DirectX::XMFLOAT3& pos)
+{
+	auto& i = enemy.emplace_front(std::make_shared<BaseEnemy>(cameraObj.get(), enemyModel.get()));
+	
+	i->setScale({ 2 });
+	i->setHp(i->getHp(2));
+	i->setAttack(i->getAttack(2));
+	i->SetSpeed(i->getmoveSpeed(2));
+	
+	i->setTargetObj(player.get());
+	i->setPos(pos);
+	i->setDamageSe(damageSe);
+
+	return i;
+}
+
+std::weak_ptr<BaseEnemy> GameMainScene::addBoss(const DirectX::XMFLOAT3& pos)
+{
+	auto& i = enemy.emplace_front(std::make_shared<BaseEnemy>(cameraObj.get(), enemyModel.get()));
+	
+	i->setHp(i->getHp(3));
+	i->setAttack(i->getAttack(3));
+	i->SetSpeed(i->getmoveSpeed(3));
+	i->setScale({ 5 });
 	i->setTargetObj(player.get());
 	i->setPos(pos);
 	i->setDamageSe(damageSe);
