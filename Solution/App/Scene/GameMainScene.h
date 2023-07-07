@@ -1,6 +1,8 @@
 ﻿#pragma once
 #include "System/GameScene.h"
 #include <CollisionMgr.h>
+#include <System/PostEffect.h>
+#include <Util/Timer.h>
 #include <memory>
 #include <DirectXMath.h>
 #include <vector>
@@ -13,7 +15,6 @@ class Object3d;
 class GameObj;
 class CameraObj;
 class Light;
-class Timer;
 class SpriteBase;
 class Sprite;
 class Util;
@@ -83,6 +84,29 @@ private:
 	void initEnemy();
 	void initCollider();
 	void initSound();
+
+	// RGBずらし
+	class RgbShiftData
+	{
+		Timer::timeType startTime = 0;
+		bool activeFlag = false;
+
+	public:
+		static constexpr Timer::timeType timeMax = Timer::oneSec / 2;
+
+		inline static void reset() { PostEffect::ins()->setRgbShiftNum(DirectX::XMFLOAT2(0.f, 0.f)); }
+
+		inline bool isActive() const { return activeFlag; }
+
+		inline void start(Timer::timeType nowTime)
+		{
+			activeFlag = true;
+			startTime = nowTime;
+		}
+
+		void update(Timer::timeType nowTime);
+	};
+	RgbShiftData rgbShiftData{};
 
 public:
 	GameMainScene();

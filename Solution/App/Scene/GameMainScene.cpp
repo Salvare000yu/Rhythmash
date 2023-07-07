@@ -1,13 +1,12 @@
 ﻿#include "GameMainScene.h"
-#include "TitleScene.h"
 #include "System/PostEffect.h"
 #include "System/SceneManager.h"
 #include <CollisionMgr.h>
 #include <Util/Timer.h>
 #include <Input/Input.h>
+#include "TitleScene.h"
 
 #include <Player/Player.h>
-
 #include <Enemy/BaseEnemy.h>
 #include <3D/Obj/ObjModel.h>
 #include <GameObject/GameObj.h>
@@ -26,9 +25,7 @@ using namespace DirectX;
 
 void GameMainScene::initPostEffect()
 {
-	PostEffect::getInstance()->setAlpha(1.f);
-	PostEffect::getInstance()->setMosaicNum(DirectX::XMFLOAT2(WinAPI::window_width,
-															  WinAPI::window_height));
+	RgbShiftData::reset();
 }
 
 void GameMainScene::initLight()
@@ -56,6 +53,8 @@ void GameMainScene::initPlayer()
 	playerCols.group.emplace_front(CollisionMgr::ColliderType::create(player.get(), player->getScaleF3().z));
 	auto pAtk = player->getAtkObjPt().lock();
 	playerAtkCols.group.emplace_front(CollisionMgr::ColliderType::create(pAtk.get(), pAtk->getScaleF3().z));
+
+	player->addDamageProc([&] { rgbShiftData.start(timer->getNowTime()); });
 
 	cameraObj->setParentObj(player.get());
 }
@@ -171,11 +170,6 @@ GameMainScene::GameMainScene() :
 	judgeOkRange(0.25f)
 {
 	// --------------------
-	// ポストエフェクト
-	// --------------------
-	initPostEffect();
-
-	// --------------------
 	// ライト
 	// --------------------
 	initLight();
@@ -218,11 +212,20 @@ GameMainScene::GameMainScene() :
 
 GameMainScene::~GameMainScene()
 {
+	RgbShiftData::reset();
 	Sound::stopWave(bgm);
 }
 
 void GameMainScene::start()
 {
+	// --------------------
+	// ポストエフェクト
+	// --------------------
+
+	// 前シーン終了よりも後に実行する必要があるので、
+	// コンストラクタではなくここで行う
+	initPostEffect();
+
 	// マウスカーソルは表示する
 	input->changeDispMouseCursorFlag(false);
 
@@ -234,6 +237,15 @@ void GameMainScene::start()
 
 void GameMainScene::update()
 {
+#ifdef _DEBUG
+	if (Input::ins()->triggerKey(DIK_T))
+	{
+		SceneManager::getInstange()->changeScene<TitleScene>();
+		return;
+	}
+#endif // _DEBUG
+
+
 	// 拍内進行度と拍数を更新
 	nowBeatRaito = Timer::calcNowBeatRaito((float)timer->getNowTime(), bpm, nowCount);
 
@@ -312,6 +324,7 @@ void GameMainScene::update()
 
 	cameraObj->update();
 	light->update();
+	rgbShiftData.update(timer->getNowTime());
 }
 
 void GameMainScene::drawObj3d()
@@ -384,4 +397,28 @@ void GameMainScene::movePlayer()
 
 	// 移動する
 	player->moveProcess(XMVectorSet(inputVal.x, 0.f, inputVal.y, 0.f));
+}
+
+void GameMainScene::RgbShiftData::update(Timer::timeType nowTime)
+{
+	if (!activeFlag) { return; }
+
+	const auto nowRgbShiftTime = nowTime - startTime;
+
+	const float raito = (float)nowRgbShiftTime / (float)timeMax;
+	if (raito > 1.f)
+	{
+		PostEffect::getInstance()->setRgbShiftNum(XMFLOAT2(0.f, 0.f));
+		activeFlag = false;
+		return;
+	}
+
+	constexpr float rgbShiftMumMax = 1.f / 16.f;
+
+	constexpr float  c4 = 2.f * XM_PI / 3.f;
+	const float easeRate = -std::pow(2.f, 10.f * (1.f - raito) - 10.f) *
+		std::sin((raito * 10.f - 10.75f) * c4);
+
+	PostEffect::getInstance()->setRgbShiftNum(XMFLOAT2(easeRate * rgbShiftMumMax,
+													   0.f));
 }
