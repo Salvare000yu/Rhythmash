@@ -86,4 +86,7 @@ private:
 	/// @param pos 追加する敵の位置
 	/// @return 追加した敵を示すweak_ptr
 	std::weak_ptr<BaseEnemy> addEnemy(const DirectX::XMFLOAT3& pos);
+
+	/// @brief 自機の移動処理
+	void movePlayer();
 };

@@ -1,13 +1,13 @@
 ﻿#pragma once
 #include <DirectXMath.h>
-#include "GameObject/GameObj.h"
+#include <GameObject/GameObj.h>
 #include <CollisionMgr.h>
-#include "3D/Obj/ObjModel.h"
-#include <Sound/Sound.h>
 
 class Light;
 class Camera;
 class ParticleMgr;
+class SoundData;
+class ObjModel;
 
 class BaseActObj
 	: public GameObj
@@ -68,11 +68,10 @@ public:
 #pragma endregion アクセッサ
 
 	//基本移動動作
-	void MoveProcess(const DirectX::XMFLOAT3& dir);
-	void MoveProcess(const DirectX::XMVECTOR& dir);
+	void moveProcess(const DirectX::XMFLOAT3& dir);
+	void moveProcess(const DirectX::XMVECTOR& dir);
 
-	void AttackProcess();
+	void attackProcess();
 
-	virtual void Move() {};
-	virtual void Attack() {};
+	virtual void attack() {};
 };
