@@ -24,50 +24,29 @@
 
 using namespace DirectX;
 
-GameMainScene::GameMainScene() :
-	input(Input::ins()),
-	light(std::make_unique<Light>()),
-	timer(std::make_unique<Timer>()),
-	bpm(100.f),
-	judgeOkRange(0.25f)
+void GameMainScene::initPostEffect()
 {
+	PostEffect::getInstance()->setAlpha(1.f);
+	PostEffect::getInstance()->setMosaicNum(DirectX::XMFLOAT2(WinAPI::window_width,
+															  WinAPI::window_height));
+}
+
+void GameMainScene::initLight()
+{
+	light = std::make_unique<Light>();
 	light->setDirLightActive(0, true);
 	light->setCircleShadowActive(0, true);
+}
 
-	PostEffect::getInstance()->setAlpha(1.f);
-	PostEffect::getInstance()->setMosaicNum(DirectX::XMFLOAT2(WinAPI::window_width, WinAPI::window_height));
-
+void GameMainScene::initCamera()
+{
 	cameraObj = std::make_unique<CameraObj>(nullptr);
 	cameraObj->easeRaito = 0.5f;
 	cameraObj->useParentRotaFlag = false;
+}
 
-	// --------------------
-	// パーティクル
-	// --------------------
-	particleMgr = std::make_shared<ParticleMgr>(L"Resources/white.png", cameraObj.get());
-
-	// --------------------
-	// 背景
-	// --------------------
-	groundModel = std::make_unique<ObjModel>("Resources/ground/", "ground");
-	groundObj = std::make_unique<Object3d>(cameraObj.get(), groundModel.get());
-	groundObj->position.y -= 10.f;
-	constexpr float groundSize = 1000.f;
-	groundObj->scale = XMFLOAT3(groundSize, 1.f, groundSize);
-	groundModel->setTexTilling(XMFLOAT2(groundSize, groundSize));
-
-	groundObj->color = XMFLOAT4(1, 1, 1, 0.5f);
-
-	// --------------------
-	// 音
-	// --------------------
-	bgm = Sound::ins()->loadWave("Resources/SE/practiseBGM.wav");
-	damageSe = Sound::ins()->loadWave("Resources/SE/damage.wav");
-
-	// --------------------
-	// 自機
-	// --------------------
-
+void GameMainScene::initPlayer()
+{
 	playerModel = std::make_unique<ObjModel>("Resources/player_robot/", "player_robot");
 	player = std::make_unique<Player>(cameraObj.get(), playerModel.get());
 	player->setDamageSe(damageSe);
@@ -79,10 +58,29 @@ GameMainScene::GameMainScene() :
 	playerAtkCols.group.emplace_front(CollisionMgr::ColliderType::create(pAtk.get(), pAtk->getScaleF3().z));
 
 	cameraObj->setParentObj(player.get());
+}
 
-	// --------------------
-	// 敵
-	// --------------------
+void GameMainScene::initParticle()
+{
+	particleMgr =
+		std::make_shared<ParticleMgr>(L"Resources/white.png",
+									  cameraObj.get());
+}
+
+void GameMainScene::initBack()
+{
+	groundModel = std::make_unique<ObjModel>("Resources/ground/", "ground");
+	groundObj = std::make_unique<Object3d>(cameraObj.get(), groundModel.get());
+	groundObj->position.y -= 10.f;
+	constexpr float groundSize = 1000.f;
+	groundObj->scale = XMFLOAT3(groundSize, 1.f, groundSize);
+	groundModel->setTexTilling(XMFLOAT2(groundSize, groundSize));
+
+	groundObj->color = XMFLOAT4(1, 1, 1, 0.5f);
+}
+
+void GameMainScene::initEnemy()
+{
 	enemyModel = std::make_unique<ObjModel>("Resources/enemy/", "enemy");
 
 	stageModel = std::make_unique<ObjModel>("Resources/ring/", "ring");
@@ -140,10 +138,10 @@ GameMainScene::GameMainScene() :
 	{
 		i->setJudgeProc([&] { return Timer::judge(i->getNowBeatRaito(), judgeOkRange); });
 	}
+}
 
-	// --------------------
-	// コライダー衝突時関数
-	// --------------------
+void GameMainScene::initCollider()
+{
 	std::function<void(GameObj*)> hitProc = [&](GameObj* obj)
 	{
 		Sound::playWave(damageSe);
@@ -158,6 +156,64 @@ GameMainScene::GameMainScene() :
 
 	playerCols.hitProc = hitProc;
 	enemyCols.hitProc = hitProc;
+}
+
+void GameMainScene::initSound()
+{
+	bgm = Sound::ins()->loadWave("Resources/SE/practiseBGM.wav");
+	damageSe = Sound::ins()->loadWave("Resources/SE/damage.wav");
+}
+
+GameMainScene::GameMainScene() :
+	input(Input::ins()),
+	timer(std::make_unique<Timer>()),
+	bpm(100.f),
+	judgeOkRange(0.25f)
+{
+	// --------------------
+	// ポストエフェクト
+	// --------------------
+	initPostEffect();
+
+	// --------------------
+	// ライト
+	// --------------------
+	initLight();
+
+	// --------------------
+	// カメラ
+	// --------------------
+	initCamera();
+
+	// --------------------
+	// パーティクル
+	// --------------------
+	initParticle();
+
+	// --------------------
+	// 背景
+	// --------------------
+	initBack();
+
+	// --------------------
+	// 自機
+	// --------------------
+	initPlayer();
+
+	// --------------------
+	// 敵
+	// --------------------
+	initEnemy();
+
+	// --------------------
+	// コライダー衝突時関数
+	// --------------------
+	initCollider();
+
+	// --------------------
+	// 音
+	// --------------------
+	initSound();
 }
 
 GameMainScene::~GameMainScene()

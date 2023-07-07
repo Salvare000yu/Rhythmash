@@ -7,6 +7,7 @@
 #include <3D/BaseObj.h>
 #include <3D/Obj/Object3d.h>
 #include <unordered_map>
+#include <forward_list>
 #include <functional>
 
 /// @brief ゲームオブジェクト基底クラス
@@ -27,13 +28,18 @@ protected:
 	std::unordered_map<std::string, std::function<void()>> additionalUpdateProc;
 	std::unordered_map<std::string, std::function<void(Light*)>> additionalDrawProc;
 
-	std::unordered_map<std::string, std::function<void()>> additionalDamageProc;
-
 private:
+	/// @brief ダメージを受けた時に行う処理
+	std::forward_list<std::function<void()>> additionalDamageProc;
+
 	void additionalUpdate();
 	void additionalDraw(Light* light);
 
 public:
+	/// @brief ダメージを受けた時に行う処理を追加
+	/// @return 追加した要素
+	inline auto addDamageProc(const std::function<void()>& proc) { return additionalDamageProc.emplace_front(proc); }
+
 	inline void setPipelineStateNum(size_t num) { ppStateNum = num; }
 	inline size_t getPipelineStateNum() const { return ppStateNum; }
 

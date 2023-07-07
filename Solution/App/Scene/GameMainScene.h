@@ -72,6 +72,18 @@ class GameMainScene :
 
 	std::weak_ptr<SoundData> bgm;
 	std::weak_ptr<SoundData> damageSe;
+
+private:
+	void initPostEffect();
+	void initLight();
+	void initCamera();
+	void initPlayer();
+	void initParticle();
+	void initBack();
+	void initEnemy();
+	void initCollider();
+	void initSound();
+
 public:
 	GameMainScene();
 	~GameMainScene();

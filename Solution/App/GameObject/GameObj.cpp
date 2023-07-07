@@ -22,7 +22,7 @@ bool GameObj::damage(uint16_t damegeNum, bool killFlag)
 {
 	for (auto& i : additionalDamageProc)
 	{
-		i.second();
+		i();
 	}
 
 	if (damegeNum >= hpBar)
