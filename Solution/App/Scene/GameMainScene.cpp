@@ -311,7 +311,7 @@ std::weak_ptr<BaseEnemy> GameMainScene::addEnemy(const DirectX::XMFLOAT3& pos)
 	i->setPos(pos);
 	i->setDamageSe(damageSe);
 
-	const auto enemyNum = (unsigned)enemy.size();
+	const auto enemyNum = static_cast<uint32_t>(enemy.size());
 	if (enemyNum < Light::CircleShadowCountMax)
 	{
 		light->setCircleShadowActive(enemyNum, true);
@@ -323,37 +323,9 @@ std::weak_ptr<BaseEnemy> GameMainScene::addEnemy(const DirectX::XMFLOAT3& pos)
 
 void GameMainScene::movePlayer()
 {
-	// キー入力を取得
-	const bool hitW = Input::ins()->hitKey(DIK_W);
-	const bool hitA = Input::ins()->hitKey(DIK_A);
-	const bool hitS = Input::ins()->hitKey(DIK_S);
-	const bool hitD = Input::ins()->hitKey(DIK_D);
-
-	// 該当キーが押されていればsound
-	const bool moved = hitW || hitA || hitS || hitD;
-
-	// 移動しなければ終了
-	if (!moved) { return; }
-
-	// 移動方向を決める
-	XMFLOAT3 dir{};
-	if (hitW)
-	{
-		dir.z = 1.f;
-	}
-	if (hitS)
-	{
-		dir.z = -1.f;
-	}
-	if (hitD)
-	{
-		dir.x = 1.f;
-	}
-	if (hitA)
-	{
-		dir.x = -1.f;
-	}
+	// 入力値を取得
+	const XMFLOAT2 inputVal = InputMgr::ins()->calcMoveValue(InputMgr::MOVE_INPUT::PLAYER);
 
 	// 移動する
-	player->moveProcess(dir);
+	player->moveProcess(XMVectorSet(inputVal.x, 0.f, inputVal.y, 0.f));
 }

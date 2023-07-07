@@ -13,7 +13,7 @@ CameraObj::CameraObj(GameObj* parent)
 
 void CameraObj::rotaCameraPos()
 {
-	const DirectX::XMFLOAT2 inp = InputMgr::ins()->GetThumbValue(ACTION::CAMERA);
+	const DirectX::XMFLOAT2 inp = InputMgr::ins()->calcMoveValue(InputMgr::MOVE_INPUT::CAMERA);
 
 	relativeRotaDeg.x += inp.y;
 	relativeRotaDeg.y += inp.x;

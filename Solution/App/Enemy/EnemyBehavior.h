@@ -1,4 +1,10 @@
-﻿#pragma once
+﻿/*****************************************************************//**
+ * \file   EnemyBehavior.h
+ * \brief  敵の行動クラス
+ *********************************************************************/
+
+#pragma once
+
 #include <BehaviorTree/Selector.h>
 #include <BehaviorTree/Sequencer.h>
 #include <memory>
@@ -6,6 +12,7 @@
 
 class BaseEnemy;
 
+/// @brief 通常敵の行動クラス
 class EnemyBehavior :
 	public Sequencer
 {

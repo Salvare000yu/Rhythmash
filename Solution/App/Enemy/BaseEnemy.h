@@ -1,8 +1,15 @@
-﻿#pragma once
+﻿/*****************************************************************//**
+ * \file   BaseEnemy.h
+ * \brief  敵基底クラス
+ *********************************************************************/
+
+#pragma once
+
 #include "BaseActObj/BaseActObj.h"
 
 class BaseComposite;
 
+/// @brief 敵基底クラス
 class BaseEnemy :
 	public BaseActObj
 {

@@ -1,72 +1,89 @@
 ﻿#include "InputMgr.h"
+#include <Input/Input.h>
 
-InputMgr::InputMgr()
-{
-	input = Input::getInstance();
-	rate = 10.0f;
-}
+InputMgr::InputMgr() :
+	input(Input::ins()),
+	mouseRate(10.f)
+{}
 
-bool InputMgr::GetInput(ACTION act)
+bool InputMgr::getInput(PLAYER_ACTION_INPUT act)
 {
-	bool inp = false;
-	//それぞれのアクションの入力判定を取る
+	// それぞれのアクションの入力判定を取る
 	switch (act)
 	{
-	case ACTION::WEEKATTACK:
-		if (input->triggerPadButton(Input::PAD::X) || input->triggerMouseButton(Input::MOUSE::LEFT))inp = true;
+	case PLAYER_ACTION_INPUT::WEEKATTACK:
+		if (input->triggerPadButton(Input::PAD::X) || input->triggerMouseButton(Input::MOUSE::LEFT)) { return true; }
 		break;
-	case ACTION::HARDATTACK:
-		if (input->triggerPadButton(Input::PAD::Y) || input->triggerMouseButton(Input::MOUSE::RIGHT))inp = true;
+	case PLAYER_ACTION_INPUT::HARDATTACK:
+		if (input->triggerPadButton(Input::PAD::Y) || input->triggerMouseButton(Input::MOUSE::RIGHT)) { return true; }
 		break;
-	case ACTION::JUMP:
-		if (input->triggerPadButton(Input::PAD::A) || input->triggerKey(DIK_SPACE))inp = true;
+	case PLAYER_ACTION_INPUT::JUMP:
+		if (input->triggerPadButton(Input::PAD::A) || input->triggerKey(DIK_SPACE)) { return true; }
 		break;
-	case ACTION::STEP:
-		if (input->triggerPadButton(Input::PAD::RB) || input->triggerKey(DIK_C))inp = true;
-		break;
-	default:
-		inp = false;
+	case PLAYER_ACTION_INPUT::STEP:
+		if (input->triggerPadButton(Input::PAD::RB) || input->triggerKey(DIK_C)) { return true; }
 		break;
 	}
-	return inp;
+	return false;
 }
 
-DirectX::XMFLOAT2 InputMgr::GetThumbValue(ACTION act)
+DirectX::XMFLOAT2 InputMgr::calcMoveValue(InputMgr::MOVE_INPUT act)
 {
-	DirectX::XMFLOAT2 inp = DirectX::XMFLOAT2(0.0f, 0.0f);
-	float max = 1.0f;
+	DirectX::XMFLOAT2 inp = DirectX::XMFLOAT2(0.f, 0.f);
+	constexpr float inputMax = 1.0f;
+
 	switch (act)
 	{
-	case ACTION::MOVE:
-		//コントローラー入力を得る
-		inp = input->hitPadLStickRaito();
-
-		//コントローラが入力されていなかったらキー入力を得る
-		if (inp.x == 0.0f && inp.y == 0.0f)
-		{
-			if (input->hitKey(DIK_W))inp.y = max;
-			if (input->hitKey(DIK_S))inp.y = -max;
-			if (input->hitKey(DIK_D))inp.x = max;
-			if (input->hitKey(DIK_A))inp.x = -max;
-		}
+	case MOVE_INPUT::PLAYER:
+		getMovePlayerInputValue(inp);
 		break;
-	case ACTION::CAMERA:
-		//コントローラー入力を得る
-		inp = input->hitPadRStickRaito();
-
-		//コントローラーが入力されていなかったらマウス移動量を得る
-		if (inp.x == 0.0f && inp.y == 0.0f)
-		{
-			inp.x = static_cast<float>(input->getMouseMove().x);
-			inp.y = static_cast<float>(input->getMouseMove().y);
-			inp.x /= rate;
-			inp.y /= rate;
-		}
-
+	case MOVE_INPUT::CAMERA:
+		getMoveCameraInputValue(inp);
 		break;
 	default:
 		break;
 	}
 
 	return inp;
+}
+
+void InputMgr::getMovePlayerInputValue(DirectX::XMFLOAT2& outBuf)
+{
+	// スティックの入力があったかどうか
+	const bool inputLFlag =
+		input->isVaildPadLStickX() ||
+		input->isVaildPadLStickY();
+
+	//コントローラー入力を得る（パッド優先）
+	if (inputLFlag)
+	{
+		outBuf = input->hitPadLStickRaito();
+		return;
+	}
+
+	constexpr float inputMax = 1.f;
+	if (input->hitKey(DIK_W)) { outBuf.y = inputMax; }
+	if (input->hitKey(DIK_S)) { outBuf.y = -inputMax; }
+	if (input->hitKey(DIK_D)) { outBuf.x = inputMax; }
+	if (input->hitKey(DIK_A)) { outBuf.x = -inputMax; }
+}
+
+void InputMgr::getMoveCameraInputValue(DirectX::XMFLOAT2& outBuf)
+{
+	// スティックの入力があったかどうか
+	const bool inputRFlag =
+		input->isVaildPadRStickX() ||
+		input->isVaildPadRStickY();
+
+	// コントローラー入力を得る（パッド優先）
+	if (inputRFlag)
+	{
+		outBuf = input->hitPadRStickRaito();
+		return;
+	}
+
+	outBuf.x = static_cast<float>(input->getMouseMove().x);
+	outBuf.y = static_cast<float>(input->getMouseMove().y);
+	outBuf.x /= mouseRate;
+	outBuf.y /= mouseRate;
 }

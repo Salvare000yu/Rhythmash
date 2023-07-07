@@ -36,7 +36,7 @@ protected:
 
 	bool attackFlag = false;
 public:
-	//攻撃フラグ
+	/// @brief コンストラクタ
 	BaseActObj(Camera* camera,
 			   ObjModel* model,
 			   const DirectX::XMFLOAT3& pos = { 0,0,0 });

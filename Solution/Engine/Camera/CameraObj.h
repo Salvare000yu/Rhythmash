@@ -1,16 +1,25 @@
-﻿#pragma once
+﻿/*****************************************************************//**
+ * \file   CameraObj.h
+ * \brief  追従機能とワールド行列を追加したカメラクラス
+ *********************************************************************/
+
+#pragma once
+
 #include "GameObject/GameObj.h"
 #include "Camera.h"
 #include <memory>
+
+ /// @brief 追従機能とワールド行列を追加したカメラクラス
 class CameraObj
 	: public Camera
 {
 private:
 	GameObj* parentObj = nullptr;
 
-	// 視点から注視点までの距離
+	/// @brief 視点から注視点までの距離
 	float eye2TargetLen = 30.f;
-	// 親を基準とした回転
+
+	/// @brief 親を基準とした回転
 	DirectX::XMFLOAT3 relativeRotaDeg = XMFLOAT3(60, 0, 0);
 
 	DirectX::XMFLOAT3 eye2TargetOffset = XMFLOAT3(0.f, 5.f, 5.f);
@@ -27,6 +36,8 @@ public:
 	bool useParentRotaFlag = false;
 
 public:
+	/// @brief コンストラクタ
+	/// @param parent 追従対象（親オブジェクト）
 	CameraObj(GameObj* parent);
 
 	inline void setEye2TargetOffset(const DirectX::XMFLOAT3& offset) { eye2TargetOffset = offset; }

@@ -1,4 +1,10 @@
-﻿#pragma once
+﻿/*****************************************************************//**
+ * \file   GameClearScene.h
+ * \brief  クリアしたときに来るシーン
+ *********************************************************************/
+
+#pragma once
+
 #include "System/GameScene.h"
 
 #include <memory>
@@ -7,6 +13,7 @@
 
 class Timer;
 
+/// @brief クリアしたときに来るシーン
 class GameClearScene :
 	public GameScene
 {
