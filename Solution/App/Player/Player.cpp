@@ -28,6 +28,7 @@ bool Player::loadYamlFile()
 		}
 		ifs.close();
 	}
+
 	Yaml::Node root{};
 	try
 	{
@@ -63,12 +64,13 @@ Player::Player(Camera* camera,
 {
 	se1 = Sound::ins()->loadWave("Resources/SE/Sys_Set03-click.wav");
 
+	// データをYAMLファイルから読み込む
 	loadYamlFile();
 
-	additionalDamageProc.emplace("invincible", [&] { invincibleFrag = true; });
+	// ダメージを受けたら無敵状態になる
+	addDamageProc([&] { invincibleFrag = true; });
 
-	auto atkObj = atkObjPt.lock();
-
+	// 更新処理を設定
 	update_proc =
 		[&]
 	{
@@ -84,30 +86,27 @@ Player::Player(Camera* camera,
 		invincible();
 	};
 
+	// 更新処理を登録
 	additionalUpdateProc.emplace("Player::update_proc", [&] { update_proc(); });
 }
 
 void Player::attack()
 {
-	std::shared_ptr<GameObj> atkObj = nullptr;
-	const bool atkObjAlive = !atkObjPt.expired();
-	if (atkObjAlive)
-	{
-		atkObj = atkObjPt.lock();
-	}
-
+	// タイミングよく入力で攻撃
 	if (Input::ins()->triggerKey(DIK_SPACE) && judge())
 	{
 		Sound::playWave(se1);
 		attackFlag = true;
 		this->setCol(XMFLOAT4(0, 0, 1, getCol().w));
 
-		if (atkObjAlive)
+		if (!atkObjPt.expired())
 		{
+			auto atkObj = atkObjPt.lock();
 			atkObj->setCol(XMFLOAT4(0, 1, 0, atkObj->getCol().w));
 		}
 	}
 
+	// フレーム更新処理
 	if (attackFlag)
 	{
 		if (++attackFrame >= 2ui32)
@@ -115,10 +114,6 @@ void Player::attack()
 			attackFlag = false;
 			attackFrame = 0;
 		}
-	} else if (atkObjAlive)
-	{
-		const XMFLOAT2 rot = GameObj::calcRotationSyncVelDeg({ -0.5,0,0 });
-		atkObj->setRotation(XMFLOAT3(rot.x, rot.y, getRotation().z));
 	}
 }
 

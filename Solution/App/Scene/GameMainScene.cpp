@@ -1,13 +1,12 @@
 ﻿#include "GameMainScene.h"
-#include "TitleScene.h"
 #include "System/PostEffect.h"
 #include "System/SceneManager.h"
 #include <CollisionMgr.h>
 #include <Util/Timer.h>
 #include <Input/Input.h>
+#include "TitleScene.h"
 
 #include <Player/Player.h>
-
 #include <Enemy/BaseEnemy.h>
 #include <3D/Obj/ObjModel.h>
 #include <GameObject/GameObj.h>
@@ -24,50 +23,27 @@
 
 using namespace DirectX;
 
-GameMainScene::GameMainScene() :
-	input(Input::ins()),
-	light(std::make_unique<Light>()),
-	timer(std::make_unique<Timer>()),
-	bpm(100.f),
-	judgeOkRange(0.25f)
+void GameMainScene::initPostEffect()
 {
+	RgbShiftData::reset();
+}
+
+void GameMainScene::initLight()
+{
+	light = std::make_unique<Light>();
 	light->setDirLightActive(0, true);
 	light->setCircleShadowActive(0, true);
+}
 
-	PostEffect::getInstance()->setAlpha(1.f);
-	PostEffect::getInstance()->setMosaicNum(DirectX::XMFLOAT2(WinAPI::window_width, WinAPI::window_height));
-
+void GameMainScene::initCamera()
+{
 	cameraObj = std::make_unique<CameraObj>(nullptr);
 	cameraObj->easeRaito = 0.5f;
 	cameraObj->useParentRotaFlag = false;
+}
 
-	// --------------------
-	// パーティクル
-	// --------------------
-	particleMgr = std::make_shared<ParticleMgr>(L"Resources/white.png", cameraObj.get());
-
-	// --------------------
-	// 背景
-	// --------------------
-	groundModel = std::make_unique<ObjModel>("Resources/ground/", "ground");
-	groundObj = std::make_unique<Object3d>(cameraObj.get(), groundModel.get());
-	groundObj->position.y -= 10.f;
-	constexpr float groundSize = 1000.f;
-	groundObj->scale = XMFLOAT3(groundSize, 1.f, groundSize);
-	groundModel->setTexTilling(XMFLOAT2(groundSize, groundSize));
-
-	groundObj->color = XMFLOAT4(1, 1, 1, 0.5f);
-
-	// --------------------
-	// 音
-	// --------------------
-	bgm = Sound::ins()->loadWave("Resources/SE/practiseBGM.wav");
-	damageSe = Sound::ins()->loadWave("Resources/SE/damage.wav");
-
-	// --------------------
-	// 自機
-	// --------------------
-
+void GameMainScene::initPlayer()
+{
 	playerModel = std::make_unique<ObjModel>("Resources/player_robot/", "player_robot");
 	player = std::make_unique<Player>(cameraObj.get(), playerModel.get());
 	player->setDamageSe(damageSe);
@@ -78,11 +54,32 @@ GameMainScene::GameMainScene() :
 	auto pAtk = player->getAtkObjPt().lock();
 	playerAtkCols.group.emplace_front(CollisionMgr::ColliderType::create(pAtk.get(), pAtk->getScaleF3().z));
 
-	cameraObj->setParentObj(player.get());
+	player->addDamageProc([&] { rgbShiftData.start(timer->getNowTime()); });
 
-	// --------------------
-	// 敵
-	// --------------------
+	cameraObj->setParentObj(player.get());
+}
+
+void GameMainScene::initParticle()
+{
+	particleMgr =
+		std::make_shared<ParticleMgr>(L"Resources/white.png",
+									  cameraObj.get());
+}
+
+void GameMainScene::initBack()
+{
+	groundModel = std::make_unique<ObjModel>("Resources/ground/", "ground");
+	groundObj = std::make_unique<Object3d>(cameraObj.get(), groundModel.get());
+	groundObj->position.y -= 10.f;
+	constexpr float groundSize = 1000.f;
+	groundObj->scale = XMFLOAT3(groundSize, 1.f, groundSize);
+	groundModel->setTexTilling(XMFLOAT2(groundSize, groundSize));
+
+	groundObj->color = XMFLOAT4(1, 1, 1, 0.5f);
+}
+
+void GameMainScene::initEnemy()
+{
 	enemyModel = std::make_unique<ObjModel>("Resources/enemy/", "enemy");
 
 	stageModel = std::make_unique<ObjModel>("Resources/ring/", "ring");
@@ -140,10 +137,10 @@ GameMainScene::GameMainScene() :
 	{
 		i->setJudgeProc([&] { return Timer::judge(i->getNowBeatRaito(), judgeOkRange); });
 	}
+}
 
-	// --------------------
-	// コライダー衝突時関数
-	// --------------------
+void GameMainScene::initCollider()
+{
 	std::function<void(GameObj*)> hitProc = [&](GameObj* obj)
 	{
 		Sound::playWave(damageSe);
@@ -160,13 +157,75 @@ GameMainScene::GameMainScene() :
 	enemyCols.hitProc = hitProc;
 }
 
+void GameMainScene::initSound()
+{
+	bgm = Sound::ins()->loadWave("Resources/SE/practiseBGM.wav");
+	damageSe = Sound::ins()->loadWave("Resources/SE/damage.wav");
+}
+
+GameMainScene::GameMainScene() :
+	input(Input::ins()),
+	timer(std::make_unique<Timer>()),
+	bpm(100.f),
+	judgeOkRange(0.25f)
+{
+	// --------------------
+	// ライト
+	// --------------------
+	initLight();
+
+	// --------------------
+	// カメラ
+	// --------------------
+	initCamera();
+
+	// --------------------
+	// パーティクル
+	// --------------------
+	initParticle();
+
+	// --------------------
+	// 背景
+	// --------------------
+	initBack();
+
+	// --------------------
+	// 自機
+	// --------------------
+	initPlayer();
+
+	// --------------------
+	// 敵
+	// --------------------
+	initEnemy();
+
+	// --------------------
+	// コライダー衝突時関数
+	// --------------------
+	initCollider();
+
+	// --------------------
+	// 音
+	// --------------------
+	initSound();
+}
+
 GameMainScene::~GameMainScene()
 {
+	RgbShiftData::reset();
 	Sound::stopWave(bgm);
 }
 
 void GameMainScene::start()
 {
+	// --------------------
+	// ポストエフェクト
+	// --------------------
+
+	// 前シーン終了よりも後に実行する必要があるので、
+	// コンストラクタではなくここで行う
+	initPostEffect();
+
 	// マウスカーソルは表示する
 	input->changeDispMouseCursorFlag(false);
 
@@ -178,6 +237,15 @@ void GameMainScene::start()
 
 void GameMainScene::update()
 {
+#ifdef _DEBUG
+	if (Input::ins()->triggerKey(DIK_T))
+	{
+		SceneManager::getInstange()->changeScene<TitleScene>();
+		return;
+	}
+#endif // _DEBUG
+
+
 	// 拍内進行度と拍数を更新
 	nowBeatRaito = Timer::calcNowBeatRaito((float)timer->getNowTime(), bpm, nowCount);
 
@@ -256,6 +324,7 @@ void GameMainScene::update()
 
 	cameraObj->update();
 	light->update();
+	rgbShiftData.update(timer->getNowTime());
 }
 
 void GameMainScene::drawObj3d()
@@ -328,4 +397,28 @@ void GameMainScene::movePlayer()
 
 	// 移動する
 	player->moveProcess(XMVectorSet(inputVal.x, 0.f, inputVal.y, 0.f));
+}
+
+void GameMainScene::RgbShiftData::update(Timer::timeType nowTime)
+{
+	if (!activeFlag) { return; }
+
+	const auto nowRgbShiftTime = nowTime - startTime;
+
+	const float raito = (float)nowRgbShiftTime / (float)timeMax;
+	if (raito > 1.f)
+	{
+		PostEffect::getInstance()->setRgbShiftNum(XMFLOAT2(0.f, 0.f));
+		activeFlag = false;
+		return;
+	}
+
+	constexpr float rgbShiftMumMax = 1.f / 16.f;
+
+	constexpr float  c4 = 2.f * XM_PI / 3.f;
+	const float easeRate = -std::pow(2.f, 10.f * (1.f - raito) - 10.f) *
+		std::sin((raito * 10.f - 10.75f) * c4);
+
+	PostEffect::getInstance()->setRgbShiftNum(XMFLOAT2(easeRate * rgbShiftMumMax,
+													   0.f));
 }

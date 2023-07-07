@@ -22,6 +22,7 @@ public:
 		static PostEffect ps{};
 		return &ps;
 	}
+	inline static PostEffect* ins() { return getInstance(); }
 
 private:
 	template<class T> using ComPtr = Microsoft::WRL::ComPtr<T>;
