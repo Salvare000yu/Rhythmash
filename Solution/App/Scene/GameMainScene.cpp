@@ -7,7 +7,7 @@
 #include "Input/Input.h"
 
 #include "Player/Player.h"
-
+#include "Player/SupportChara.h"
 #include <Enemy/BaseEnemy.h>
 #include <3D/Obj/ObjModel.h>
 #include <GameObject/GameObj.h>
@@ -61,6 +61,11 @@ GameMainScene::GameMainScene() :
 
 	cameraObj->setParentObj(player.get());
 
+	SpcharaModel= std::make_unique<ObjModel>("Resources/box/", "box");
+	Spchara = std::make_unique<SupportChara>(cameraObj.get(), SpcharaModel.get());
+	Spchara->setJudgeProc([&] { return Timer::judge(player->getNowBeatRaito(), judgeOkRange); });
+	Spchara->setPos({2,0,-3});
+	Spchara->setParent(player.get()->getObj());
 	// --------------------
 	// 敵
 	// --------------------
@@ -142,10 +147,13 @@ void GameMainScene::start()
 
 	// タイマーの起点時間をリセット
 	timer->reset();
+
+	
 }
 
 void GameMainScene::update()
 {
+	Spchara->Move();
 	// 拍内進行度と拍数を更新
 	nowBeatRaito = Timer::calcNowBeatRaito((float)timer->getNowTime(), bpm, nowCount);
 	for (auto& i : enemy)
@@ -192,6 +200,7 @@ void GameMainScene::drawObj3d()
 
 	stageObj->drawWithUpdate(light.get());
 	player->drawWithUpdate(light.get());
+	Spchara->drawWithUpdate(light.get());
 	for (auto& i : enemy)
 	{
 		if (!i->getAlive()) { continue; }

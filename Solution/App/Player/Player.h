@@ -31,6 +31,8 @@ public:
 		   const DirectX::XMFLOAT3& pos = { 0,0,0 });
 	inline auto createCollider() { return CollisionMgr::ColliderType{.obj = this, .colliderR = this->getScaleF3().z }; }
 
+	DirectX::XMFLOAT3 GetDir() { return dir; }
+
 	void Move()  override;
 	void Attack() override;
 	void Step();

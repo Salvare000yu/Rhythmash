@@ -6,6 +6,7 @@
 
 class Input;
 class Player;
+class SupportChara;
 class BaseEnemy;
 class ObjModel;
 class Object3d;
@@ -48,6 +49,9 @@ class GameMainScene :
 	std::unique_ptr<Player> player;
 	std::unique_ptr<ObjModel> playerModel;
 	std::unique_ptr<GameObj> playerObj;
+
+	std::unique_ptr<ObjModel> SpcharaModel;
+	std::unique_ptr<SupportChara> Spchara;
 	// エネミー関連--------------------
 	std::forward_list<std::shared_ptr<BaseEnemy>> enemy;
 	std::unique_ptr<ObjModel> enemyModel;

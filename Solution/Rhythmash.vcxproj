@@ -152,6 +152,7 @@
     <ClCompile Include="Engine\Util\Util.cpp" />
     <ClCompile Include="App\Scene\GameMainScene.cpp" />
     <ClCompile Include="App\Player\Player.cpp" />
+    <ClCompile Include="App\Player\SupportChara.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="App\CollisionMgr.h" />
@@ -200,6 +201,7 @@
     <ClInclude Include="App\Scene\GameMainScene.h" />
     <ClInclude Include="App\Player\Player.h" />
     <ClInclude Include="Engine\3D\Light\PointLight.h" />
+    <ClInclude Include="App\Player\SupportChara.h" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Resources\Shaders\BackPS.hlsl">
