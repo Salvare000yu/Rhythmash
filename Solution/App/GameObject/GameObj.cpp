@@ -20,6 +20,11 @@ void GameObj::additionalDraw(Light* light)
 
 bool GameObj::damage(uint16_t damegeNum, bool killFlag)
 {
+	for (auto& i : additionalDamageProc)
+	{
+		i.second();
+	}
+
 	if (damegeNum >= hpBar)
 	{
 		hpBar = 0u;
@@ -49,7 +54,7 @@ XMFLOAT3 GameObj::move(const DirectX::XMVECTOR& dirNormal, float speed, bool mov
 	XMFLOAT3 vel{};
 	XMStoreFloat3(&vel, velVec);
 
-	if(moveFlag)
+	if (moveFlag)
 	{
 		obj->position.x += vel.x;
 		obj->position.y += vel.y;

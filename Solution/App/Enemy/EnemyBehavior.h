@@ -15,8 +15,8 @@ private://メンバ変数
 
 	std::unique_ptr<Sequencer> Phase;
 
-	std::unique_ptr<Selector> movePhase;
-	std::unique_ptr<Selector> attackPhase;
+	std::unique_ptr<BaseComposite> movePhase;
+	std::unique_ptr<BaseComposite> attackPhase;
 
 	static constexpr uint16_t moveCountMax = 4ui16;
 	uint16_t moveCount = 0ui16;

@@ -155,7 +155,6 @@ void GameMainScene::update()
 		if (i->getAttackFlag() && !player->getInvincibleFrag())
 		{
 			CollisionMgr::checkHitAll(i->atkcoll, player->mycoll);
-			player->setInvincibleFrag(true);
 		}
 
 		if (player->getAttackFlag())

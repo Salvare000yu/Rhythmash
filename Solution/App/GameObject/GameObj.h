@@ -27,6 +27,8 @@ protected:
 	std::unordered_map<std::string, std::function<void()>> additionalUpdateProc;
 	std::unordered_map<std::string, std::function<void(Light*)>> additionalDrawProc;
 
+	std::unordered_map<std::string, std::function<void()>> additionalDamageProc;
+
 private:
 	void additionalUpdate();
 	void additionalDraw(Light* light);

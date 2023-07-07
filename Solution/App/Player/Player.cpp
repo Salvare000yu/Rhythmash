@@ -44,7 +44,7 @@ bool Player::loadYamlFile()
 	dashSpeedAttenuation = -normalSpeed * pNode["dashSpeedAttRate"].As<float>();
 	setHp(pNode["hp"].As<uint16_t>());
 	setAttack(pNode["attack"].As<uint16_t>());
-	INVINCIBLE_FRAME = pNode["invincible"].As<uint16_t>();
+	invincibleFrameMax = pNode["invincible"].As<uint32_t>();
 
 	auto& posNode = pNode["position"];
 	setPos(XMFLOAT3(
@@ -66,8 +66,9 @@ Player::Player(Camera* camera,
 
 	loadYamlFile();
 
+	additionalDamageProc.emplace("invincible", [&] { invincibleFrag = true; });
+
 	auto atkObj = atkObjPt.lock();
-	//atkObj->setPos({ 0,0,0 });
 
 	update_proc =
 		[&]
@@ -141,10 +142,10 @@ void Player::Attack()
 
 	if (attackFlag)
 	{
-		if (++AttackFrame >= 2)
+		if (++attackFrame >= 2ui32)
 		{
 			attackFlag = false;
-			AttackFrame = 0;
+			attackFrame = 0;
 		}
 	} else
 	{
@@ -177,7 +178,7 @@ void Player::ViewShift()
 void Player::Invincible()
 {
 	if (!invincibleFrag)return;
-	if (++invincibleFrame > INVINCIBLE_FRAME)
+	if (++invincibleFrame > invincibleFrameMax)
 	{
 		invincibleFrame = 0;
 		invincibleFrag = false;

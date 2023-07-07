@@ -10,7 +10,7 @@ EnemyBehavior::EnemyBehavior(BaseEnemy* enemy) :
 	movePhase = std::make_unique<Selector>();
 	movePhase->addChild(Task(std::bind(&EnemyBehavior::Phase_move, this)));
 
-	attackPhase = std::make_unique<Selector>();
+	attackPhase = std::make_unique<Sequencer>();
 	attackPhase->addChild(Task([&] { return this->enemy->TargetFromDistance() < 10.0f ? NODE_RESULT::SUCCESS : NODE_RESULT::FAIL; }));
 	attackPhase->addChild(Task(std::bind(&EnemyBehavior::Phase_Attack, this)));
 
