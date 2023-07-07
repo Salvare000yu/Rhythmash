@@ -1,4 +1,6 @@
 ﻿#include "BaseActObj.h"
+#include <Sound/Sound.h>
+#include <3D/Obj/ObjModel.h>
 #include <algorithm>
 
 using namespace DirectX;
@@ -21,12 +23,12 @@ BaseActObj::BaseActObj(Camera* camera, ObjModel* model, const DirectX::XMFLOAT3&
 	mycoll = CollisionMgr::ColliderType::create(this, this->getScaleF3().z);
 }
 
-void BaseActObj::MoveProcess(const XMFLOAT3& dir)
+void BaseActObj::moveProcess(const XMFLOAT3& dir)
 {
-	MoveProcess(XMLoadFloat3(&dir));
+	moveProcess(XMLoadFloat3(&dir));
 }
 
-void BaseActObj::MoveProcess(const DirectX::XMVECTOR& dir)
+void BaseActObj::moveProcess(const DirectX::XMVECTOR& dir)
 {
 	const auto moveValVec = XMVector3Normalize(dir) * (moveSpeed / DX12Base::ins()->getFPS());
 
@@ -43,7 +45,7 @@ void BaseActObj::MoveProcess(const DirectX::XMVECTOR& dir)
 	this->setRotation(XMFLOAT3(angleDeg.x, angleDeg.y, this->getRotation().z));
 }
 
-void BaseActObj::AttackProcess()
+void BaseActObj::attackProcess()
 {
 	if (!attackFlag) { return; }
 

@@ -39,7 +39,7 @@ NODE_RESULT EnemyBehavior::Phase_move()
 {
 	if (preBeatCount != enemy->getNowBeatCount())
 	{
-		enemy->MoveProcess(moveVel);
+		enemy->moveProcess(moveVel);
 		if (++moveCount > moveCountMax)
 		{
 			moveVel = XMVector3Rotate(moveVel, moveVelRotaQuaternion);

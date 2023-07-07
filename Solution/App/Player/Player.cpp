@@ -59,8 +59,7 @@ bool Player::loadYamlFile()
 Player::Player(Camera* camera,
 			   ObjModel* model,
 			   const DirectX::XMFLOAT3& pos) :
-	BaseActObj(camera, model, pos),
-	input(Input::ins())
+	BaseActObj(camera, model, pos)
 {
 	se1 = Sound::ins()->loadWave("Resources/SE/Sys_Set03-click.wav");
 
@@ -80,54 +79,15 @@ Player::Player(Camera* camera,
 			return;
 		}
 
-		Move();
-		Attack();
-		Step();
-		Invincible();
+		attack();
+		step();
+		invincible();
 	};
 
 	additionalUpdateProc.emplace("Player::update_proc", [&] { update_proc(); });
 }
 
-void Player::Move()
-{
-	// キー入力を取得
-	const bool hitW = Input::ins()->hitKey(DIK_W);
-	const bool hitA = Input::ins()->hitKey(DIK_A);
-	const bool hitS = Input::ins()->hitKey(DIK_S);
-	const bool hitD = Input::ins()->hitKey(DIK_D);
-	dir = { 0, 0, 0 };
-
-	// 該当キーが押されていればsound
-	const bool moved = hitW || hitA || hitS || hitD;
-
-	// 移動しなければ終了
-	if (!moved) { return; }
-
-	// 移動方向を決める
-	XMFLOAT3 dir{};
-	if (hitW)
-	{
-		dir.z = 1.f;
-	}
-	if (hitS)
-	{
-		dir.z = -1.f;
-	}
-	if (hitD)
-	{
-		dir.x = 1.f;
-	}
-	if (hitA)
-	{
-		dir.x = -1.f;
-	}
-
-	// 移動する
-	MoveProcess(dir);
-}
-
-void Player::Attack()
+void Player::attack()
 {
 	std::shared_ptr<GameObj> atkObj = nullptr;
 	const bool atkObjAlive = !atkObjPt.expired();
@@ -136,7 +96,7 @@ void Player::Attack()
 		atkObj = atkObjPt.lock();
 	}
 
-	if (input->triggerKey(DIK_SPACE) && judge())
+	if (Input::ins()->triggerKey(DIK_SPACE) && judge())
 	{
 		Sound::playWave(se1);
 		attackFlag = true;
@@ -162,7 +122,7 @@ void Player::Attack()
 	}
 }
 
-void Player::Step()
+void Player::step()
 {
 	if (Input::ins()->triggerKey(DIK_C) && judge())
 	{
@@ -174,7 +134,7 @@ void Player::Step()
 	}
 }
 
-void Player::Invincible()
+void Player::invincible()
 {
 	if (!invincibleFrag) { return; }
 	if (++invincibleFrame > invincibleFrameMax)

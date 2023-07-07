@@ -1,22 +1,33 @@
 ﻿#pragma once
-#include <Input/Input.h>
 
-enum class ACTION
-{
-	WEEKATTACK,
-	HARDATTACK,
-	JUMP,
-	STEP,
+#include <DirectXMath.h>
 
-	MOVE = 100,
-	CAMERA
-};
+class Input;
 
+/// @brief 入力を管理するクラス
 class InputMgr
 {
+public:
+	enum class PLAYER_ACTION_INPUT : uint8_t
+	{
+		WEEKATTACK,
+		HARDATTACK,
+		JUMP,
+		STEP,
+	};
+
+	enum class MOVE_INPUT : uint8_t
+	{
+		PLAYER,
+		CAMERA,
+	};
+
 private:
 	Input* input = nullptr;
-	float rate;				//マウスの感度
+
+	/// @brief マウスの感度
+	float mouseRate;
+
 public:
 	inline static InputMgr* getInstance()
 	{
@@ -29,6 +40,10 @@ public:
 	}
 
 	InputMgr();
-	bool GetInput(ACTION act);
-	DirectX::XMFLOAT2 GetThumbValue(ACTION act);
+	bool getInput(InputMgr::PLAYER_ACTION_INPUT act);
+	DirectX::XMFLOAT2 calcMoveValue(InputMgr::MOVE_INPUT act);
+
+private:
+	void getMovePlayerInputValue(DirectX::XMFLOAT2& outBuf);
+	void getMoveCameraInputValue(DirectX::XMFLOAT2& outBuf);
 };

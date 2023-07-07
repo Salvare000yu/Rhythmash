@@ -16,19 +16,19 @@ class Light
 public:
 	// 平行光源の最大数
 	// シェーダー側と合わせる
-	constexpr static unsigned DirLightCountMax = 3u;
+	constexpr static uint32_t DirLightCountMax = 3u;
 
 	// 点光源の最大数
 	// シェーダー側と合わせる
-	constexpr static unsigned PointLightCountMax = 3u;
+	constexpr static uint32_t PointLightCountMax = 3u;
 
 	// スポットライトの最大数
 	// シェーダー側と合わせる
-	constexpr static unsigned SpotLightCountMax = 3u;
+	constexpr static uint32_t SpotLightCountMax = 3u;
 
 	// 丸影の最大数
 	// シェーダー側と合わせる
-	constexpr static unsigned CircleShadowCountMax = 50u;
+	constexpr static uint32_t CircleShadowCountMax = 50u;
 
 private:
 	template <class T> using ComPtr = Microsoft::WRL::ComPtr<T>;

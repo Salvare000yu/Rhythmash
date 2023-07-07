@@ -234,6 +234,9 @@ void GameMainScene::update()
 		SceneManager::getInstange()->changeScene<GameClearScene>();
 	}
 
+	// 自機の移動
+	movePlayer();
+
 	groundObj->update();
 	stageObj->update();
 	{
@@ -308,7 +311,7 @@ std::weak_ptr<BaseEnemy> GameMainScene::addEnemy(const DirectX::XMFLOAT3& pos)
 	i->setPos(pos);
 	i->setDamageSe(damageSe);
 
-	const auto enemyNum = (unsigned)enemy.size();
+	const auto enemyNum = static_cast<uint32_t>(enemy.size());
 	if (enemyNum < Light::CircleShadowCountMax)
 	{
 		light->setCircleShadowActive(enemyNum, true);
@@ -316,4 +319,13 @@ std::weak_ptr<BaseEnemy> GameMainScene::addEnemy(const DirectX::XMFLOAT3& pos)
 	}
 
 	return i;
+}
+
+void GameMainScene::movePlayer()
+{
+	// 入力値を取得
+	const XMFLOAT2 inputVal = InputMgr::ins()->calcMoveValue(InputMgr::MOVE_INPUT::PLAYER);
+
+	// 移動する
+	player->moveProcess(XMVectorSet(inputVal.x, 0.f, inputVal.y, 0.f));
 }
