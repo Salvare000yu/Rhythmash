@@ -1,15 +1,13 @@
 ﻿#include "BaseActObj.h"
-#include <3D/ParticleMgr.h>
+#include <algorithm>
 
 using namespace DirectX;
 
 BaseActObj::BaseActObj(Camera* camera, ObjModel* model, const DirectX::XMFLOAT3& pos) :
 	GameObj(camera, model, pos),
-	particleMgr(std::make_unique<ParticleMgr>(L"Resources/white.png", camera)),
 	judge([] { return true; })
 {
 	atkModel = std::make_unique<ObjModel>("Resources/Attack/", "Attack");
-	//atkModel = std::make_unique<ObjModel>("Resources/player_robot_arm/", "player_robot_arm");
 
 	atkObjPt = otherObj.emplace("AtkObj", std::make_unique<GameObj>(camera, atkModel.get())).first->second;
 
@@ -17,29 +15,10 @@ BaseActObj::BaseActObj(Camera* camera, ObjModel* model, const DirectX::XMFLOAT3&
 
 	atkObj->setParent((BaseObj*)obj.get());
 	atkObj->setPos(XMFLOAT3(0, 0, 5));
-	atkObj->setCol(XMFLOAT4(1, 1, 1, 0.2f));
+	atkObj->setCol(XMFLOAT4(1, 1, 1, 0.5f));
 
-	atkcoll.group.emplace_front(CollisionMgr::ColliderType{.obj = atkObj.get(), .colliderR = atkObj->getScaleF3().z });
-
-	atkcoll.hitProc = [](GameObj* obj) {};
-	mycoll.hitProc = [&](GameObj* obj)
-	{
-		ParticleMgr::createParticle(particleMgr.get(), this->calcWorldPos(), 50ui16);
-		/*if (!damage.expired())
-		{
-			Sound::SoundPlayWave(damage.lock().get());
-		}*/
-		if (obj->damage(1ui16, true))
-		{
-
-			this->setCol(XMFLOAT4(0, 0, 0, 1));
-			return;
-		}
-		this->setCol({ 1,0,0,1 });
-	};
-
-	additionalUpdateProc.emplace("BaseActorObj::particleMgr", [&] { particleMgr->update(); });
-	additionalDrawProc.emplace("BaseActorObj::particleMgr", [&](Light*) { particleMgr->draw(); });
+	atkcoll = CollisionMgr::ColliderType::create(atkObj.get(), atkObj->getScaleF3().z);
+	mycoll = CollisionMgr::ColliderType::create(this, this->getScaleF3().z);
 }
 
 void BaseActObj::MoveProcess(const XMFLOAT3& dir)

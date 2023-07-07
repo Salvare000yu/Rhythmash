@@ -31,5 +31,4 @@ public:
 	InputMgr();
 	bool GetInput(ACTION act);
 	DirectX::XMFLOAT2 GetThumbValue(ACTION act);
-
 };

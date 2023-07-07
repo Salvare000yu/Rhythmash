@@ -12,7 +12,7 @@
 
 #include "2D/DebugText.h"
 #include "Input/Input.h"
-#include "Sound/Sound.h"
+#include "Sound/SoundData.h"
 
 #include "Util/Timer.h"
 
@@ -25,8 +25,8 @@ class TitleScene :
 	// --------------------
 	// 音
 	// --------------------
-	std::unique_ptr<Sound> shortBridge;
-	std::unique_ptr<Sound> bgm;
+	std::weak_ptr<SoundData> shortBridge;
+	std::weak_ptr<SoundData> bgm;
 
 	// --------------------
 	// スプライト

@@ -51,6 +51,8 @@ public:
 	inline const DirectX::XMFLOAT3& getRelativeRotaDeg() const { return relativeRotaDeg; }
 
 private:
+	void rotaCameraPos();
+
 	void updateMatWorld();
 
 	void preUpdate() override;

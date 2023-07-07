@@ -51,7 +51,6 @@ Util::CSVType Util::loadCsvs(const std::vector<std::string>& csvFilePath,
 
 	for (const auto& fileName : csvFilePath)
 	{
-
 		//CSVType csvData{};	// csvの中身を格納
 
 		std::ifstream ifs(fileName);
@@ -83,7 +82,6 @@ Util::CSVType Util::loadCsvs(const std::vector<std::string>& csvFilePath,
 		// csvDatas.emplace_back(CsvData);
 	}
 	return csvData;
-
 }
 
 DirectX::XMVECTOR Util::splinePosition(const std::vector<DirectX::XMVECTOR>& points, const size_t& startIndex, float t)

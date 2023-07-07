@@ -396,6 +396,24 @@ bool Collision::CheckSphere2Capsule(const Sphere& sphere, const Capsule& capsule
 
 bool Collision::CheckCapsule2Capsule(const Capsule& capsule1, const Capsule& capsule2)
 {
+	const bool sphere1Flag = XMVector3Equal(capsule1.startPos - capsule1.endPos, XMVectorZero());
+	const bool sphere2Flag = XMVector3Equal(capsule2.startPos - capsule2.endPos, XMVectorZero());
+
+	// 球体なら球体で判定を取る
+	if (sphere1Flag && sphere2Flag)
+	{
+		return CheckHit(Sphere(capsule1.startPos, capsule1.radius),
+						Sphere(capsule2.startPos, capsule2.radius));
+	}
+	if (sphere1Flag && !sphere2Flag)
+	{
+		return CheckHit(Sphere(capsule1.startPos, capsule1.radius), capsule2);
+	}
+	if (!sphere1Flag && sphere2Flag)
+	{
+		return CheckHit(capsule1, Sphere(capsule2.startPos, capsule2.radius));
+	}
+
 	const float sqDistance = sqDistanceSegmentSegment(capsule1.startPos, capsule1.endPos,
 													  capsule2.startPos, capsule2.endPos);
 

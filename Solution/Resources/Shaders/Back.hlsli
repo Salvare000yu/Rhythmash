@@ -16,10 +16,64 @@ cbuffer cbuff1 : register(b1)
 	float2 shiftUv : packoffset(c4);
 }
 
-cbuffer cbuff2 : register(b2)
+// 平行光源の最大数
+// CPP側と合わせる
+#define DirLightCountMax uint(3)
+
+struct DirectionalLight
 {
 	float3 dir2Light; // ライトへの方向の単位ベクトル
-	float3 lightColor; // ライトの色(RGB)
+	float3 color; // ライトの色(RGB)
+};
+
+// 点光源の最大数
+// CPP側と合わせる
+#define PointLightCountMax uint(3)
+
+struct PointLight
+{
+	float3 pos; // ライト座標
+	float3 color; // ライトの色(RGB)
+	float3 atten; // ライト距離減衰係数
+};
+
+// スポットライトの最大数
+// CPP側と合わせる
+#define SpotLightCountMax uint(3)
+
+struct SpotLight
+{
+	float3 invLightDirNormal; // ライトの光線方向の逆ベクトル（単位ベクトル）
+	float3 pos; // ライト座標
+	float3 color; // ライトの色(RGB)
+	float3 atten; // ライト距離減衰係数
+	float2 factorAngleCos; // ライト減衰角度のコサイン
+};
+
+// 丸影の最大数
+// CPP側と合わせる
+#define CircleShadowCountMax uint(50)
+
+struct CircleShadow
+{
+	float3 invLightDirNormal;
+	float3 casterPos;
+	float caster2LightDistance;
+	float3 atten;
+	float2 factorAngleCos;
+};
+
+cbuffer cbuff2 : register(b2)
+{
+	float3 ambientColor;
+	uint activeDirLightCount;
+	uint activePointLightCount;
+	uint activeSpotLightCount;
+	uint activeCircleShadowCount;
+	DirectionalLight dirLights[DirLightCountMax];
+	PointLight pointLights[PointLightCountMax];
+	SpotLight spotLights[SpotLightCountMax];
+	CircleShadow circleShadows[CircleShadowCountMax];
 };
 
 // 頂点シェーダーからピクセルシェーダーへのやり取りに使用する構造体

@@ -9,12 +9,10 @@
 using namespace DirectX;
 
 TitleScene::TitleScene() :
-	update_proc(std::bind(&TitleScene::update_normal, this))
+	update_proc(std::bind(&TitleScene::update_normal, this)),
+	input(Input::ins())
 {
-	input = Input::getInstance();
-
-	shortBridge = std::make_unique<Sound>("Resources/SE/Shortbridge29-1.wav");
-	//bgm = std::make_unique<Sound>("Resources/BGM/Detour.wav");
+	shortBridge = Sound::ins()->loadWave("Resources/SE/Shortbridge29-1.wav");
 
 	spCom.reset(new SpriteBase());
 

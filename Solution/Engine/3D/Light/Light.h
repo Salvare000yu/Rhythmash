@@ -28,7 +28,7 @@ public:
 
 	// 丸影の最大数
 	// シェーダー側と合わせる
-	constexpr static unsigned CircleShadowCountMax = 1u;
+	constexpr static unsigned CircleShadowCountMax = 50u;
 
 private:
 	template <class T> using ComPtr = Microsoft::WRL::ComPtr<T>;
@@ -127,6 +127,15 @@ public:
 #pragma endregion スポットライトアクセッサ
 
 #pragma region 丸影アクセッサ
+
+	inline void setCircleShadowActiveAll(bool active)
+	{
+		for (auto& i : circleShadows)
+		{
+			i.setActive(active);
+		}
+		dirty = true;
+	}
 
 	inline void setCircleShadowActive(unsigned ind, bool active) { circleShadows[ind].setActive(active); dirty = true; }
 	inline bool getCircleShadowActive(unsigned ind) const { return circleShadows[ind].getActive(); }

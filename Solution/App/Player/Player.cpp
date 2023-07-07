@@ -60,9 +60,9 @@ Player::Player(Camera* camera,
 			   ObjModel* model,
 			   const DirectX::XMFLOAT3& pos) :
 	BaseActObj(camera, model, pos),
-	inputMgr(InputMgr::ins())
+	input(Input::ins())
 {
-	se1 = std::make_unique<Sound>("Resources/SE/Sys_Set03-click.wav");
+	se1 = Sound::ins()->loadWave("Resources/SE/Sys_Set03-click.wav");
 
 	loadYamlFile();
 
@@ -76,14 +76,13 @@ Player::Player(Camera* camera,
 		if (!this->getAlive())
 		{
 			update_proc = [] {};
-			this->setCol({ 0,0,0,1 });
+			this->setCol({ 0,0,0,getCol().w });
 			return;
 		}
 
 		Move();
 		Attack();
 		Step();
-		ViewShift();
 		Invincible();
 	};
 
@@ -130,14 +129,23 @@ void Player::Move()
 
 void Player::Attack()
 {
-	auto atkObj = atkObjPt.lock();
-	if (InputMgr::ins()->GetInput(ACTION::WEEKATTACK) && judge())
+	std::shared_ptr<GameObj> atkObj = nullptr;
+	const bool atkObjAlive = !atkObjPt.expired();
+	if (atkObjAlive)
 	{
-		Sound::SoundPlayWave(se1.get());
+		atkObj = atkObjPt.lock();
+	}
+
+	if (input->triggerKey(DIK_SPACE) && judge())
+	{
+		Sound::playWave(se1);
 		attackFlag = true;
-		this->setCol(XMFLOAT4(0, 0, 1, 1));
-		
-		atkObj->setCol(XMFLOAT4(0, 1, 0, atkObj->getCol().w));
+		this->setCol(XMFLOAT4(0, 0, 1, getCol().w));
+
+		if (atkObjAlive)
+		{
+			atkObj->setCol(XMFLOAT4(0, 1, 0, atkObj->getCol().w));
+		}
 	}
 
 	if (attackFlag)
@@ -147,37 +155,28 @@ void Player::Attack()
 			attackFlag = false;
 			attackFrame = 0;
 		}
-	} else
+	} else if (atkObjAlive)
 	{
-		this->setCol({ 1,1,1,1 });
+		const XMFLOAT2 rot = GameObj::calcRotationSyncVelDeg({ -0.5,0,0 });
+		atkObj->setRotation(XMFLOAT3(rot.x, rot.y, getRotation().z));
 	}
 }
 
 void Player::Step()
 {
-
-	if (InputMgr::ins()->GetInput(ACTION::STEP) && judge())
+	if (Input::ins()->triggerKey(DIK_C) && judge())
 	{
-		SetSpeed(dashSpeed);
+		setSpeed(dashSpeed);
 	} else
 	{
 		const float acc = normalSpeed * dashSpeedAttenuation;
-		SetSpeed(std::max(normalSpeed, moveSpeed + acc));
+		setSpeed(std::max(normalSpeed, moveSpeed + acc));
 	}
-}
-void Player::ViewShift()
-{
-	DirectX::XMFLOAT2 inp = InputMgr::ins()->GetThumbValue(ACTION::CAMERA);
-	DirectX::XMFLOAT3 relativeRotaDeg = cameraObj->getRelativeRotaDeg();
-
-	relativeRotaDeg.x += inp.y;
-	relativeRotaDeg.y += inp.x;
-	cameraObj->setRelativeRotaDeg(relativeRotaDeg);
 }
 
 void Player::Invincible()
 {
-	if (!invincibleFrag)return;
+	if (!invincibleFrag) { return; }
 	if (++invincibleFrame > invincibleFrameMax)
 	{
 		invincibleFrame = 0;

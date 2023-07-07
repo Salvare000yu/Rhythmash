@@ -8,6 +8,14 @@
 /// @brief 衝突判定をするクラス
 class Collision
 {
+private:
+	using Sphere = CollisionShape::Sphere;
+	using Plane = CollisionShape::Plane;
+	using Triangle = CollisionShape::Triangle;
+	using Ray = CollisionShape::Ray;
+	using Capsule = CollisionShape::Capsule;
+	using AABB = CollisionShape::AABB;
+
 public:
 	/// @brief ベクトルの長さを計算
 	/// @param vec 対象のベクトル

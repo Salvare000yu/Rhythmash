@@ -1,74 +1,52 @@
 ﻿#pragma once
+#include <string>
+#include <unordered_map>
+#include <memory>
 #include <xaudio2.h>
-#include <cstdint>
-#include <wrl.h>
+
+class SoundData;
 
 class Sound
 {
-public:
-#pragma region チャンク
-	// チャンクヘッダ
-	struct ChunkHeader
-	{
-		char id[4]; // チャンク毎のID
-		int32_t size;  // チャンクサイズ
-	};
-
-	// RIFFヘッダチャンク
-	struct RiffHeader
-	{
-		ChunkHeader chunk;   // "RIFF"
-		char type[4]; // "WAVE"
-	};
-
-	// FMTチャンク
-	struct FormatChunk
-	{
-		ChunkHeader chunk; // "fmt "
-		WAVEFORMATEX fmt; // 波形フォーマット
-	};
-#pragma endregion
-
-	// --------------------
-	// メンバ変数
-	// --------------------
 private:
-	//波形フォーマット
-	WAVEFORMATEX wfex;
-	//バッファの先頭アドレス
-	BYTE* pBuffer;
-	//バッファのサイズ
-	unsigned int bufferSize;
+	Sound(const Sound& sd) = delete;
+	Sound& operator=(const Sound& sd) = delete;
 
-	IXAudio2SourceVoice* pSourceVoice = nullptr;
+	Sound() = default;
 
-	// --------------------
-	// メンバ関数
-	// --------------------
+	std::unordered_map<std::string, std::shared_ptr<SoundData>> datas;
+
 public:
-	// 音声データの読み込み
-	Sound(const char* filename);
+	enum class WAVEFORM : uint8_t
+	{
+		SAWTOOTH,	// のこぎり波
+		SIN,		// 正弦波
+		SQUARE		// 矩形波
+	};
 
-	// 音声データの解放
+public:
 	~Sound();
 
-	// --------------------
-	// static関数
-	// --------------------
-private:
-	static void createSourceVoice(Sound* soundData);
+	static inline Sound* getInstance()
+	{
+		static Sound sound{};
+		return &sound;
+	}
+	static inline Sound* ins() { return getInstance(); }
 
-public:
-	// 音声再生停止
-	static void SoundStopWave(Sound* soundData);
+	std::weak_ptr<SoundData> loadWave(const std::string& filePath);
 
-	/// @brief 音声再生
-	/// @param soundData 再生するサウンドデータオブジェクト
+	std::weak_ptr<SoundData> loadWave(WAVEFORM waveform, float hz, float sec = 1.f);
+
+	/// @brief 音を再生
+	/// @param data 再生するデータ
 	/// @param loopCount 0で繰り返し無し、XAUDIO2_LOOP_INFINITEで永遠
-	/// @param volume 0 ~ 1
-	static void SoundPlayWave(Sound* soundData,
-							  int loopCount = 0, float volume = 0.2);
+	/// @param volume 0~1
+	/// @return 異常があればtrue
+	static bool playWave(std::weak_ptr<SoundData>& data, uint32_t loopCount = 0u, float volume = 0.2f);
 
-	//再生状態の確認
-	static bool checkPlaySound(Sound* soundData);
+	/// @brief 音を止める
+	/// @param data 音データ
+	/// @return 異常があればtrue
+	static bool stopWave(std::weak_ptr<SoundData>& data);
 };

@@ -3,6 +3,7 @@
 #include <cstdint>
 #include <wrl.h>
 #include <memory>
+
 class SoundBase
 {
 	class XAudio2VoiceCallback : public IXAudio2VoiceCallback
@@ -27,6 +28,7 @@ class SoundBase
 private:
 	SoundBase(const SoundBase& sb) = delete;
 	SoundBase& operator=(const SoundBase& sb) = delete;
+
 	SoundBase();
 
 public:

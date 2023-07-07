@@ -103,9 +103,3 @@ namespace CollisionShape
 		{}
 	};
 }
-
-#ifndef NO_USING_NAMESPACE_COLLISION_SHAPE
-
-using namespace CollisionShape;
-
-#endif // NO_USING_NAMESPACE_COLLISION_SHAPE
