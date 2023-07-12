@@ -147,10 +147,14 @@ void GameMainScene::initCollider()
 		particleMgr->createParticle(obj->calcWorldPos(), 50ui16);
 		if (obj->damage(1ui16, true))
 		{
-			obj->setCol(XMFLOAT4(0, 0, 0, 1));
+			particleMgr->createParticle(obj->calcWorldPos(),
+										1000U,
+										1.f,
+										0.5f,
+										XMFLOAT3(1, 0, 1),
+										XMFLOAT3(1, 0, 1));
 			return;
 		}
-		obj->setCol({ 1,0,0,obj->getCol().w });
 	};
 
 	playerCols.hitProc = hitProc;
