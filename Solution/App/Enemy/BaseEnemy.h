@@ -93,11 +93,11 @@ public:
 		switch (number)
 		{
 		case 1:
-			return -enemy1Data.moveSpeed * enemy1Data.dashSpeedAttenuation;
+			return enemy1Data.moveSpeed * enemy1Data.dashSpeed * enemy1Data.dashSpeedAttenuation;
 		case 2:
-			return -enemy2Data.moveSpeed * enemy2Data.dashSpeedAttenuation;
+			return enemy2Data.moveSpeed * enemy2Data.dashSpeed * enemy2Data.dashSpeedAttenuation;
 		case 3:
-			return bossData.moveSpeed * bossData.dashSpeedAttenuation;
+			return bossData.moveSpeed * bossData.dashSpeed * bossData.dashSpeedAttenuation;
 		default:
 			return 0;
 		};

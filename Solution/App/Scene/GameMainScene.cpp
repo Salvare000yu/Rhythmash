@@ -283,4 +283,3 @@ std::weak_ptr<BaseEnemy> GameMainScene::addBoss(const DirectX::XMFLOAT3& pos)
 
 	return i;
 }
-
