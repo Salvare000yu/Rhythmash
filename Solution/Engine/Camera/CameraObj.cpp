@@ -8,12 +8,17 @@ CameraObj::CameraObj(GameObj* parent)
 	:Camera(WinAPI::window_width,
 			WinAPI::window_height),
 	parentObj(parent)
-{
-}
+{}
 
 void CameraObj::rotaCameraPos()
 {
-	const DirectX::XMFLOAT2 inp = InputMgr::ins()->calcMoveValue(InputMgr::MOVE_INPUT::CAMERA);
+	DirectX::XMFLOAT2 inp{};
+
+	// 入力が無ければ終了
+	if (!InputMgr::ins()->calcMoveValue(InputMgr::MOVE_INPUT::CAMERA, inp))
+	{
+		return;
+	}
 
 	relativeRotaDeg.x += inp.y;
 	relativeRotaDeg.y += inp.x;

@@ -163,6 +163,71 @@ void GameMainScene::initSound()
 	damageSe = Sound::ins()->loadWave("Resources/SE/damage.wav");
 }
 
+void GameMainScene::updateCollision()
+{
+	// 敵コライダーを初期化
+	enemyCols.group.clear();
+	enemyAtkCols.group.clear();
+	for (auto& i : enemy)
+	{
+		if (i->getAlive())
+		{
+			enemyCols.group.emplace_front(CollisionMgr::ColliderType::create(i.get(), i->getScaleF3().z));
+		}
+
+		if (i->getAttackFlag())
+		{
+			auto atk = i->getAtkObjPt().lock();
+			enemyAtkCols.group.emplace_front(CollisionMgr::ColliderType::create(atk.get(), atk->getScaleF3().z));
+		}
+	}
+
+	// 当たり判定をする
+	if (player->getAttackFlag())
+	{
+		CollisionMgr::checkHitAll(playerAtkCols, enemyCols);
+	}
+
+	if (!player->getInvincibleFrag())
+	{
+		CollisionMgr::checkHitAll(enemyAtkCols, playerCols);
+	}
+}
+
+void GameMainScene::updateBeatData()
+{
+	// 拍内進行度と拍数を更新
+	nowBeatRaito = Timer::calcNowBeatRaito((float)timer->getNowTime(), bpm, nowCount);
+
+	const float raitoColor = std::lerp(0.25f, 1.f, 1.f - nowBeatRaito);
+	player->setCol(XMFLOAT4(raitoColor, raitoColor, raitoColor, player->getCol().w));
+
+	player->setNowBeatRaito(nowBeatRaito);
+	for (auto& i : enemy)
+	{
+		i->setNowBeatRaito(nowBeatRaito);
+		i->setNowBeatCount((uint32_t)nowCount);
+	}
+}
+
+void GameMainScene::updateLight()
+{
+	light->setCircleShadowActiveAll(false);
+
+	player->update();
+	light->setCircleShadowActive(0, true);
+	light->setCircleShadowCasterPos(0, player->calcWorldPos());
+	for (unsigned i = 0u, len = (unsigned)enemy.size(); i < len; ++i)
+	{
+		if (!enemy[i]->getAlive()) { continue; }
+		enemy[i]->update();
+		light->setCircleShadowActive(1 + i, true);
+		light->setCircleShadowCasterPos(1 + i, enemy[i]->calcWorldPos());
+	}
+
+	light->update();
+}
+
 GameMainScene::GameMainScene() :
 	input(Input::ins()),
 	timer(std::make_unique<Timer>()),
@@ -218,10 +283,7 @@ GameMainScene::~GameMainScene()
 
 void GameMainScene::start()
 {
-	// --------------------
 	// ポストエフェクト
-	// --------------------
-
 	// 前シーン終了よりも後に実行する必要があるので、
 	// コンストラクタではなくここで行う
 	initPostEffect();
@@ -237,61 +299,14 @@ void GameMainScene::start()
 
 void GameMainScene::update()
 {
-#ifdef _DEBUG
-	if (Input::ins()->triggerKey(DIK_T))
-	{
-		SceneManager::getInstange()->changeScene<TitleScene>();
-		return;
-	}
-#endif // _DEBUG
-
-
-	// 拍内進行度と拍数を更新
-	nowBeatRaito = Timer::calcNowBeatRaito((float)timer->getNowTime(), bpm, nowCount);
-
-	// 敵コライダーを初期化
-	enemyCols.group.clear();
-	enemyAtkCols.group.clear();
-	for (auto& i : enemy)
-	{
-		if (i->getAlive())
-		{
-			enemyCols.group.emplace_front(CollisionMgr::ColliderType::create(i.get(), i->getScaleF3().z));
-		}
-
-		if (i->getAttackFlag())
-		{
-			auto atk = i->getAtkObjPt().lock();
-			enemyAtkCols.group.emplace_front(CollisionMgr::ColliderType::create(atk.get(), atk->getScaleF3().z));
-		}
-	}
+	// 拍情報更新
+	updateBeatData();
 
 	// 当たり判定をする
-	if (player->getAttackFlag())
-	{
-		CollisionMgr::checkHitAll(playerAtkCols, enemyCols);
-	}
-
-	if (!player->getInvincibleFrag())
-	{
-		CollisionMgr::checkHitAll(enemyAtkCols, playerCols);
-	}
+	updateCollision();
 
 	// 死んだ敵は消す
 	std::erase_if(enemy, [](const std::shared_ptr<BaseEnemy>& e) { return !e->getAlive(); });
-
-	// 拍情報更新
-	{
-		const float raitoColor = std::lerp(0.25f, 1.f, 1.f - nowBeatRaito);
-		player->setCol(XMFLOAT4(raitoColor, raitoColor, raitoColor, player->getCol().w));
-
-		player->setNowBeatRaito(nowBeatRaito);
-		for (auto& i : enemy)
-		{
-			i->setNowBeatRaito(nowBeatRaito);
-			i->setNowBeatCount((uint32_t)nowCount);
-		}
-	}
 
 	// シーン移行
 	if (!player->getAlive())
@@ -302,28 +317,22 @@ void GameMainScene::update()
 		SceneManager::getInstange()->changeScene<GameClearScene>();
 	}
 
+#ifdef _DEBUG
+	if (Input::ins()->triggerKey(DIK_T))
+	{
+		SceneManager::getInstange()->changeScene<TitleScene>();
+		return;
+	}
+#endif // _DEBUG
+
 	// 自機の移動
 	movePlayer();
 
 	groundObj->update();
 	stageObj->update();
-	{
-		light->setCircleShadowActiveAll(false);
-
-		player->update();
-		light->setCircleShadowActive(0, true);
-		light->setCircleShadowCasterPos(0, player->calcWorldPos());
-		for (unsigned i = 0u, len = (unsigned)enemy.size(); i < len; ++i)
-		{
-			if (!enemy[i]->getAlive()) { continue; }
-			enemy[i]->update();
-			light->setCircleShadowActive(1 + i, true);
-			light->setCircleShadowCasterPos(1 + i, enemy[i]->calcWorldPos());
-		}
-	}
+	updateLight();
 
 	cameraObj->update();
-	light->update();
 	rgbShiftData.update(timer->getNowTime());
 }
 
@@ -364,6 +373,7 @@ void GameMainScene::drawFrontSprite()
 	ImGui::Text("移動 + リズムよく[C]: ダッシュ");
 	ImGui::Text("リズムよく[スペース]: 前方に攻撃");
 	ImGui::Text("自機体力: %u", player->getHp());
+	ImGui::Text(player->getAttackFlag() ? "攻撃中" : "暇人");
 
 	ImGui::End();
 
@@ -393,7 +403,13 @@ std::weak_ptr<BaseEnemy> GameMainScene::addEnemy(const DirectX::XMFLOAT3& pos)
 void GameMainScene::movePlayer()
 {
 	// 入力値を取得
-	const XMFLOAT2 inputVal = InputMgr::ins()->calcMoveValue(InputMgr::MOVE_INPUT::PLAYER);
+	XMFLOAT2 inputVal{};
+
+	// 入力が無ければ終了
+	if (!InputMgr::ins()->calcMoveValue(InputMgr::MOVE_INPUT::PLAYER, inputVal))
+	{
+		return;
+	}
 
 	// 移動する
 	player->moveProcess(XMVectorSet(inputVal.x, 0.f, inputVal.y, 0.f));

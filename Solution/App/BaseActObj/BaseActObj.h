@@ -35,17 +35,33 @@ protected:
 	std::weak_ptr<GameObj> atkObjPt;
 
 	bool attackFlag = false;
+
+	/// @brief 無敵状態かどうか
+	bool invincibleFrag;
+
+	/// @brief 無敵状態の最大持続時間
+	uint32_t invincibleFrameMax;
+
+	/// @brief 無敵状態の現在の経過時間
+	uint32_t invincibleFrame = 0;
+
 public:
 	/// @brief コンストラクタ
 	BaseActObj(Camera* camera,
 			   ObjModel* model,
 			   const DirectX::XMFLOAT3& pos = { 0,0,0 });
 
+	/// @brief 無敵状態の更新処理
+	void invincible();
+
 	CollisionMgr::ColliderType mycoll{}, atkcoll{};
 
 	std::unique_ptr<ObjModel> atkModel;
 
 #pragma region アクセッサ
+
+	/// @return 無敵状態かどうか
+	inline bool getInvincibleFrag() const { return invincibleFrag; }
 
 	inline void setParticle(std::weak_ptr<ParticleMgr> particle) { this->particle = particle; }
 

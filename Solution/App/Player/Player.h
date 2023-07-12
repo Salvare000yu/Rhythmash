@@ -21,15 +21,6 @@ class Player
 	/// @brief 更新処理で行う内容
 	std::function<void()> update_proc;
 
-	/// @brief 無敵状態かどうか
-	bool invincibleFrag;
-
-	/// @brief 無敵状態の最大持続時間
-	uint32_t invincibleFrameMax;
-
-	/// @brief 無敵状態の現在の経過時間
-	uint32_t invincibleFrame = 0;
-
 	/// @brief 攻撃状態の現在の経過時間
 	uint32_t attackFrame = 0;
 
@@ -53,15 +44,9 @@ private:
 	/// @brief ダッシュ
 	void step();
 
-	/// @brief 無敵状態の更新処理
-	void invincible();
-
 public:
 	/// @brief コンストラクタ
 	Player(Camera* camera,
 		   ObjModel* model,
 		   const DirectX::XMFLOAT3& pos = { 0,0,0 });
-
-	/// @return 無敵状態かどうか
-	bool getInvincibleFrag() { return invincibleFrag; }
 };

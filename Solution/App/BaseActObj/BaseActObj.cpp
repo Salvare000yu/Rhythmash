@@ -23,6 +23,16 @@ BaseActObj::BaseActObj(Camera* camera, ObjModel* model, const DirectX::XMFLOAT3&
 	mycoll = CollisionMgr::ColliderType::create(this, this->getScaleF3().z);
 }
 
+void BaseActObj::invincible()
+{
+	if (!invincibleFrag) { return; }
+	if (++invincibleFrame > invincibleFrameMax)
+	{
+		invincibleFrame = 0;
+		invincibleFrag = false;
+	}
+}
+
 void BaseActObj::moveProcess(const XMFLOAT3& dir)
 {
 	moveProcess(XMLoadFloat3(&dir));
