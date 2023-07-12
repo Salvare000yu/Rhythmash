@@ -27,27 +27,24 @@ bool InputMgr::getInput(PLAYER_ACTION_INPUT act)
 	return false;
 }
 
-DirectX::XMFLOAT2 InputMgr::calcMoveValue(InputMgr::MOVE_INPUT act)
+bool InputMgr::calcMoveValue(InputMgr::MOVE_INPUT act, DirectX::XMFLOAT2& outBuf)
 {
-	DirectX::XMFLOAT2 inp = DirectX::XMFLOAT2(0.f, 0.f);
-	constexpr float inputMax = 1.0f;
-
 	switch (act)
 	{
 	case MOVE_INPUT::PLAYER:
-		getMovePlayerInputValue(inp);
+		return getMovePlayerInputValue(outBuf);
 		break;
 	case MOVE_INPUT::CAMERA:
-		getMoveCameraInputValue(inp);
+		return getMoveCameraInputValue(outBuf);
 		break;
 	default:
 		break;
 	}
 
-	return inp;
+	return false;
 }
 
-void InputMgr::getMovePlayerInputValue(DirectX::XMFLOAT2& outBuf)
+bool InputMgr::getMovePlayerInputValue(DirectX::XMFLOAT2& outBuf)
 {
 	// スティックの入力があったかどうか
 	const bool inputLFlag =
@@ -58,17 +55,21 @@ void InputMgr::getMovePlayerInputValue(DirectX::XMFLOAT2& outBuf)
 	if (inputLFlag)
 	{
 		outBuf = input->hitPadLStickRaito();
-		return;
+		return true;
 	}
 
+	bool ret = false;
+
 	constexpr float inputMax = 1.f;
-	if (input->hitKey(DIK_W)) { outBuf.y = inputMax; }
-	if (input->hitKey(DIK_S)) { outBuf.y = -inputMax; }
-	if (input->hitKey(DIK_D)) { outBuf.x = inputMax; }
-	if (input->hitKey(DIK_A)) { outBuf.x = -inputMax; }
+	if (input->hitKey(DIK_W)) { outBuf.y = inputMax; ret = true; }
+	if (input->hitKey(DIK_S)) { outBuf.y = -inputMax; ret = true; }
+	if (input->hitKey(DIK_D)) { outBuf.x = inputMax; ret = true; }
+	if (input->hitKey(DIK_A)) { outBuf.x = -inputMax; ret = true; }
+
+	return ret;
 }
 
-void InputMgr::getMoveCameraInputValue(DirectX::XMFLOAT2& outBuf)
+bool InputMgr::getMoveCameraInputValue(DirectX::XMFLOAT2& outBuf)
 {
 	// スティックの入力があったかどうか
 	const bool inputRFlag =
@@ -79,11 +80,20 @@ void InputMgr::getMoveCameraInputValue(DirectX::XMFLOAT2& outBuf)
 	if (inputRFlag)
 	{
 		outBuf = input->hitPadRStickRaito();
-		return;
+		return true;
+	}
+
+	// マウスが動いていなければ動いていない
+	if (input->getMouseMove().x == 0 &&
+		input->getMouseMove().y == 0)
+	{
+		return false;
 	}
 
 	outBuf.x = static_cast<float>(input->getMouseMove().x);
 	outBuf.y = static_cast<float>(input->getMouseMove().y);
 	outBuf.x /= mouseRate;
 	outBuf.y /= mouseRate;
+
+	return true;
 }

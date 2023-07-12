@@ -108,6 +108,11 @@ private:
 	};
 	RgbShiftData rgbShiftData{};
 
+	void updateCollision();
+	void updateBeatData();
+
+	void updateLight();
+
 public:
 	GameMainScene();
 	~GameMainScene();

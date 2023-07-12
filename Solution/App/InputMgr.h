@@ -41,9 +41,9 @@ public:
 
 	InputMgr();
 	bool getInput(InputMgr::PLAYER_ACTION_INPUT act);
-	DirectX::XMFLOAT2 calcMoveValue(InputMgr::MOVE_INPUT act);
+	bool calcMoveValue(InputMgr::MOVE_INPUT act, DirectX::XMFLOAT2& outBuf);
 
 private:
-	void getMovePlayerInputValue(DirectX::XMFLOAT2& outBuf);
-	void getMoveCameraInputValue(DirectX::XMFLOAT2& outBuf);
+	bool getMovePlayerInputValue(DirectX::XMFLOAT2& outBuf);
+	bool getMoveCameraInputValue(DirectX::XMFLOAT2& outBuf);
 };

@@ -128,13 +128,3 @@ void Player::step()
 		setSpeed(std::max(normalSpeed, moveSpeed + acc));
 	}
 }
-
-void Player::invincible()
-{
-	if (!invincibleFrag) { return; }
-	if (++invincibleFrame > invincibleFrameMax)
-	{
-		invincibleFrame = 0;
-		invincibleFrag = false;
-	}
-}
