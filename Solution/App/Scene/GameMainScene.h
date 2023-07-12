@@ -21,6 +21,7 @@ class Util;
 class Sound;
 class ParticleMgr;
 class SoundData;
+class EnemyMgr;
 
 class GameMainScene :
 	public GameScene
@@ -59,9 +60,8 @@ class GameMainScene :
 	CollisionMgr::ColliderSet playerAtkCols;
 
 	// 敵
-	std::vector<std::shared_ptr<BaseEnemy>> enemy;
+	std::unique_ptr<EnemyMgr> enemyMgr;
 	std::unique_ptr<ObjModel> enemyModel;
-	std::unique_ptr<GameObj> enemyObj;
 	CollisionMgr::ColliderSet enemyCols;
 	CollisionMgr::ColliderSet enemyAtkCols;
 

@@ -8,6 +8,7 @@
 
 #include <Player/Player.h>
 #include <Enemy/BaseEnemy.h>
+#include <Enemy/EnemyMgr.h>
 #include <3D/Obj/ObjModel.h>
 #include <GameObject/GameObj.h>
 #include <Camera/CameraObj.h>
@@ -80,6 +81,8 @@ void GameMainScene::initBack()
 
 void GameMainScene::initEnemy()
 {
+	enemyMgr = std::make_unique<EnemyMgr>();
+
 	enemyModel = std::make_unique<ObjModel>("Resources/enemy/", "enemy");
 
 	stageModel = std::make_unique<ObjModel>("Resources/ring/", "ring");
@@ -133,7 +136,7 @@ void GameMainScene::initEnemy()
 		}
 	}
 
-	for (auto& i : enemy)
+	for (auto& i : enemyMgr->getEnemyList())
 	{
 		i->setJudgeProc([&] { return Timer::judge(i->getNowBeatRaito(), judgeOkRange); });
 	}
@@ -172,7 +175,7 @@ void GameMainScene::updateCollision()
 	// 敵コライダーを初期化
 	enemyCols.group.clear();
 	enemyAtkCols.group.clear();
-	for (auto& i : enemy)
+	for (auto& i : enemyMgr->getEnemyList())
 	{
 		if (i->getAlive())
 		{
@@ -207,7 +210,7 @@ void GameMainScene::updateBeatData()
 	player->setCol(XMFLOAT4(raitoColor, raitoColor, raitoColor, player->getCol().w));
 
 	player->setNowBeatRaito(nowBeatRaito);
-	for (auto& i : enemy)
+	for (auto& i : enemyMgr->getEnemyList())
 	{
 		i->setNowBeatRaito(nowBeatRaito);
 		i->setNowBeatCount((uint32_t)nowCount);
@@ -221,12 +224,12 @@ void GameMainScene::updateLight()
 	player->update();
 	light->setCircleShadowActive(0, true);
 	light->setCircleShadowCasterPos(0, player->calcWorldPos());
-	for (unsigned i = 0u, len = (unsigned)enemy.size(); i < len; ++i)
+	for (unsigned i = 0u, len = (unsigned)enemyMgr->getEnemyList().size(); i < len; ++i)
 	{
-		if (!enemy[i]->getAlive()) { continue; }
-		enemy[i]->update();
+		if (!enemyMgr->getEnemyList()[i]->getAlive()) { continue; }
+		enemyMgr->getEnemyList()[i]->update();
 		light->setCircleShadowActive(1 + i, true);
-		light->setCircleShadowCasterPos(1 + i, enemy[i]->calcWorldPos());
+		light->setCircleShadowCasterPos(1 + i, enemyMgr->getEnemyList()[i]->calcWorldPos());
 	}
 
 	light->update();
@@ -310,13 +313,13 @@ void GameMainScene::update()
 	updateCollision();
 
 	// 死んだ敵は消す
-	std::erase_if(enemy, [](const std::shared_ptr<BaseEnemy>& e) { return !e->getAlive(); });
+	std::erase_if(enemyMgr->getEnemyList(), [](const std::shared_ptr<BaseEnemy>& e) { return !e->getAlive(); });
 
 	// シーン移行
 	if (!player->getAlive())
 	{
 		SceneManager::getInstange()->changeScene<GameOverScene>();
-	} else if (enemy.empty())
+	} else if (enemyMgr->getEnemyList().empty())
 	{
 		SceneManager::getInstange()->changeScene<GameClearScene>();
 	}
@@ -346,7 +349,7 @@ void GameMainScene::drawObj3d()
 
 	stageObj->draw(light.get());
 	player->draw(light.get());
-	for (auto& i : enemy)
+	for (auto& i : enemyMgr->getEnemyList())
 	{
 		if (!i->getAlive()) { continue; }
 		i->draw(light.get());
@@ -387,14 +390,18 @@ void GameMainScene::drawFrontSprite()
 
 std::weak_ptr<BaseEnemy> GameMainScene::addEnemy(const DirectX::XMFLOAT3& pos)
 {
-	auto& i = enemy.emplace_back(std::make_shared<BaseEnemy>(cameraObj.get(), enemyModel.get()));
+	EnemyMgr::EnemyParam param{};
+	param.hp = 3u;
+	param.moveVal = 10.f;
+	param.attack = 1u;
 
-	i->setHp(3u);
+	auto& i = enemyMgr->addEnemy(cameraObj.get(), enemyModel.get(), param).lock();
+
 	i->setTargetObj(player.get());
 	i->setPos(pos);
 	i->setDamageSe(damageSe);
 
-	const auto enemyNum = static_cast<uint32_t>(enemy.size());
+	const auto enemyNum = static_cast<uint32_t>(enemyMgr->getEnemyList().size());
 	if (enemyNum < Light::CircleShadowCountMax)
 	{
 		light->setCircleShadowActive(enemyNum, true);
