@@ -118,8 +118,6 @@ void GameMainScene::initEnemy()
 {
 	enemyMgr = std::make_unique<EnemyMgr>();
 
-	//enemyModel = std::make_unique<ObjModel>("Resources/enemy/", "enemy");
-
 	// ファイルから情報を読み込む
 	loadEnemyFile();
 
@@ -396,7 +394,6 @@ void GameMainScene::update()
 
 			nextWaveIt++;
 		}
-
 	}
 
 #ifdef _DEBUG

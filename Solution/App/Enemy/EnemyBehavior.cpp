@@ -6,7 +6,7 @@
 using namespace DirectX;
 
 EnemyBehavior::EnemyBehavior(BaseEnemy* enemy) :
-	Sequencer(), enemy(enemy)
+	EnemyBaseBehavior(enemy)
 {
 	movePhase = std::make_unique<Selector>();
 	movePhase->addChild(Task(std::bind(&EnemyBehavior::phase_move, this)));
@@ -18,18 +18,6 @@ EnemyBehavior::EnemyBehavior(BaseEnemy* enemy) :
 	mainPhase = std::make_unique<Sequencer>();
 	mainPhase->addChild(*movePhase);
 	mainPhase->addChild(*attackPhase);
-
-	addChild(Task([&]
-				  {
-					  // メインの行動をし、結果を取得
-					  const NODE_RESULT ret = mainPhase->run();
-
-					  // 拍数を更新
-					  preBeatCount = this->enemy->getNowBeatCount();
-
-					  // 行動の結果を返す
-					  return ret;
-				  }));
 
 	enemy->setSpeed(BaseActObj::moveSpeedDef * 10.f);
 
