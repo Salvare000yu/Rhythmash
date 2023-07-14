@@ -129,7 +129,7 @@ void GameMainScene::initEnemy()
 		{
 			for (const auto& e : i.pos)
 			{
-				auto tmp = addEnemy(e).lock();
+				auto tmp = addEnemy(e, EnemyMgr::EnemyParam{.hp = 1u, .attack = 1u, .moveVal = 10.f}).lock();
 				tmp->setAttack(i.attack);
 				tmp->setHp(i.hp);
 			}
@@ -388,25 +388,21 @@ void GameMainScene::drawFrontSprite()
 	ImGui::SetNextWindowPos(ImVec2(0, 0));
 }
 
-std::weak_ptr<BaseEnemy> GameMainScene::addEnemy(const DirectX::XMFLOAT3& pos)
+std::weak_ptr<BaseEnemy> GameMainScene::addEnemy(const DirectX::XMFLOAT3& pos, const EnemyMgr::EnemyParam& enemyParam)
 {
-	EnemyMgr::EnemyParam param{};
-	param.hp = 3u;
-	param.moveVal = 10.f;
-	param.attack = 1u;
+	// 最大数を超えていたら追加しない
+	const auto enemyNum = static_cast<uint32_t>(1ui64 + enemyMgr->getEnemyList().size());
+	if (enemyNum >= Light::CircleShadowCountMax) { return std::weak_ptr<BaseEnemy>{}; }
 
-	auto& i = enemyMgr->addEnemy(cameraObj.get(), enemyModel.get(), param).lock();
+	// 丸影をセット
+	light->setCircleShadowActive(enemyNum, true);
+	light->setCircleShadowCaster2LightDistance(enemyNum, 50.f);
+
+	auto& i = enemyMgr->addEnemy(cameraObj.get(), enemyModel.get(), enemyParam).lock();
 
 	i->setTargetObj(player.get());
 	i->setPos(pos);
 	i->setDamageSe(damageSe);
-
-	const auto enemyNum = static_cast<uint32_t>(enemyMgr->getEnemyList().size());
-	if (enemyNum < Light::CircleShadowCountMax)
-	{
-		light->setCircleShadowActive(enemyNum, true);
-		light->setCircleShadowCaster2LightDistance(enemyNum, 50.f);
-	}
 
 	return i;
 }

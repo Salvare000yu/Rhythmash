@@ -3,6 +3,7 @@
 #include <CollisionMgr.h>
 #include <System/PostEffect.h>
 #include <Util/Timer.h>
+#include <Enemy/EnemyMgr.h>
 #include <memory>
 #include <DirectXMath.h>
 #include <vector>
@@ -21,7 +22,6 @@ class Util;
 class Sound;
 class ParticleMgr;
 class SoundData;
-class EnemyMgr;
 
 class GameMainScene :
 	public GameScene
@@ -126,7 +126,7 @@ private:
 	/// @brief 敵リストに要素を追加
 	/// @param pos 追加する敵の位置
 	/// @return 追加した敵を示すweak_ptr
-	std::weak_ptr<BaseEnemy> addEnemy(const DirectX::XMFLOAT3& pos);
+	std::weak_ptr<BaseEnemy> addEnemy(const DirectX::XMFLOAT3& pos, const EnemyMgr::EnemyParam& enemyParam);
 
 	/// @brief 自機の移動処理
 	void movePlayer();
