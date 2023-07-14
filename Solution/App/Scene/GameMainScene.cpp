@@ -22,6 +22,9 @@
 
 #include <BehaviorTree/BaseComposite.h>
 
+#include <Enemy/Behabior/EnemyBehavior.h>
+#include <Enemy/Behabior/BossBehavior.h>
+
 using namespace DirectX;
 
 namespace
@@ -165,6 +168,9 @@ void GameMainScene::loadEnemyFile()
 			} else if (i[0] == "scale")
 			{
 				from_string(i[1], currentData->scale);
+			} else if (i[0] == "behavior")
+			{
+				currentData->behaviorStr = i[1];
 			}
 		}
 	}
@@ -460,7 +466,11 @@ void GameMainScene::drawFrontSprite()
 	ImGui::SetNextWindowPos(ImVec2(0, 0));
 }
 
-std::weak_ptr<BaseEnemy> GameMainScene::addEnemy(const DirectX::XMFLOAT3& pos, const EnemyMgr::EnemyParam& enemyParam, ObjModel* model, float scale)
+std::weak_ptr<BaseEnemy> GameMainScene::addEnemy(const DirectX::XMFLOAT3& pos,
+												 const EnemyMgr::EnemyParam& enemyParam,
+												 ObjModel* model,
+												 float scale,
+												 const std::string& behaviorStr)
 {
 	// 最大数を超えていたら追加しない
 	const auto enemyNum = static_cast<uint32_t>(1ui64 + enemyMgr->getEnemyList().size());
@@ -482,6 +492,15 @@ std::weak_ptr<BaseEnemy> GameMainScene::addEnemy(const DirectX::XMFLOAT3& pos, c
 	i->setPos(pos);
 	i->setDamageSe(damageSe);
 
+	// ここで指定した行動を入れる
+	if (behaviorStr == "normal")
+	{
+		i->setBehavior(std::make_unique<EnemyBehavior>(i.get()));
+	} else if (behaviorStr == "boss")
+	{
+		i->setBehavior(std::make_unique<BossBehavior>(i.get()));
+	}
+
 	return i;
 }
 
@@ -492,7 +511,7 @@ void GameMainScene::startWave(const std::list<WaveData>::const_iterator& wave)
 		EnemyFileDataFormat& dat = loadedData.at(w.tag);
 		for (auto& p : w.pos)
 		{
-			addEnemy(p, EnemyMgr::EnemyParam{.hp = dat.hp, .attack = dat.attack, .moveVal = dat.speed}, dat.model, dat.scale);
+			addEnemy(p, EnemyMgr::EnemyParam{.hp = dat.hp, .attack = dat.attack, .moveVal = dat.speed}, dat.model, dat.scale, dat.behaviorStr);
 		}
 	}
 }

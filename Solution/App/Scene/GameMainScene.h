@@ -82,6 +82,8 @@ class GameMainScene :
 
 		ObjModel* model = nullptr;
 		float scale = 1.f;
+
+		std::string behaviorStr{};
 	};
 	std::unordered_map<std::string, EnemyFileDataFormat> loadedData;
 	struct WaveDataEnemyPos
@@ -149,7 +151,7 @@ private:
 	/// @brief 敵リストに要素を追加
 	/// @param pos 追加する敵の位置
 	/// @return 追加した敵を示すweak_ptr
-	std::weak_ptr<BaseEnemy> addEnemy(const DirectX::XMFLOAT3& pos, const EnemyMgr::EnemyParam& enemyParam, ObjModel* model, float scale);
+	std::weak_ptr<BaseEnemy> addEnemy(const DirectX::XMFLOAT3& pos, const EnemyMgr::EnemyParam& enemyParam, ObjModel* model, float scale, const std::string& behaviorStr);
 
 	void startWave(const std::list<WaveData>::const_iterator& wave);
 

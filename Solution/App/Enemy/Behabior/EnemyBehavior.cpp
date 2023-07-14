@@ -1,5 +1,5 @@
-﻿#include "EnemyBehavior.h"
-#include "BaseEnemy.h"
+﻿#include <Enemy/Behabior/EnemyBehavior.h>
+#include <Enemy/BaseEnemy.h>
 #include <BehaviorTree/Selector.h>
 #include <DirectXMath.h>
 
