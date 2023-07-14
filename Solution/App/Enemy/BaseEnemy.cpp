@@ -1,6 +1,5 @@
 ﻿#include "BaseEnemy.h"
 #include <Collision/Collision.h>
-#include <BehaviorTree/BaseComposite.h>
 #include <Enemy/EnemyBehavior.h>
 
 using namespace DirectX;

@@ -4,7 +4,7 @@
 o 
 
 # material
-mtllib player.mtl
+mtllib mod_sample.mtl
 usemtl palette
 
 # normals

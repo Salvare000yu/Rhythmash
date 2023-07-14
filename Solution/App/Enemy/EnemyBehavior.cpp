@@ -1,5 +1,6 @@
 ﻿#include "EnemyBehavior.h"
 #include "BaseEnemy.h"
+#include <BehaviorTree/Selector.h>
 #include <DirectXMath.h>
 
 using namespace DirectX;
@@ -8,11 +9,11 @@ EnemyBehavior::EnemyBehavior(BaseEnemy* enemy) :
 	Sequencer(), enemy(enemy)
 {
 	movePhase = std::make_unique<Selector>();
-	movePhase->addChild(Task(std::bind(&EnemyBehavior::Phase_move, this)));
+	movePhase->addChild(Task(std::bind(&EnemyBehavior::phase_move, this)));
 
 	attackPhase = std::make_unique<Sequencer>();
 	attackPhase->addChild(Task([&] { return this->enemy->TargetFromDistance() < 10.0f ? NODE_RESULT::SUCCESS : NODE_RESULT::FAIL; }));
-	attackPhase->addChild(Task(std::bind(&EnemyBehavior::Phase_Attack, this)));
+	attackPhase->addChild(Task(std::bind(&EnemyBehavior::phase_Attack, this)));
 
 	mainPhase = std::make_unique<Sequencer>();
 	mainPhase->addChild(*movePhase);
@@ -30,42 +31,45 @@ EnemyBehavior::EnemyBehavior(BaseEnemy* enemy) :
 					  return ret;
 				  }));
 
-	moveVelRotaQuaternion = XMQuaternionRotationRollPitchYaw(0, XM_PIDIV2, 0);
-
 	enemy->setSpeed(BaseActObj::moveSpeedDef * 10.f);
+
+	moveVel = DirectX::XMVectorSet(0, 0, enemy->getSpeed(), 1);
+	moveVelRotaQuaternion = XMQuaternionRotationRollPitchYaw(0, XM_PIDIV2, 0);
 }
 
-NODE_RESULT EnemyBehavior::Phase_move()
+NODE_RESULT EnemyBehavior::phase_move()
 {
-	if (preBeatCount != enemy->getNowBeatCount())
-	{
-		enemy->moveProcess(moveVel);
-		if (++moveCount > moveCountMax)
-		{
-			moveVel = XMVector3Rotate(moveVel, moveVelRotaQuaternion);
+	// カウントが変わっていなければ、実行中として終了
+	if (preBeatCount == enemy->getNowBeatCount()) { return NODE_RESULT::RUNNING; }
 
-			moveCount = 0ui16;
-			return NODE_RESULT::SUCCESS;
-		}
-	}
+	// 移動させる
+	moveVel = XMVector3Normalize(moveVel) * enemy->getSpeed();
+	enemy->moveProcess(moveVel);
 
-	return NODE_RESULT::RUNNING;
+	// 指定カウント経過していなければ、実行中として終了
+	if (++nowPhaseCount <= moveCountMax) { return NODE_RESULT::RUNNING; }
+
+	// 指定カウント経過していたら、移動方向を回転し成功として終了
+	moveVel = XMVector3Rotate(moveVel, moveVelRotaQuaternion);
+
+	nowPhaseCount = 0ui16;
+	return NODE_RESULT::SUCCESS;
 }
 
-NODE_RESULT EnemyBehavior::Phase_Attack()
+NODE_RESULT EnemyBehavior::phase_Attack()
 {
-	if (preBeatCount != enemy->getNowBeatCount())
-	{
-		enemy->setAttackFlag(true);
-		enemy->setCol(XMFLOAT4(0.5f, 1, 1, 1));
-		if (++attackCount > attackCountMax)
-		{
-			enemy->setAttackFlag(false);
-			attackCount = 0ui16;
-			enemy->setCol(XMFLOAT4(1, 1, 1, 1));
-			return NODE_RESULT::SUCCESS;
-		}
-	}
+	// カウントが変わっていなければ、実行中として終了
+	if (preBeatCount == enemy->getNowBeatCount()) { return NODE_RESULT::RUNNING; }
 
-	return NODE_RESULT::RUNNING;
+	// カウントが変わった瞬間なら、攻撃状態に切り替える
+	enemy->setAttackFlag(true);
+
+	// 指定カウント経過していなければ、実行中として終了
+	if (++nowPhaseCount <= attackCountMax) { return NODE_RESULT::RUNNING; }
+
+	// 指定カウント経過していたら、値を戻し成功として終了
+	enemy->setAttackFlag(false);
+
+	nowPhaseCount = 0ui16;
+	return NODE_RESULT::SUCCESS;
 }
