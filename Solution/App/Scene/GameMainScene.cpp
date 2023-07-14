@@ -24,6 +24,37 @@
 
 using namespace DirectX;
 
+namespace
+{
+	template <class T>
+	inline auto from_string(const std::string& str, T& buf)
+	{
+		return std::from_chars(std::to_address(str.begin()),
+							   std::to_address(str.end()),
+							   buf);
+	}
+
+	template <class T = float>
+	inline T sToNum(const std::string& str)
+	{
+		T buf{};
+		from_string(str, buf);
+		return buf;
+	}
+
+	XMFLOAT3 sToF3(const std::string& str_x,
+				   const std::string& str_y,
+				   const std::string& str_z)
+	{
+		XMFLOAT3 ret{};
+		from_string(str_x, ret.x);
+		from_string(str_y, ret.y);
+		from_string(str_z, ret.z);
+
+		return ret;
+	}
+}
+
 void GameMainScene::initPostEffect()
 {
 	RgbShiftData::reset();
@@ -77,6 +108,10 @@ void GameMainScene::initBack()
 	groundModel->setTexTilling(XMFLOAT2(groundSize, groundSize));
 
 	groundObj->color = XMFLOAT4(1, 1, 1, 0.5f);
+
+	stageModel = std::make_unique<ObjModel>("Resources/ring/", "ring");
+	stageObj = std::make_unique<GameObj>(cameraObj.get(), stageModel.get());
+	stageObj->setScale(10);
 }
 
 void GameMainScene::initEnemy()
@@ -85,45 +120,52 @@ void GameMainScene::initEnemy()
 
 	enemyModel = std::make_unique<ObjModel>("Resources/enemy/", "enemy");
 
-	stageModel = std::make_unique<ObjModel>("Resources/ring/", "ring");
-	stageObj = std::make_unique<GameObj>(cameraObj.get(), stageModel.get());
-	stageObj->setScale(10);
+	// ファイルから情報を読み込む
+	loadEnemyFile();
 
+	// 判定関数をセット
+	for (auto& i : enemyMgr->getEnemyList())
+	{
+		i->setJudgeProc([&] { return Timer::judge(i->getNowBeatRaito(), judgeOkRange); });
+	}
+}
+
+void GameMainScene::loadEnemyFile()
+{
 	//csvの読み込み
 	const std::vector<std::string> fileNames = { "Resources/DataFile/enemy.csv" };
 	Util::CSVType csvData = Util::loadCsvs(fileNames, true, ',', "//");
 
-	struct CavDataFormat
+	struct FileDataFormat
 	{
 		std::string type = "";
-		uint16_t hp = 0ui16;
-		uint16_t attack = 0ui16;
+		uint16_t hp = 5ui16;
+		uint16_t attack = 1ui16;
+		float apeed = 10.f;
 		std::forward_list<XMFLOAT3> pos{};
 	};
-	std::forward_list<CavDataFormat> loadedCsvData;
-	CavDataFormat* currentData = nullptr;
+	std::forward_list<FileDataFormat> loadedData;
+	FileDataFormat* currentData = nullptr;
 
 	for (const auto& i : csvData)
 	{
 		if (i[0] == "type")
 		{
-			loadedCsvData.emplace_front(CavDataFormat{ .type = i[1] });
-			currentData = &loadedCsvData.front();
+			loadedData.emplace_front(FileDataFormat{ .type = i[1] });
+			currentData = &loadedData.front();
 		} else if (currentData)
 		{
 			if (i[0] == "position")
 			{
-				currentData->pos.emplace_front(XMFLOAT3(std::stof(i[1]),
-														std::stof(i[2]),
-														std::stof(i[3])));
+				currentData->pos.emplace_front(sToF3(i[1], i[2], i[3]));
 			} else if (i[0] == "hp")
 			{
-				currentData->hp = static_cast<uint16_t>(std::stoul(i[1]));
+				from_string(i[1], currentData->hp);
 			}
 		}
 	}
 
-	for (const auto& i : loadedCsvData)
+	for (const auto& i : loadedData)
 	{
 		if (i.type == "enemy")
 		{
@@ -134,11 +176,6 @@ void GameMainScene::initEnemy()
 				tmp->setHp(i.hp);
 			}
 		}
-	}
-
-	for (auto& i : enemyMgr->getEnemyList())
-	{
-		i->setJudgeProc([&] { return Timer::judge(i->getNowBeatRaito(), judgeOkRange); });
 	}
 }
 

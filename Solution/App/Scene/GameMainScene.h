@@ -82,6 +82,7 @@ private:
 	void initParticle();
 	void initBack();
 	void initEnemy();
+	void loadEnemyFile();
 	void initCollider();
 	void initSound();
 
