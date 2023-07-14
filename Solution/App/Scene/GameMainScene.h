@@ -74,12 +74,20 @@ class GameMainScene :
 	std::weak_ptr<SoundData> bgm;
 	std::weak_ptr<SoundData> damageSe;
 
+	struct EnemyFileDataFormat
+	{
+		uint16_t hp = 5ui16;
+		uint16_t attack = 1ui16;
+		float speed = 10.f;
+	};
+	std::unordered_map<std::string, EnemyFileDataFormat> loadedData;
 	struct WaveData
 	{
 		std::string tag{};
 		std::forward_list<DirectX::XMFLOAT3> pos{};
 	};
 	std::list<WaveData> waveData{};
+	std::list<WaveData>::const_iterator nextWaveIt;
 
 private:
 	void initPostEffect();
@@ -135,6 +143,8 @@ private:
 	/// @param pos 追加する敵の位置
 	/// @return 追加した敵を示すweak_ptr
 	std::weak_ptr<BaseEnemy> addEnemy(const DirectX::XMFLOAT3& pos, const EnemyMgr::EnemyParam& enemyParam);
+
+	void startWave(const std::list<WaveData>::const_iterator& wave);
 
 	/// @brief 自機の移動処理
 	void movePlayer();

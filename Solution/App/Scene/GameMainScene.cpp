@@ -135,13 +135,8 @@ void GameMainScene::loadEnemyFile()
 	//csvの読み込み
 	Util::CSVType csvData = Util::loadCsv("Resources/DataFile/enemy.csv", true, ',', "//");
 
-	struct FileDataFormat
-	{
-		uint16_t hp = 5ui16;
-		uint16_t attack = 1ui16;
-		float speed = 10.f;
-	};
-	std::unordered_map<std::string, FileDataFormat> loadedData;
+	using FileDataFormat = EnemyFileDataFormat;
+
 	FileDataFormat* currentData = nullptr;
 
 	for (const auto& i : csvData)
@@ -188,12 +183,10 @@ void GameMainScene::loadEnemyFile()
 
 	// 最初のウェーブデータを出す
 	{
-		const auto& w = waveData.front();
-		FileDataFormat& dat = loadedData.at(w.tag);
-		for (auto& p : w.pos)
-		{
-			addEnemy(p, EnemyMgr::EnemyParam{.hp = dat.hp, .attack = dat.attack, .moveVal = dat.speed});
-		}
+		nextWaveIt = waveData.begin();
+		startWave(nextWaveIt);
+		// 出し終わったらイテレーターを進める
+		nextWaveIt++;
 	}
 }
 
@@ -376,7 +369,16 @@ void GameMainScene::update()
 		SceneManager::getInstange()->changeScene<GameOverScene>();
 	} else if (enemyMgr->getEnemyList().empty())
 	{
-		SceneManager::getInstange()->changeScene<GameClearScene>();
+		if (nextWaveIt == waveData.end())
+		{
+			SceneManager::getInstange()->changeScene<GameClearScene>();
+		} else
+		{
+			startWave(nextWaveIt);
+
+			nextWaveIt++;
+		}
+
 	}
 
 #ifdef _DEBUG
@@ -384,6 +386,14 @@ void GameMainScene::update()
 	{
 		SceneManager::getInstange()->changeScene<TitleScene>();
 		return;
+	}
+
+	if (Input::ins()->triggerKey(DIK_K))
+	{
+		for (auto& i : enemyMgr->getEnemyList())
+		{
+			i->kill();
+		}
 	}
 #endif // _DEBUG
 
@@ -464,6 +474,16 @@ std::weak_ptr<BaseEnemy> GameMainScene::addEnemy(const DirectX::XMFLOAT3& pos, c
 	i->setDamageSe(damageSe);
 
 	return i;
+}
+
+void GameMainScene::startWave(const std::list<WaveData>::const_iterator& wave)
+{
+	const auto& w = (*wave);
+	EnemyFileDataFormat& dat = loadedData.at(w.tag);
+	for (auto& p : w.pos)
+	{
+		addEnemy(p, EnemyMgr::EnemyParam{.hp = dat.hp, .attack = dat.attack, .moveVal = dat.speed});
+	}
 }
 
 void GameMainScene::movePlayer()
