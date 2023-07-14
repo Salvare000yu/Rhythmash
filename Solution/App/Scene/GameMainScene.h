@@ -61,7 +61,7 @@ class GameMainScene :
 
 	// 敵
 	std::unique_ptr<EnemyMgr> enemyMgr;
-	std::unique_ptr<ObjModel> enemyModel;
+	std::unordered_map<std::string,std::unique_ptr<ObjModel>> enemyModels;
 	CollisionMgr::ColliderSet enemyCols;
 	CollisionMgr::ColliderSet enemyAtkCols;
 
@@ -79,6 +79,8 @@ class GameMainScene :
 		uint16_t hp = 5ui16;
 		uint16_t attack = 1ui16;
 		float speed = 10.f;
+
+		ObjModel* model = nullptr;
 	};
 	std::unordered_map<std::string, EnemyFileDataFormat> loadedData;
 	struct WaveData
@@ -142,7 +144,7 @@ private:
 	/// @brief 敵リストに要素を追加
 	/// @param pos 追加する敵の位置
 	/// @return 追加した敵を示すweak_ptr
-	std::weak_ptr<BaseEnemy> addEnemy(const DirectX::XMFLOAT3& pos, const EnemyMgr::EnemyParam& enemyParam);
+	std::weak_ptr<BaseEnemy> addEnemy(const DirectX::XMFLOAT3& pos, const EnemyMgr::EnemyParam& enemyParam, ObjModel* model);
 
 	void startWave(const std::list<WaveData>::const_iterator& wave);
 

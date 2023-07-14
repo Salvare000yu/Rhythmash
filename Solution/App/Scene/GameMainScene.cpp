@@ -118,7 +118,7 @@ void GameMainScene::initEnemy()
 {
 	enemyMgr = std::make_unique<EnemyMgr>();
 
-	enemyModel = std::make_unique<ObjModel>("Resources/enemy/", "enemy");
+	//enemyModel = std::make_unique<ObjModel>("Resources/enemy/", "enemy");
 
 	// ファイルから情報を読み込む
 	loadEnemyFile();
@@ -135,9 +135,7 @@ void GameMainScene::loadEnemyFile()
 	//csvの読み込み
 	Util::CSVType csvData = Util::loadCsv("Resources/DataFile/enemy.csv", true, ',', "//");
 
-	using FileDataFormat = EnemyFileDataFormat;
-
-	FileDataFormat* currentData = nullptr;
+	EnemyFileDataFormat* currentData = nullptr;
 
 	for (const auto& i : csvData)
 	{
@@ -145,7 +143,7 @@ void GameMainScene::loadEnemyFile()
 
 		if (i[0] == "type")
 		{
-			currentData = &loadedData.emplace(i[1], FileDataFormat{}).first->second;
+			currentData = &loadedData.emplace(i[1], EnemyFileDataFormat{}).first->second;
 		} else if (currentData)
 		{
 			if (i[0] == "hp")
@@ -154,6 +152,18 @@ void GameMainScene::loadEnemyFile()
 			} else if (i[0] == "speed")
 			{
 				from_string(i[1], currentData->speed);
+			} else if (i[0] == "model")
+			{
+				const std::string pathKey = i[1] + i[2];
+				auto it = enemyModels.find(pathKey);
+
+				if (it == enemyModels.end())
+				{
+					currentData->model = enemyModels.emplace(pathKey, std::make_unique<ObjModel>(i[1], i[2])).first->second.get();
+				} else
+				{
+					currentData->model = (*it).second.get();
+				}
 			}
 		}
 	}
@@ -453,7 +463,7 @@ void GameMainScene::drawFrontSprite()
 	ImGui::SetNextWindowPos(ImVec2(0, 0));
 }
 
-std::weak_ptr<BaseEnemy> GameMainScene::addEnemy(const DirectX::XMFLOAT3& pos, const EnemyMgr::EnemyParam& enemyParam)
+std::weak_ptr<BaseEnemy> GameMainScene::addEnemy(const DirectX::XMFLOAT3& pos, const EnemyMgr::EnemyParam& enemyParam, ObjModel* model)
 {
 	// 最大数を超えていたら追加しない
 	const auto enemyNum = static_cast<uint32_t>(1ui64 + enemyMgr->getEnemyList().size());
@@ -463,7 +473,7 @@ std::weak_ptr<BaseEnemy> GameMainScene::addEnemy(const DirectX::XMFLOAT3& pos, c
 	light->setCircleShadowActive(enemyNum, true);
 	light->setCircleShadowCaster2LightDistance(enemyNum, 50.f);
 
-	auto& i = enemyMgr->addEnemy(cameraObj.get(), enemyModel.get()).lock();
+	auto& i = enemyMgr->addEnemy(cameraObj.get(), model).lock();
 
 	i->setAttack(enemyParam.attack);
 	i->setHp(enemyParam.hp);
@@ -482,7 +492,7 @@ void GameMainScene::startWave(const std::list<WaveData>::const_iterator& wave)
 	EnemyFileDataFormat& dat = loadedData.at(w.tag);
 	for (auto& p : w.pos)
 	{
-		addEnemy(p, EnemyMgr::EnemyParam{.hp = dat.hp, .attack = dat.attack, .moveVal = dat.speed});
+		addEnemy(p, EnemyMgr::EnemyParam{.hp = dat.hp, .attack = dat.attack, .moveVal = dat.speed}, dat.model);
 	}
 }
 
