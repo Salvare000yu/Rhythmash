@@ -154,7 +154,7 @@ void GameMainScene::loadEnemyFile()
 				from_string(i[1], currentData->speed);
 			} else if (i[0] == "model")
 			{
-				const std::string pathKey = i[1] + i[2];
+				const std::string pathKey = i[1] + "AND" + i[2];
 				auto it = enemyModels.find(pathKey);
 
 				if (it == enemyModels.end())
@@ -162,8 +162,11 @@ void GameMainScene::loadEnemyFile()
 					currentData->model = enemyModels.emplace(pathKey, std::make_unique<ObjModel>(i[1], i[2])).first->second.get();
 				} else
 				{
-					currentData->model = (*it).second.get();
+					currentData->model = it->second.get();
 				}
+			} else if (i[0] == "scale")
+			{
+				from_string(i[1], currentData->scale);
 			}
 		}
 	}
@@ -171,6 +174,7 @@ void GameMainScene::loadEnemyFile()
 	csvData = Util::loadCsv("Resources/DataFile/waveData.csv", true, ',', "//");
 
 	WaveData* currentWave = nullptr;
+	WaveDataEnemyPos* currentEnemyType = nullptr;
 
 	for (auto& i : csvData)
 	{
@@ -183,10 +187,14 @@ void GameMainScene::loadEnemyFile()
 		{
 			if (i[0] == "type")
 			{
-				currentWave->tag = i[1];
-			} else if (i[0] == "position")
+				currentEnemyType = &currentWave->data.emplace_front();
+				currentEnemyType->tag = i[1];
+			} else if (currentEnemyType)
 			{
-				currentWave->pos.emplace_front(sToF3(i[1], i[2], i[3]));
+				if (i[0] == "position")
+				{
+					currentEnemyType->pos.emplace_front(sToF3(i[1], i[2], i[3]));
+				}
 			}
 		}
 	}
@@ -397,14 +405,6 @@ void GameMainScene::update()
 		SceneManager::getInstange()->changeScene<TitleScene>();
 		return;
 	}
-
-	if (Input::ins()->triggerKey(DIK_K))
-	{
-		for (auto& i : enemyMgr->getEnemyList())
-		{
-			i->kill();
-		}
-	}
 #endif // _DEBUG
 
 	// 自機の移動
@@ -463,7 +463,7 @@ void GameMainScene::drawFrontSprite()
 	ImGui::SetNextWindowPos(ImVec2(0, 0));
 }
 
-std::weak_ptr<BaseEnemy> GameMainScene::addEnemy(const DirectX::XMFLOAT3& pos, const EnemyMgr::EnemyParam& enemyParam, ObjModel* model)
+std::weak_ptr<BaseEnemy> GameMainScene::addEnemy(const DirectX::XMFLOAT3& pos, const EnemyMgr::EnemyParam& enemyParam, ObjModel* model, float scale)
 {
 	// 最大数を超えていたら追加しない
 	const auto enemyNum = static_cast<uint32_t>(1ui64 + enemyMgr->getEnemyList().size());
@@ -474,6 +474,8 @@ std::weak_ptr<BaseEnemy> GameMainScene::addEnemy(const DirectX::XMFLOAT3& pos, c
 	light->setCircleShadowCaster2LightDistance(enemyNum, 50.f);
 
 	auto& i = enemyMgr->addEnemy(cameraObj.get(), model).lock();
+
+	i->setScale(scale);
 
 	i->setAttack(enemyParam.attack);
 	i->setHp(enemyParam.hp);
@@ -488,11 +490,13 @@ std::weak_ptr<BaseEnemy> GameMainScene::addEnemy(const DirectX::XMFLOAT3& pos, c
 
 void GameMainScene::startWave(const std::list<WaveData>::const_iterator& wave)
 {
-	const auto& w = (*wave);
-	EnemyFileDataFormat& dat = loadedData.at(w.tag);
-	for (auto& p : w.pos)
+	for (auto& w : wave->data)
 	{
-		addEnemy(p, EnemyMgr::EnemyParam{.hp = dat.hp, .attack = dat.attack, .moveVal = dat.speed}, dat.model);
+		EnemyFileDataFormat& dat = loadedData.at(w.tag);
+		for (auto& p : w.pos)
+		{
+			addEnemy(p, EnemyMgr::EnemyParam{.hp = dat.hp, .attack = dat.attack, .moveVal = dat.speed}, dat.model, dat.scale);
+		}
 	}
 }
 

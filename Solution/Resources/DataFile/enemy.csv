@@ -3,9 +3,11 @@ hp,2,,
 attack,1,,
 speed,200.0
 model,Resources/enemy/,enemy
+scale,1.0
 
 type,enemy2
 hp,2,,
 attack,1,,
 speed,100.0
 model,Resources/mod_sample/,mod_sample
+scale,1.0
