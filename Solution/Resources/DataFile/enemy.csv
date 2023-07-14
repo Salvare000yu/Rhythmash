@@ -11,3 +11,10 @@ attack,1,,
 speed,100.0
 model,Resources/mod_sample/,mod_sample
 scale,1.0
+
+type,boss
+hp,20,,
+attack,1,,
+speed,100.0
+model,Resources/mod_sample/,mod_sample
+scale,10.0
