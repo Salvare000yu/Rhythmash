@@ -133,15 +133,13 @@ void GameMainScene::initEnemy()
 void GameMainScene::loadEnemyFile()
 {
 	//csvの読み込み
-	const std::vector<std::string> fileNames = { "Resources/DataFile/enemy.csv" };
-	Util::CSVType csvData = Util::loadCsvs(fileNames, true, ',', "//");
+	Util::CSVType csvData = Util::loadCsv("Resources/DataFile/enemy.csv", true, ',', "//");
 
 	struct FileDataFormat
 	{
 		uint16_t hp = 5ui16;
 		uint16_t attack = 1ui16;
 		float speed = 10.f;
-		std::forward_list<XMFLOAT3> pos{};
 	};
 	std::unordered_map<std::string, FileDataFormat> loadedData;
 	FileDataFormat* currentData = nullptr;
@@ -155,10 +153,7 @@ void GameMainScene::loadEnemyFile()
 			currentData = &loadedData.emplace(i[1], FileDataFormat{}).first->second;
 		} else if (currentData)
 		{
-			if (i[0] == "position")
-			{
-				currentData->pos.emplace_front(sToF3(i[1], i[2], i[3]));
-			} else if (i[0] == "hp")
+			if (i[0] == "hp")
 			{
 				from_string(i[1], currentData->hp);
 			} else if (i[0] == "speed")
@@ -168,16 +163,42 @@ void GameMainScene::loadEnemyFile()
 		}
 	}
 
-	for (const auto& i : loadedData)
-	{
-		const auto& tag = i.first;
-		const auto& dat = i.second;
+	csvData = Util::loadCsv("Resources/DataFile/waveData.csv", true, ',', "//");
 
-		for (const auto& e : dat.pos)
+	struct WaveData
+	{
+		std::string tag{};
+		std::forward_list<XMFLOAT3> pos{};
+	};
+	std::list<WaveData> waveData{};
+	WaveData* currentWave = nullptr;
+
+	for (auto& i : csvData)
+	{
+		if (i.empty()) { continue; }
+
+		if (i[0] == "wave")
 		{
-			auto tmp = addEnemy(e, EnemyMgr::EnemyParam{.hp = dat.hp, .attack = dat.attack, .moveVal = dat.speed}).lock();
-			tmp->setAttack(dat.attack);
-			tmp->setHp(dat.hp);
+			currentWave = &waveData.emplace_back();
+		} else if (currentWave)
+		{
+			if (i[0] == "type")
+			{
+				currentWave->tag = i[1];
+			} else if (i[0] == "position")
+			{
+				currentWave->pos.emplace_front(sToF3(i[1], i[2], i[3]));
+			}
+		}
+	}
+
+	// todo 今は全ウェーブデータを全て同時に出している
+	for (auto& w : waveData)
+	{
+		FileDataFormat& dat = loadedData.at(w.tag);
+		for (auto& p : w.pos)
+		{
+			addEnemy(p, EnemyMgr::EnemyParam{.hp = dat.hp, .attack = dat.attack, .moveVal = dat.speed});
 		}
 	}
 }
