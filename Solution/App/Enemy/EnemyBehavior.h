@@ -38,7 +38,7 @@ private:
 	/// @brief 前フレームの拍数
 	uint32_t preBeatCount = 0ui16;
 
-	DirectX::XMVECTOR moveVel = DirectX::XMVectorSet(0, 0, 10, 1);
+	DirectX::XMVECTOR moveVel{};
 	DirectX::XMVECTOR moveVelRotaQuaternion{};
 
 private://メンバ関数

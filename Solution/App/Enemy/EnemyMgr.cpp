@@ -6,8 +6,7 @@
 #include <3D/Obj/ObjModel.h>
 
 std::weak_ptr<BaseEnemy> EnemyMgr::addEnemy(Camera* camera,
-											ObjModel* model,
-											const EnemyMgr::EnemyParam& param)
+											ObjModel* model)
 {
 	return enemys.emplace_back(std::make_shared<BaseEnemy>(camera, model));
 }

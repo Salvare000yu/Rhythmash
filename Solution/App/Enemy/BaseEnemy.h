@@ -15,9 +15,6 @@ class BaseEnemy :
 {
 	std::unique_ptr<BaseComposite> enemyBehavior;
 
-	/// @brief パラメーター
-	EnemyMgr::EnemyParam parameter;
-
 protected:
 	// 攻撃対象へのポインタ
 	GameObj* targetObj = nullptr;
@@ -28,11 +25,6 @@ public:
 	BaseEnemy(Camera* camera,
 			  ObjModel* model,
 			  const DirectX::XMFLOAT3& pos = { 0,0,0 });
-
-	/// @brief パラメーターをセットする
-	/// @param param セットするパラメーター
-	inline void setParam(const EnemyMgr::EnemyParam& param) { parameter = param; }
-	inline const EnemyMgr::EnemyParam& getParam() const { return parameter; }
 
 	inline void setNowBeatCount(uint32_t count) { nowBeatCount = count; }
 	inline uint32_t getNowBeatCount() const { return nowBeatCount; }

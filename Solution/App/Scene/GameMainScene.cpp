@@ -138,21 +138,21 @@ void GameMainScene::loadEnemyFile()
 
 	struct FileDataFormat
 	{
-		std::string type = "";
 		uint16_t hp = 5ui16;
 		uint16_t attack = 1ui16;
-		float apeed = 10.f;
+		float speed = 10.f;
 		std::forward_list<XMFLOAT3> pos{};
 	};
-	std::forward_list<FileDataFormat> loadedData;
+	std::unordered_map<std::string, FileDataFormat> loadedData;
 	FileDataFormat* currentData = nullptr;
 
 	for (const auto& i : csvData)
 	{
+		if (i.empty()) { continue; }
+
 		if (i[0] == "type")
 		{
-			loadedData.emplace_front(FileDataFormat{ .type = i[1] });
-			currentData = &loadedData.front();
+			currentData = &loadedData.emplace(i[1], FileDataFormat{}).first->second;
 		} else if (currentData)
 		{
 			if (i[0] == "position")
@@ -161,20 +161,23 @@ void GameMainScene::loadEnemyFile()
 			} else if (i[0] == "hp")
 			{
 				from_string(i[1], currentData->hp);
+			} else if (i[0] == "speed")
+			{
+				from_string(i[1], currentData->speed);
 			}
 		}
 	}
 
 	for (const auto& i : loadedData)
 	{
-		if (i.type == "enemy")
+		const auto& tag = i.first;
+		const auto& dat = i.second;
+
+		for (const auto& e : dat.pos)
 		{
-			for (const auto& e : i.pos)
-			{
-				auto tmp = addEnemy(e, EnemyMgr::EnemyParam{.hp = 1u, .attack = 1u, .moveVal = 10.f}).lock();
-				tmp->setAttack(i.attack);
-				tmp->setHp(i.hp);
-			}
+			auto tmp = addEnemy(e, EnemyMgr::EnemyParam{.hp = dat.hp, .attack = dat.attack, .moveVal = dat.speed}).lock();
+			tmp->setAttack(dat.attack);
+			tmp->setHp(dat.hp);
 		}
 	}
 }
@@ -435,7 +438,11 @@ std::weak_ptr<BaseEnemy> GameMainScene::addEnemy(const DirectX::XMFLOAT3& pos, c
 	light->setCircleShadowActive(enemyNum, true);
 	light->setCircleShadowCaster2LightDistance(enemyNum, 50.f);
 
-	auto& i = enemyMgr->addEnemy(cameraObj.get(), enemyModel.get(), enemyParam).lock();
+	auto& i = enemyMgr->addEnemy(cameraObj.get(), enemyModel.get()).lock();
+
+	i->setAttack(enemyParam.attack);
+	i->setHp(enemyParam.hp);
+	i->setSpeed(enemyParam.moveVal);
 
 	i->setTargetObj(player.get());
 	i->setPos(pos);

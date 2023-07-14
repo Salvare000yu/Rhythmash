@@ -31,9 +31,10 @@ EnemyBehavior::EnemyBehavior(BaseEnemy* enemy) :
 					  return ret;
 				  }));
 
-	moveVelRotaQuaternion = XMQuaternionRotationRollPitchYaw(0, XM_PIDIV2, 0);
-
 	enemy->setSpeed(BaseActObj::moveSpeedDef * 10.f);
+
+	moveVel = DirectX::XMVectorSet(0, 0, enemy->getSpeed(), 1);
+	moveVelRotaQuaternion = XMQuaternionRotationRollPitchYaw(0, XM_PIDIV2, 0);
 }
 
 NODE_RESULT EnemyBehavior::phase_move()
@@ -42,6 +43,7 @@ NODE_RESULT EnemyBehavior::phase_move()
 	if (preBeatCount == enemy->getNowBeatCount()) { return NODE_RESULT::RUNNING; }
 
 	// 移動させる
+	moveVel = XMVector3Normalize(moveVel) * enemy->getSpeed();
 	enemy->moveProcess(moveVel);
 
 	// 指定カウント経過していなければ、実行中として終了
@@ -49,7 +51,6 @@ NODE_RESULT EnemyBehavior::phase_move()
 
 	// 指定カウント経過していたら、移動方向を回転し成功として終了
 	moveVel = XMVector3Rotate(moveVel, moveVelRotaQuaternion);
-	moveVel = XMVector3Normalize(moveVel) * enemy->getParam().moveVal;
 
 	nowPhaseCount = 0ui16;
 	return NODE_RESULT::SUCCESS;

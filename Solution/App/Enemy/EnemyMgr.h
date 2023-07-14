@@ -33,11 +33,9 @@ public:
 	/// @param light ライトのポインタ
 	/// @param camera カメラのポインタ
 	/// @param model モデルのポインタ
-	/// @param param パラメータ情報
 	/// @return 追加した要素
 	std::weak_ptr<BaseEnemy> addEnemy(Camera* camera,
-									  ObjModel* model,
-									  const EnemyParam& param);
+									  ObjModel* model);
 
 	/// @brief 更新処理
 	void update();
