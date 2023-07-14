@@ -119,6 +119,7 @@
     <ClCompile Include="App\Enemy\BaseEnemy.cpp" />
     <ClCompile Include="App\Enemy\EnemyBehavior.cpp" />
     <ClCompile Include="App\Enemy\EnemyMgr.cpp" />
+    <ClCompile Include="App\Enemy\EnemyBaseBehavior.cpp" />
     <ClCompile Include="Engine\3D\BaseObj.cpp" />
     <ClCompile Include="Engine\Camera\Camera.cpp" />
     <ClCompile Include="Engine\Camera\CameraObj.cpp" />
@@ -162,6 +163,7 @@
     <ClInclude Include="App\Enemy\BaseEnemy.h" />
     <ClInclude Include="App\Enemy\EnemyBehavior.h" />
     <ClInclude Include="App\Enemy\EnemyMgr.h" />
+    <ClInclude Include="App\Enemy\EnemyBaseBehavior.h" />
     <ClInclude Include="Engine\3D\BaseObj.h" />
     <ClInclude Include="Engine\3D\Light\CircleShadow.h" />
     <ClInclude Include="Engine\3D\Light\DirectionalLight.h" />

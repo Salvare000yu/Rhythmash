@@ -394,7 +394,6 @@ void GameMainScene::update()
 
 			nextWaveIt++;
 		}
-
 	}
 
 #ifdef _DEBUG

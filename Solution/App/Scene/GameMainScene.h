@@ -61,7 +61,7 @@ class GameMainScene :
 
 	// 敵
 	std::unique_ptr<EnemyMgr> enemyMgr;
-	std::unordered_map<std::string,std::unique_ptr<ObjModel>> enemyModels;
+	std::unordered_map<std::string, std::unique_ptr<ObjModel>> enemyModels;
 	CollisionMgr::ColliderSet enemyCols;
 	CollisionMgr::ColliderSet enemyAtkCols;
 
