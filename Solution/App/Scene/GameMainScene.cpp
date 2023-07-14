@@ -165,12 +165,6 @@ void GameMainScene::loadEnemyFile()
 
 	csvData = Util::loadCsv("Resources/DataFile/waveData.csv", true, ',', "//");
 
-	struct WaveData
-	{
-		std::string tag{};
-		std::forward_list<XMFLOAT3> pos{};
-	};
-	std::list<WaveData> waveData{};
 	WaveData* currentWave = nullptr;
 
 	for (auto& i : csvData)
@@ -192,9 +186,9 @@ void GameMainScene::loadEnemyFile()
 		}
 	}
 
-	// todo 今は全ウェーブデータを全て同時に出している
-	for (auto& w : waveData)
+	// 最初のウェーブデータを出す
 	{
+		const auto& w = waveData.front();
 		FileDataFormat& dat = loadedData.at(w.tag);
 		for (auto& p : w.pos)
 		{

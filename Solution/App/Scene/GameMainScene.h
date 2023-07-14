@@ -74,6 +74,13 @@ class GameMainScene :
 	std::weak_ptr<SoundData> bgm;
 	std::weak_ptr<SoundData> damageSe;
 
+	struct WaveData
+	{
+		std::string tag{};
+		std::forward_list<DirectX::XMFLOAT3> pos{};
+	};
+	std::list<WaveData> waveData{};
+
 private:
 	void initPostEffect();
 	void initLight();
