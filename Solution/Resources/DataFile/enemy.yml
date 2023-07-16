@@ -1,0 +1,24 @@
+enemy1:
+    hp: 2
+    attack: 1
+    speed: 200.0
+    scale: 1.0
+    behavior: normal
+    modelDir: Resources/enemy/
+    modelName: enemy
+enemy2:
+    hp: 2
+    attack: 1
+    speed: 100.0
+    scale: 1.0
+    behavior: normal
+    modelDir: Resources/mod_sample/
+    modelName: mod_sample
+boss:
+    hp: 20
+    attack: 1
+    speed: 100.0
+    scale: 10.0
+    behavior: boss
+    modelDir: Resources/mod_sample/
+    modelName: mod_sample

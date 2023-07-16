@@ -106,7 +106,7 @@ private:
 	void initParticle();
 	void initBack();
 	void initEnemy();
-	void loadEnemyFile();
+	bool loadEnemyFile();
 	void initCollider();
 	void initSound();
 
