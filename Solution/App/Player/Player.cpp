@@ -4,8 +4,8 @@
 #include <Camera/CameraObj.h>
 #include <cmath>
 #include <Util/Timer.h>
-
 #include <Input/Input.h>
+#include <3D/ParticleMgr.h>
 
 #include <fstream>
 #include <Yaml.hpp>
@@ -98,23 +98,19 @@ void Player::attack()
 		Sound::playWave(se1);
 		attackFlag = true;
 		this->setCol(XMFLOAT4(0, 0, 1, getCol().w));
-
-		if (!atkObjPt.expired())
-		{
-			auto atkObj = atkObjPt.lock();
-			atkObj->setCol(XMFLOAT4(0, 1, 0, atkObj->getCol().w));
-		}
 	}
 
 	// フレーム更新処理
-	if (attackFlag)
+	if (!attackFlag) { return; }
+
+	if (++attackFrame >= 2ui32)
 	{
-		if (++attackFrame >= 2ui32)
-		{
-			attackFlag = false;
-			attackFrame = 0;
-		}
+		attackFlag = false;
+		attackFrame = 0;
 	}
+
+	// パーティクルを出す
+	createAtkParticle();
 }
 
 void Player::step()

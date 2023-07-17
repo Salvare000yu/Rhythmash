@@ -86,6 +86,7 @@ void GameMainScene::initPlayer()
 	player->setDamageSe(damageSe);
 	player->setJudgeProc([&] { return Timer::judge(player->getNowBeatRaito(), judgeOkRange); });
 	player->setCol(XMFLOAT4(1, 1, 1, 0.8f));
+	player->setParticle(particleMgr);
 
 	playerCols.group.emplace_front(CollisionMgr::ColliderType::create(player.get(), player->getScaleF3().z));
 	auto pAtk = player->getAtkObjPt().lock();
@@ -101,6 +102,7 @@ void GameMainScene::initParticle()
 	particleMgr =
 		std::make_shared<ParticleMgr>(L"Resources/white.png",
 									  cameraObj.get());
+	particleMgr->changeBlendMode();
 }
 
 void GameMainScene::initBack()
@@ -485,6 +487,9 @@ std::weak_ptr<BaseEnemy> GameMainScene::addEnemy(const DirectX::XMFLOAT3& pos,
 	// 丸影をセット
 	light->setCircleShadowActive(enemyNum, true);
 	light->setCircleShadowCaster2LightDistance(enemyNum, 50.f);
+
+	// パーティクルマネージャーをセット
+	e_pt->setParticle(particleMgr);
 
 	// パラメータ類をセット
 	e_pt->setScale(scale);
