@@ -119,7 +119,8 @@ public:
 	XMFLOAT3 screenPos2WorldPos(const XMFLOAT3& screenPos) const;
 	XMVECTOR screenPos2WorldPosVec(const XMFLOAT3& screenPos) const;
 
-	XMFLOAT3 calcLook() const;
+	XMFLOAT3 calcLookVec() const { return target - eye; }
+	XMFLOAT3 calcLookNormal() const;
 
 	/// @brief カメラを回転
 	/// @param targetlength カメラから注視点までの距離

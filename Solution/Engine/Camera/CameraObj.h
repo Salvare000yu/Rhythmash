@@ -27,6 +27,7 @@ private:
 	bool matWorldDirty = false;
 
 	DirectX::XMMATRIX matWorld{};
+	DirectX::XMMATRIX matRot{};
 
 public:
 	/// @brief 追従の補間強度
@@ -50,6 +51,7 @@ public:
 
 	/// @return ワールド行列
 	inline const DirectX::XMMATRIX& getMatWorld() const { return matWorld; }
+	inline const DirectX::XMMATRIX& getMatRotation() const { return matRot; }
 
 	/// @param parent 親オブジェクトのポインタ
 	inline void setParentObj(GameObj* parent) { parentObj = parent; matWorldDirty = true; }

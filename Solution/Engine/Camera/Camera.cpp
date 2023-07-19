@@ -266,8 +266,7 @@ XMVECTOR Camera::screenPos2WorldPosVec(const XMFLOAT3& screenPos) const
 	// 照準が指し示す3Dの座標
 	return nearPos + mouseDir;
 }
-
-XMFLOAT3 Camera::calcLook() const
+XMFLOAT3 Camera::calcLookNormal() const
 {
 	// 視線ベクトル
 	XMFLOAT3 look = target - eye;
@@ -282,7 +281,7 @@ XMFLOAT3 Camera::calcLook() const
 void Camera::rotation(const float targetlength, const float angleX, const float angleY)
 {
 	// 視線ベクトル
-	const XMFLOAT3& look = calcLook();
+	const XMFLOAT3& look = calcLookNormal();
 
 	constexpr float lookLen = 50.f;
 	XMFLOAT3 newTarget = eye;
@@ -295,14 +294,14 @@ void Camera::rotation(const float targetlength, const float angleX, const float 
 
 void Camera::moveForward(const float speed)
 {
-	const XMFLOAT3 moveVal = calcLook() * speed;
+	const XMFLOAT3 moveVal = calcLookNormal() * speed;
 
 	moveCamera(moveVal);
 }
 
 void Camera::moveRight(const float speed)
 {
-	const XMFLOAT3 moveVal = calcLook() * speed;
+	const XMFLOAT3 moveVal = calcLookNormal() * speed;
 
 	const XMFLOAT3 val{ moveVal.z, /*moveVal.y*/0, -moveVal.x };
 

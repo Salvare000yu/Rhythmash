@@ -540,8 +540,16 @@ void GameMainScene::movePlayer()
 		return;
 	}
 
+	// 前方と右方を算出
+	XMVECTOR forward = XMVectorSetY(cameraObj->getEyeVec(), 0.f);
+	XMVECTOR right = XMVector3Rotate(forward, XMQuaternionRotationRollPitchYaw(0.f, XM_PIDIV2, 0.f));
+
+	// 入力の大きさを反映
+	forward *= inputVal.y;
+	right *= inputVal.x;
+
 	// 移動する
-	player->moveProcess(XMVectorSet(inputVal.x, 0.f, inputVal.y, 0.f));
+	player->moveProcess(forward + right);
 }
 
 void GameMainScene::RgbShiftData::update(Timer::timeType nowTime)
