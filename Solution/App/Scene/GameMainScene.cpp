@@ -80,8 +80,8 @@ void GameMainScene::initBack()
 
 void GameMainScene::initEnemy()
 {
-	enemyModel = std::make_unique<ObjModel>("Resources/enemy/", "enemy");
-
+	enemyModel = std::make_unique<ObjModel>("Resources/enemy_robot01/", "enemy_robot01");
+	
 	stageModel = std::make_unique<ObjModel>("Resources/ring/", "ring");
 	stageObj = std::make_unique<GameObj>(cameraObj.get(), stageModel.get());
 	stageObj->setScale(10);
@@ -129,6 +129,7 @@ void GameMainScene::initEnemy()
 				auto tmp = addEnemy(e).lock();
 				tmp->setAttack(i.attack);
 				tmp->setHp(i.hp);
+
 			}
 		}
 	}
