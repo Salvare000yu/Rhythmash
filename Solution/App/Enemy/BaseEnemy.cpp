@@ -11,7 +11,7 @@ BaseEnemy::BaseEnemy(Camera* camera, ObjModel* model, const DirectX::XMFLOAT3& p
 	additionalUpdateProc.emplace("BaseEnemy::update_proc", [&] { enemyBehavior->run(); });
 }
 
-float BaseEnemy::TargetFromDistance()
+float BaseEnemy::targetFromDistance()
 {
 	if (!this->targetObj) { return -1.f; }
 

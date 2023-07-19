@@ -20,6 +20,9 @@ protected:
 	/// @brief 前フレームの拍数
 	uint32_t preBeatCount = 0ui16;
 
+	/// @brief 攻撃対象への距離
+	float targetDistance = 0.f;
+
 	/// @brief メインの行動
 	std::unique_ptr<BaseComposite> mainPhase;
 

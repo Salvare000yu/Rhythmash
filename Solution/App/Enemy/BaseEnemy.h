@@ -36,6 +36,8 @@ public:
 
 	inline void setTargetObj(GameObj* obj) { targetObj = obj; }
 
+	inline DirectX::XMFLOAT3 getTargetWorldPos() const { return targetObj->calcWorldPos(); }
+
 	//ターゲットとの距離間
-	float TargetFromDistance();
+	float targetFromDistance();
 };
