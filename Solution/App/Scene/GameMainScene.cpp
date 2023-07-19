@@ -22,6 +22,11 @@
 
 #include <BehaviorTree/BaseComposite.h>
 
+#include <Enemy/Behabior/EnemyBehavior.h>
+#include <Enemy/Behabior/BossBehavior.h>
+
+#include <Yaml.hpp>
+
 using namespace DirectX;
 
 namespace
@@ -81,6 +86,7 @@ void GameMainScene::initPlayer()
 	player->setDamageSe(damageSe);
 	player->setJudgeProc([&] { return Timer::judge(player->getNowBeatRaito(), judgeOkRange); });
 	player->setCol(XMFLOAT4(1, 1, 1, 0.8f));
+	player->setParticle(particleMgr);
 
 	playerCols.group.emplace_front(CollisionMgr::ColliderType::create(player.get(), player->getScaleF3().z));
 	auto pAtk = player->getAtkObjPt().lock();
@@ -96,6 +102,7 @@ void GameMainScene::initParticle()
 	particleMgr =
 		std::make_shared<ParticleMgr>(L"Resources/white.png",
 									  cameraObj.get());
+	particleMgr->changeBlendMode();
 }
 
 void GameMainScene::initBack()
@@ -128,52 +135,53 @@ void GameMainScene::initEnemy()
 	}
 }
 
-void GameMainScene::loadEnemyFile()
+bool GameMainScene::loadEnemyFile()
 {
-	//csvの読み込み
-	Util::CSVType csvData = Util::loadCsv("Resources/DataFile/enemy.csv", true, ',', "//");
+	Yaml::Node root{};
 
-	EnemyFileDataFormat* currentData = nullptr;
-
-	for (const auto& i : csvData)
+	try
 	{
-		if (i.empty()) { continue; }
-
-		if (i[0] == "type")
-		{
-			currentData = &loadedData.emplace(i[1], EnemyFileDataFormat{}).first->second;
-		} else if (currentData)
-		{
-			if (i[0] == "hp")
-			{
-				from_string(i[1], currentData->hp);
-			} else if (i[0] == "speed")
-			{
-				from_string(i[1], currentData->speed);
-			} else if (i[0] == "model")
-			{
-				const std::string pathKey = i[1] + "AND" + i[2];
-				auto it = enemyModels.find(pathKey);
-
-				if (it == enemyModels.end())
-				{
-					currentData->model = enemyModels.emplace(pathKey, std::make_unique<ObjModel>(i[1], i[2])).first->second.get();
-				} else
-				{
-					currentData->model = it->second.get();
-				}
-			} else if (i[0] == "scale")
-			{
-				from_string(i[1], currentData->scale);
-			}
-		}
+		Yaml::Parse(root, "Resources/DataFile/enemy.yml");
+	} catch (...)
+	{
+		return true;
 	}
 
-	csvData = Util::loadCsv("Resources/DataFile/waveData.csv", true, ',', "//");
+	for (auto r_it = root.Begin(); r_it != root.End(); r_it++)
+	{
+		const auto& tag = (*r_it).first;
+		auto& node = (*r_it).second;
+
+		EnemyFileDataFormat& data = loadedData[tag];
+
+		// モデルのパス変数を準備
+		const std::string modelDir = node["modelDir"].As<std::string>();
+		const std::string modelName = node["modelName"].As<std::string>();
+
+		const std::string pathKey = modelDir + "AND" + modelName;
+
+		// モデルを追加
+		const auto& modelPair =
+			enemyModels.emplace(pathKey,
+								std::make_unique<ObjModel>(modelDir,
+														   modelName)).first;
+
+		// 値をセット
+		data.model = modelPair->second.get();
+		data.hp = node["hp"].As<uint16_t>();
+		data.attack = node["attack"].As<uint16_t>();
+		data.speed = node["speed"].As<float>();
+		data.scale = node["scale"].As<float>();
+		data.behaviorStr = node["behavior"].As<std::string>();
+	}
+
+	// ウェーブ情報のファイルを読み込む
+	Util::CSVType csvData = Util::loadCsv("Resources/DataFile/waveData.csv", true, ',', "//");
 
 	WaveData* currentWave = nullptr;
 	WaveDataEnemyPos* currentEnemyType = nullptr;
 
+	// 読み込んだファイルからウェーブ情報をセットする
 	for (auto& i : csvData)
 	{
 		if (i.empty()) { continue; }
@@ -198,12 +206,12 @@ void GameMainScene::loadEnemyFile()
 	}
 
 	// 最初のウェーブデータを出す
-	{
-		nextWaveIt = waveData.begin();
-		startWave(nextWaveIt);
-		// 出し終わったらイテレーターを進める
-		nextWaveIt++;
-	}
+	nextWaveIt = waveData.begin();
+	startWave(nextWaveIt);
+	// 出し終わったらイテレーターを進める
+	nextWaveIt++;
+
+	return false;
 }
 
 void GameMainScene::initCollider()
@@ -460,29 +468,53 @@ void GameMainScene::drawFrontSprite()
 	ImGui::SetNextWindowPos(ImVec2(0, 0));
 }
 
-std::weak_ptr<BaseEnemy> GameMainScene::addEnemy(const DirectX::XMFLOAT3& pos, const EnemyMgr::EnemyParam& enemyParam, ObjModel* model, float scale)
+std::weak_ptr<BaseEnemy> GameMainScene::addEnemy(const DirectX::XMFLOAT3& pos,
+												 const EnemyMgr::EnemyParam& enemyParam,
+												 ObjModel* model,
+												 float scale,
+												 const std::string& behaviorStr)
 {
 	// 最大数を超えていたら追加しない
 	const auto enemyNum = static_cast<uint32_t>(1ui64 + enemyMgr->getEnemyList().size());
 	if (enemyNum >= Light::CircleShadowCountMax) { return std::weak_ptr<BaseEnemy>{}; }
 
+	// 敵を追加
+	auto newEnemyRef = enemyMgr->addEnemy(cameraObj.get(), model);
+	auto e_pt = newEnemyRef.lock();
+	// 無効なら終了
+	if (!e_pt) { return e_pt; }
+
 	// 丸影をセット
 	light->setCircleShadowActive(enemyNum, true);
 	light->setCircleShadowCaster2LightDistance(enemyNum, 50.f);
 
-	auto& i = enemyMgr->addEnemy(cameraObj.get(), model).lock();
+	// パーティクルマネージャーをセット
+	e_pt->setParticle(particleMgr);
 
-	i->setScale(scale);
+	// パラメータ類をセット
+	e_pt->setScale(scale);
 
-	i->setAttack(enemyParam.attack);
-	i->setHp(enemyParam.hp);
-	i->setSpeed(enemyParam.moveVal);
+	e_pt->setAttack(enemyParam.attack);
+	e_pt->setHp(enemyParam.hp);
+	e_pt->setSpeed(enemyParam.moveVal);
 
-	i->setTargetObj(player.get());
-	i->setPos(pos);
-	i->setDamageSe(damageSe);
+	e_pt->setTargetObj(player.get());
+	e_pt->setPos(pos);
+	e_pt->setDamageSe(damageSe);
 
-	return i;
+	// ここで指定した行動を入れる
+	if (behaviorStr == "normal")
+	{
+		e_pt->setBehavior(std::make_unique<EnemyBehavior>(e_pt.get()));
+	} else if (behaviorStr == "boss")
+	{
+		e_pt->setBehavior(std::make_unique<BossBehavior>(e_pt.get()));
+	}
+
+	// 参照終了
+	e_pt.reset();
+
+	return newEnemyRef;
 }
 
 void GameMainScene::startWave(const std::list<WaveData>::const_iterator& wave)
@@ -492,7 +524,7 @@ void GameMainScene::startWave(const std::list<WaveData>::const_iterator& wave)
 		EnemyFileDataFormat& dat = loadedData.at(w.tag);
 		for (auto& p : w.pos)
 		{
-			addEnemy(p, EnemyMgr::EnemyParam{.hp = dat.hp, .attack = dat.attack, .moveVal = dat.speed}, dat.model, dat.scale);
+			addEnemy(p, EnemyMgr::EnemyParam{.hp = dat.hp, .attack = dat.attack, .moveVal = dat.speed}, dat.model, dat.scale, dat.behaviorStr);
 		}
 	}
 }

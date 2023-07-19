@@ -1,5 +1,5 @@
-﻿#include "EnemyBehavior.h"
-#include "BaseEnemy.h"
+﻿#include <Enemy/Behabior/EnemyBehavior.h>
+#include <Enemy/BaseEnemy.h>
 #include <BehaviorTree/Selector.h>
 #include <DirectXMath.h>
 
@@ -46,6 +46,8 @@ NODE_RESULT EnemyBehavior::phase_move()
 
 NODE_RESULT EnemyBehavior::phase_Attack()
 {
+	enemy->createAtkParticle();
+
 	// カウントが変わっていなければ、実行中として終了
 	if (preBeatCount == enemy->getNowBeatCount()) { return NODE_RESULT::RUNNING; }
 

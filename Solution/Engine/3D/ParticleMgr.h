@@ -136,11 +136,13 @@ public:
 public:
 	/// @brief ブレンドモードを切り替え
 	/// @return 切り替え後のブレンドモード
-	inline ParticleMgr_BLENDMODE changeBlendMode() const
+	inline ParticleMgr_BLENDMODE changeBlendMode()
 	{
-		nowBlendMode == ADD ? SUB : ADD;
+		nowBlendMode = nowBlendMode == ADD ? SUB : ADD;
 		return nowBlendMode;
 	}
+
+	inline void setBlendMode(ParticleMgr_BLENDMODE mode) { nowBlendMode = mode; }
 
 	// テクスチャは1x1白で初期化
 	ParticleMgr();

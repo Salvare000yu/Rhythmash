@@ -7,7 +7,6 @@ class Light;
 class Camera;
 class ParticleMgr;
 class SoundData;
-class ObjModel;
 
 class BaseActObj
 	: public GameObj
@@ -20,9 +19,9 @@ private:
 
 	float nowBeatRaito = 0.f;
 
+protected:
 	std::weak_ptr<ParticleMgr> particle;
 
-protected:
 	std::function<bool()> judge;
 
 	//移動スピード
@@ -56,8 +55,6 @@ public:
 
 	CollisionMgr::ColliderType mycoll{}, atkcoll{};
 
-	std::unique_ptr<ObjModel> atkModel;
-
 #pragma region アクセッサ
 
 	/// @return 無敵状態かどうか
@@ -82,6 +79,8 @@ public:
 	inline auto& getAtkObjPt() const { return atkObjPt; }
 
 #pragma endregion アクセッサ
+
+	void createAtkParticle();
 
 	//基本移動動作
 	void moveProcess(const DirectX::XMFLOAT3& dir);

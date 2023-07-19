@@ -1,6 +1,7 @@
 ﻿#include "BaseActObj.h"
 #include <Sound/Sound.h>
 #include <3D/Obj/ObjModel.h>
+#include <3D/ParticleMgr.h>
 #include <algorithm>
 
 using namespace DirectX;
@@ -9,9 +10,7 @@ BaseActObj::BaseActObj(Camera* camera, ObjModel* model, const DirectX::XMFLOAT3&
 	GameObj(camera, model, pos),
 	judge([] { return true; })
 {
-	atkModel = std::make_unique<ObjModel>("Resources/Attack/", "Attack");
-
-	atkObjPt = otherObj.emplace("AtkObj", std::make_unique<GameObj>(camera, atkModel.get())).first->second;
+	atkObjPt = otherObj.emplace("AtkObj", std::make_unique<GameObj>(camera, nullptr)).first->second;
 
 	auto atkObj = atkObjPt.lock();
 
@@ -30,6 +29,19 @@ void BaseActObj::invincible()
 	{
 		invincibleFrame = 0;
 		invincibleFrag = false;
+	}
+}
+
+void BaseActObj::createAtkParticle()
+{
+	// パーティクルを出す
+	auto p = particle.lock();
+	auto atkObj = atkObjPt.lock();
+	if (p && atkObj)
+	{
+		p->createParticle(atkObj->calcWorldPos(), 50U, 1.f, 0.0625f,
+						  XMFLOAT3(1.f, 0.f, 1.f),
+						  XMFLOAT3(0.f, 1.f, 1.f));
 	}
 }
 
@@ -64,9 +76,5 @@ void BaseActObj::attackProcess()
 	{
 		attackFlag = false;
 		waitFrame = 0;
-
-		auto atkObj = atkObjPt.lock();
-		const auto& atkCol = atkObj->getCol();
-		atkObj->setCol(XMFLOAT4(1, 1, 1, atkCol.w));
 	}
 }
