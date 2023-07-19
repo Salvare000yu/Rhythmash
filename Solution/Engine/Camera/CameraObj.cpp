@@ -31,7 +31,7 @@ void CameraObj::rotaCameraPos()
 void CameraObj::updateMatWorld()
 {
 	XMFLOAT3 distance{}, rota{};
-	XMMATRIX matRot{}, matTrans{};
+	XMMATRIX matTrans{};
 
 	XMFLOAT3 eye = getEye(), target = getTarget();
 
