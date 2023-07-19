@@ -119,7 +119,12 @@ public:
 	XMFLOAT3 screenPos2WorldPos(const XMFLOAT3& screenPos) const;
 	XMVECTOR screenPos2WorldPosVec(const XMFLOAT3& screenPos) const;
 
-	XMFLOAT3 calcLookVec() const { return target - eye; }
+	inline XMFLOAT3 calcLookVec() const
+	{
+		return XMFLOAT3(target.x - eye.x,
+						target.y - eye.y,
+						target.z - eye.z);
+	}
 	XMFLOAT3 calcLookNormal() const;
 
 	/// @brief カメラを回転
