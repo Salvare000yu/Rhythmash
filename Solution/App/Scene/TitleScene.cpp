@@ -20,20 +20,16 @@ TitleScene::TitleScene() :
 	debugText.reset(new DebugText(spCom->loadTexture(L"Resources/debugfont.png"),
 								  spCom.get()));
 
-	auto titlePos = XMFLOAT2(0.f, 0.f);
+	constexpr auto titlePos = XMFLOAT2(0.f, 0.f);
 
-	titleLogo = std::make_unique<Sprite>(spCom->loadTexture(L"Resources/title_logo.png"),
-										 spCom.get(),
-										 titlePos);
+	titles.emplace_front(std::make_unique<Sprite>(spCom->loadTexture(L"Resources/title_PressKey.png"), spCom.get(), XMFLOAT2(0.f, 0.f)));
+	auto& titleLogo_rubi = titles.emplace_front(std::make_unique<Sprite>(spCom->loadTexture(L"Resources/logo_rubi.png"), spCom.get(), XMFLOAT2(0.f, 0.f)));
+	auto& titleLogo = titles.emplace_front(std::make_unique<Sprite>(spCom->loadTexture(L"Resources/logo_title.png"), spCom.get(), XMFLOAT2(0.f, 0.f)));
+	titles.emplace_front(std::make_unique<Sprite>(spCom->loadTexture(L"Resources/logo_back.png"), spCom.get(), XMFLOAT2(0.f, 0.f)));
+	auto& titleBack = titles.emplace_front(std::make_unique<Sprite>(spCom->loadTexture(L"Resources/titleBack.png"), spCom.get(), XMFLOAT2(0.f, 0.f)));
+
 	titleLogo->setSize(XMFLOAT2((float)WinAPI::window_width, (float)WinAPI::window_height));
-
-	titleBack = std::make_unique<Sprite>(spCom->loadTexture(L"Resources/titleBack.png"),
-										 spCom.get(),
-										 XMFLOAT2(0.f, 0.f));
-
-	titlePressKey = std::make_unique<Sprite>(spCom->loadTexture(L"Resources/title_PressKey.png"),
-										 spCom.get(),
-										 XMFLOAT2(0.f, 0.f));
+	titleLogo_rubi->setSize(XMFLOAT2((float)WinAPI::window_width, (float)WinAPI::window_height));
 	titleBack->setSize(XMFLOAT2((float)WinAPI::window_width, (float)WinAPI::window_height));
 }
 
@@ -42,8 +38,6 @@ void TitleScene::start()
 	// 次シーンの読み込み開始
 	sceneThread.reset(new MyThread());
 	sceneThread->thread.reset(new std::thread([&] { nextScene = std::make_unique<GameMainScene>(); }));
-
-	//Sound::SoundPlayWave(bgm.get(), XAUDIO2_LOOP_INFINITE, 0.2f);
 }
 
 TitleScene::~TitleScene()
@@ -58,7 +52,6 @@ void TitleScene::update_normal()
 {
 	if (input->triggerKey(DIK_0))
 	{
-		//Sound::SoundStopWave(bgm.get());
 		sceneThread->join();
 		nextScene.reset(new GameOverScene());
 		update_proc = std::bind(&TitleScene::update_end, this);
@@ -67,8 +60,6 @@ void TitleScene::update_normal()
 		input->triggerPadButton(Input::PAD::B))
 	{
 		update_proc = std::bind(&TitleScene::update_end, this);
-		//Sound::SoundPlayWave(shortBridge.get());
-		//Sound::SoundStopWave(bgm.get());
 	}
 }
 
@@ -76,6 +67,7 @@ void TitleScene::update_end()
 {
 	// 次シーンの読み込み終了を待つ
 	sceneThread->join();
+
 	// 次シーンへ進む
 	SceneManager::getInstange()->changeSceneFromInstance(nextScene);
 }
@@ -83,7 +75,8 @@ void TitleScene::update_end()
 void TitleScene::drawFrontSprite()
 {
 	spCom->drawStart(DX12Base::ins()->getCmdList());
-	titleBack->drawWithUpdate(DX12Base::ins(), spCom.get());
-	titleLogo->drawWithUpdate(DX12Base::ins(), spCom.get());
-	titlePressKey->drawWithUpdate(DX12Base::ins(), spCom.get());
+	for (auto& i : titles)
+	{
+		i->drawWithUpdate(DX12Base::ins(), spCom.get());
+	}
 }

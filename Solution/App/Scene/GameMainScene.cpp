@@ -515,7 +515,7 @@ std::weak_ptr<BaseEnemy> GameMainScene::addEnemy(const DirectX::XMFLOAT3& pos,
 
 	// 丸影をセット
 	light->setCircleShadowActive(enemyNum, true);
-	light->setCircleShadowCaster2LightDistance(enemyNum, 50.f);
+	light->setCircleShadowCaster2LightDistance(enemyNum, 150.f);
 
 	// パーティクルマネージャーをセット
 	e_pt->setParticle(particleMgr);

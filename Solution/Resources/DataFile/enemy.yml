@@ -4,21 +4,21 @@ enemy1:
     speed: 5.0
     scale: 1.0
     behavior: normal
-    modelDir: Resources/enemy/
-    modelName: enemy
+    modelDir: Resources/enemy_robot01/
+    modelName: enemy_robot01
 enemy2:
     hp: 2
     attack: 1
     speed: 2.5
     scale: 1.0
     behavior: normal
-    modelDir: Resources/mod_sample/
-    modelName: mod_sample
+    modelDir: Resources/enemy_robot02/
+    modelName: enemy_robot02
 boss:
     hp: 20
     attack: 1
     speed: 2.5
     scale: 10.0
     behavior: boss
-    modelDir: Resources/mod_sample/
-    modelName: mod_sample
+    modelDir: Resources/enemy_robot03/
+    modelName: enemy_robot03
