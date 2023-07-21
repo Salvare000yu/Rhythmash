@@ -22,10 +22,21 @@ TitleScene::TitleScene() :
 
 	auto titlePos = XMFLOAT2(0.f, 0.f);
 
-	titleLogo = std::make_unique<Sprite>(spCom->loadTexture(L"Resources/title_logo.png"),
+	titleLogo_back = std::make_unique<Sprite>(spCom->loadTexture(L"Resources/logo_back.png"),
+										 spCom.get(),
+										 titlePos);
+	titleLogo_back->setSize(XMFLOAT2((float)WinAPI::window_width, (float)WinAPI::window_height));
+
+	titleLogo = std::make_unique<Sprite>(spCom->loadTexture(L"Resources/logo_title.png"),
 										 spCom.get(),
 										 titlePos);
 	titleLogo->setSize(XMFLOAT2((float)WinAPI::window_width, (float)WinAPI::window_height));
+
+	
+	titleLogo_rubi = std::make_unique<Sprite>(spCom->loadTexture(L"Resources/logo_rubi.png"),
+										 spCom.get(),
+										 titlePos);
+	titleLogo_rubi->setSize(XMFLOAT2((float)WinAPI::window_width, (float)WinAPI::window_height));
 
 	titleBack = std::make_unique<Sprite>(spCom->loadTexture(L"Resources/titleBack.png"),
 										 spCom.get(),
@@ -84,6 +95,8 @@ void TitleScene::drawFrontSprite()
 {
 	spCom->drawStart(DX12Base::ins()->getCmdList());
 	titleBack->drawWithUpdate(DX12Base::ins(), spCom.get());
+	titleLogo_back->drawWithUpdate(DX12Base::ins(), spCom.get());
 	titleLogo->drawWithUpdate(DX12Base::ins(), spCom.get());
+	titleLogo_rubi->drawWithUpdate(DX12Base::ins(), spCom.get());
 	titlePressKey->drawWithUpdate(DX12Base::ins(), spCom.get());
 }

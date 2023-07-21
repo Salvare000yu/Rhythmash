@@ -34,9 +34,7 @@ namespace
 	template <class T>
 	inline auto from_string(const std::string& str, T& buf)
 	{
-		return std::from_chars(std::to_address(str.begin()),
-							   std::to_address(str.end()),
-							   buf);
+		return ;
 	}
 
 	template <class T = float>
@@ -515,7 +513,7 @@ std::weak_ptr<BaseEnemy> GameMainScene::addEnemy(const DirectX::XMFLOAT3& pos,
 
 	// 丸影をセット
 	light->setCircleShadowActive(enemyNum, true);
-	light->setCircleShadowCaster2LightDistance(enemyNum, 50.f);
+	light->setCircleShadowCaster2LightDistance(enemyNum, 150.f);
 
 	// パーティクルマネージャーをセット
 	e_pt->setParticle(particleMgr);
