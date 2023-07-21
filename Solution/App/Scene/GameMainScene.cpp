@@ -34,7 +34,9 @@ namespace
 	template <class T>
 	inline auto from_string(const std::string& str, T& buf)
 	{
-		return ;
+		return std::from_chars(std::to_address(str.begin()),
+							   std::to_address(str.end()),
+							   buf);
 	}
 
 	template <class T = float>
