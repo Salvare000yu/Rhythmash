@@ -12,13 +12,13 @@ enemy2:
     speed: 100.0
     scale: 4.0
     behavior: normal
-    modelDir: Resources/enemy_robot01/
-    modelName: enemy_robot01
+    modelDir: Resources/enemy_robot02/
+    modelName: enemy_robot02
 boss:
     hp: 20
     attack: 1
     speed: 100.0
     scale: 10.0
     behavior: boss
-    modelDir: Resources/enemy_robot01/
-    modelName: enemy_robot01
+    modelDir: Resources/enemy_robot03/
+    modelName: enemy_robot03
