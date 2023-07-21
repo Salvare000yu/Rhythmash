@@ -63,7 +63,7 @@ GameMainScene::GameMainScene() :
 
 	SpcharaModel= std::make_unique<ObjModel>("Resources/box/", "box");
 	Spchara = std::make_unique<SupportChara>(cameraObj.get(), SpcharaModel.get());
-	Spchara->setJudgeProc([&] { return Timer::judge(player->getNowBeatRaito(), judgeOkRange); });
+	Spchara->setJudgeProc([&] { return Timer::judge(player->getNowBeatRaito(), 0.1f); });
 	Spchara->setPos({2,0,-3});
 	Spchara->setParent(player.get()->getObj());
 	// --------------------
@@ -180,6 +180,7 @@ void GameMainScene::update()
 			i->setNowBeatRaito(nowBeatRaito);
 			i->setNowBeatCount((uint32_t)nowCount);
 		}
+		Spchara->setNowBeatRaito(nowBeatRaito);
 	}
 
 	//シーン移行

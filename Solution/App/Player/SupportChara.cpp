@@ -2,9 +2,10 @@
 using namespace DirectX;
 
 SupportChara::SupportChara(Camera* camera, ObjModel* model, const DirectX::XMFLOAT3& pos)
-	:BaseActObj(camera, model, pos)
+	:BaseActObj(camera, model, pos), particleMgr(std::make_unique<ParticleMgr>(L"Resources/white.png", camera))
 {
-
+	additionalUpdateProc.emplace("SupportChara::particleMgr", [&] { particleMgr->update(); });
+	additionalDrawProc.emplace("SupportChara::particleMgr", [&](Light*) { particleMgr->draw(); });
 }
 
 void SupportChara::Move()
@@ -14,39 +15,28 @@ void SupportChara::Move()
 	if (judge())
 	{
 		Step();
+		ParticleMgr::createParticle(particleMgr.get(), this->calcWorldPos(),10U,1.0f,2.f,
+								{(0.0f),(1.0f),(1.0f)}, { (0.0f),(1.0f),(1.0f) });
 	}
-
-	MoveProcess(dir);
-
+	
 }
 
 void SupportChara::Step()
 {
-
-	if (Rev == true)
+	if (Rev==true)
 	{
 		dir.y = 1;
-		RevCount += 1;
+		Rev = false;
+		MoveProcess(dir);
+		return;
 	}
-
-	else if (Rev == false)
+	else if(Rev == false)
 	{
 		dir.y = -1;
-		RevCount += 1;
+		Rev = true;
+		MoveProcess(dir);
+		return;
 	}
 
-	if (RevCount >= 3)
-	{
-		if (Rev == true)
-		{
-			Rev = false;
-		}
-
-		else if (Rev == false)
-		{
-			Rev = true;
-		}
-		RevCount = 0;
-	}
 }
 
