@@ -5,42 +5,35 @@
 
 #pragma once
 
-#include <BehaviorTree/Selector.h>
-#include <BehaviorTree/Sequencer.h>
-#include <memory>
+#include <Enemy/EnemyBaseBehavior.h>
 #include <DirectXMath.h>
 
 class BaseEnemy;
 
 /// @brief 通常敵の行動クラス
 class EnemyBehavior :
-	public Sequencer
+	public EnemyBaseBehavior
 {
-private://メンバ変数
-
-	BaseEnemy* enemy = nullptr;
-
-	std::unique_ptr<Sequencer> mainPhase;
-
+private:
+	/// @brief 移動フェーズ
 	std::unique_ptr<BaseComposite> movePhase;
+
+	/// @brief 攻撃フェーズ
 	std::unique_ptr<BaseComposite> attackPhase;
 
+	/// @brief フェーズ内現在の拍数
+	uint16_t nowPhaseCount = 0ui16;
+
 	static constexpr uint16_t moveCountMax = 4ui16;
-	uint16_t moveCount = 0ui16;
-
 	static constexpr uint16_t attackCountMax = 4ui16;
-	uint16_t attackCount = 0ui16;
 
-	uint32_t preBeatCount = 0ui16;
-
-	DirectX::XMVECTOR moveVel = DirectX::XMVectorSet(0, 0, 10, 1);
+	DirectX::XMVECTOR moveVel{};
 	DirectX::XMVECTOR moveVelRotaQuaternion{};
 
-private://メンバ関数
+private:
+	NODE_RESULT phase_move();
 
-	NODE_RESULT Phase_move();
-
-	NODE_RESULT Phase_Attack();
+	NODE_RESULT phase_Attack();
 
 public:
 	EnemyBehavior(BaseEnemy* enemy);

@@ -6,10 +6,10 @@
 #pragma once
 
 #include "BaseActObj/BaseActObj.h"
+#include <BehaviorTree/BaseComposite.h>
+#include "EnemyMgr.h"
 
-class BaseComposite;
-
-/// @brief 敵基底クラス
+ /// @brief 敵基底クラス
 class BaseEnemy :
 	public BaseActObj
 {
@@ -25,6 +25,11 @@ public:
 	BaseEnemy(Camera* camera,
 			  ObjModel* model,
 			  const DirectX::XMFLOAT3& pos = { 0,0,0 });
+
+	template<class Ty>
+	inline void setBehavior() { enemyBehavior = std::make_unique<Ty>(); }
+
+	inline void setBehavior(std::unique_ptr<BaseComposite>&& proc) { enemyBehavior = std::move(proc); }
 
 	inline void setNowBeatCount(uint32_t count) { nowBeatCount = count; }
 	inline uint32_t getNowBeatCount() const { return nowBeatCount; }

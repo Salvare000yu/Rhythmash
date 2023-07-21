@@ -3,6 +3,7 @@
 #include <CollisionMgr.h>
 #include <System/PostEffect.h>
 #include <Util/Timer.h>
+#include <Enemy/EnemyMgr.h>
 #include <memory>
 #include <DirectXMath.h>
 #include <vector>
@@ -59,9 +60,8 @@ class GameMainScene :
 	CollisionMgr::ColliderSet playerAtkCols;
 
 	// 敵
-	std::vector<std::shared_ptr<BaseEnemy>> enemy;
-	std::unique_ptr<ObjModel> enemyModel;
-	std::unique_ptr<GameObj> enemyObj;
+	std::unique_ptr<EnemyMgr> enemyMgr;
+	std::unordered_map<std::string, std::unique_ptr<ObjModel>> enemyModels;
 	CollisionMgr::ColliderSet enemyCols;
 	CollisionMgr::ColliderSet enemyAtkCols;
 
@@ -74,6 +74,30 @@ class GameMainScene :
 	std::weak_ptr<SoundData> bgm;
 	std::weak_ptr<SoundData> damageSe;
 
+	struct EnemyFileDataFormat
+	{
+		uint16_t hp = 5ui16;
+		uint16_t attack = 1ui16;
+		float speed = 10.f;
+
+		ObjModel* model = nullptr;
+		float scale = 1.f;
+
+		std::string behaviorStr{};
+	};
+	std::unordered_map<std::string, EnemyFileDataFormat> loadedData;
+	struct WaveDataEnemyPos
+	{
+		std::string tag{};
+		std::forward_list<DirectX::XMFLOAT3> pos{};
+	};
+	struct WaveData
+	{
+		std::forward_list<WaveDataEnemyPos> data{};
+	};
+	std::list<WaveData> waveData{};
+	std::list<WaveData>::const_iterator nextWaveIt;
+
 private:
 	void initPostEffect();
 	void initLight();
@@ -82,6 +106,7 @@ private:
 	void initParticle();
 	void initBack();
 	void initEnemy();
+	bool loadEnemyFile();
 	void initCollider();
 	void initSound();
 
@@ -126,7 +151,9 @@ private:
 	/// @brief 敵リストに要素を追加
 	/// @param pos 追加する敵の位置
 	/// @return 追加した敵を示すweak_ptr
-	std::weak_ptr<BaseEnemy> addEnemy(const DirectX::XMFLOAT3& pos);
+	std::weak_ptr<BaseEnemy> addEnemy(const DirectX::XMFLOAT3& pos, const EnemyMgr::EnemyParam& enemyParam, ObjModel* model, float scale, const std::string& behaviorStr);
+
+	void startWave(const std::list<WaveData>::const_iterator& wave);
 
 	/// @brief 自機の移動処理
 	void movePlayer();

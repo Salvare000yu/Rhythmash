@@ -8,6 +8,7 @@
 
 #include <Player/Player.h>
 #include <Enemy/BaseEnemy.h>
+#include <Enemy/EnemyMgr.h>
 #include <3D/Obj/ObjModel.h>
 #include <GameObject/GameObj.h>
 #include <Camera/CameraObj.h>
@@ -21,7 +22,41 @@
 
 #include <BehaviorTree/BaseComposite.h>
 
+#include <Enemy/Behabior/EnemyBehavior.h>
+#include <Enemy/Behabior/BossBehavior.h>
+
+#include <Yaml.hpp>
+
 using namespace DirectX;
+
+namespace
+{
+	template <class T>
+	inline auto from_string(const std::string& str, T& buf)
+	{
+		return ;
+	}
+
+	template <class T = float>
+	inline T sToNum(const std::string& str)
+	{
+		T buf{};
+		from_string(str, buf);
+		return buf;
+	}
+
+	XMFLOAT3 sToF3(const std::string& str_x,
+				   const std::string& str_y,
+				   const std::string& str_z)
+	{
+		XMFLOAT3 ret{};
+		from_string(str_x, ret.x);
+		from_string(str_y, ret.y);
+		from_string(str_z, ret.z);
+
+		return ret;
+	}
+}
 
 void GameMainScene::initPostEffect()
 {
@@ -49,6 +84,7 @@ void GameMainScene::initPlayer()
 	player->setDamageSe(damageSe);
 	player->setJudgeProc([&] { return Timer::judge(player->getNowBeatRaito(), judgeOkRange); });
 	player->setCol(XMFLOAT4(1, 1, 1, 0.8f));
+	player->setParticle(particleMgr);
 
 	playerCols.group.emplace_front(CollisionMgr::ColliderType::create(player.get(), player->getScaleF3().z));
 	auto pAtk = player->getAtkObjPt().lock();
@@ -64,6 +100,7 @@ void GameMainScene::initParticle()
 	particleMgr =
 		std::make_shared<ParticleMgr>(L"Resources/white.png",
 									  cameraObj.get());
+	particleMgr->changeBlendMode();
 }
 
 void GameMainScene::initBack()
@@ -76,68 +113,103 @@ void GameMainScene::initBack()
 	groundModel->setTexTilling(XMFLOAT2(groundSize, groundSize));
 
 	groundObj->color = XMFLOAT4(1, 1, 1, 0.5f);
+
+	stageModel = std::make_unique<ObjModel>("Resources/ring/", "ring");
+	stageObj = std::make_unique<GameObj>(cameraObj.get(), stageModel.get());
+	stageObj->setScale(10);
 }
 
 void GameMainScene::initEnemy()
 {
-	enemyModel = std::make_unique<ObjModel>("Resources/enemy_robot01/", "enemy_robot01");
-	
-	stageModel = std::make_unique<ObjModel>("Resources/ring/", "ring");
-	stageObj = std::make_unique<GameObj>(cameraObj.get(), stageModel.get());
-	stageObj->setScale(10);
+	enemyMgr = std::make_unique<EnemyMgr>();
 
-	//csvの読み込み
-	const std::vector<std::string> fileNames = { "Resources/DataFile/enemy.csv" };
-	Util::CSVType csvData = Util::loadCsvs(fileNames, true, ',', "//");
+	// ファイルから情報を読み込む
+	loadEnemyFile();
 
-	struct CavDataFormat
-	{
-		std::string type = "";
-		uint16_t hp = 0ui16;
-		uint16_t attack = 0ui16;
-		std::forward_list<XMFLOAT3> pos{};
-	};
-	std::forward_list<CavDataFormat> loadedCsvData;
-	CavDataFormat* currentData = nullptr;
-
-	for (const auto& i : csvData)
-	{
-		if (i[0] == "type")
-		{
-			loadedCsvData.emplace_front(CavDataFormat{ .type = i[1] });
-			currentData = &loadedCsvData.front();
-		} else if (currentData)
-		{
-			if (i[0] == "position")
-			{
-				currentData->pos.emplace_front(XMFLOAT3(std::stof(i[1]),
-														std::stof(i[2]),
-														std::stof(i[3])));
-			} else if (i[0] == "hp")
-			{
-				currentData->hp = static_cast<uint16_t>(std::stoul(i[1]));
-			}
-		}
-	}
-
-	for (const auto& i : loadedCsvData)
-	{
-		if (i.type == "enemy")
-		{
-			for (const auto& e : i.pos)
-			{
-				auto tmp = addEnemy(e).lock();
-				tmp->setAttack(i.attack);
-				tmp->setHp(i.hp);
-
-			}
-		}
-	}
-
-	for (auto& i : enemy)
+	// 判定関数をセット
+	for (auto& i : enemyMgr->getEnemyList())
 	{
 		i->setJudgeProc([&] { return Timer::judge(i->getNowBeatRaito(), judgeOkRange); });
 	}
+}
+
+bool GameMainScene::loadEnemyFile()
+{
+	Yaml::Node root{};
+
+	try
+	{
+		Yaml::Parse(root, "Resources/DataFile/enemy.yml");
+	} catch (...)
+	{
+		return true;
+	}
+
+	for (auto r_it = root.Begin(); r_it != root.End(); r_it++)
+	{
+		const auto& tag = (*r_it).first;
+		auto& node = (*r_it).second;
+
+		EnemyFileDataFormat& data = loadedData[tag];
+
+		// モデルのパス変数を準備
+		const std::string modelDir = node["modelDir"].As<std::string>();
+		const std::string modelName = node["modelName"].As<std::string>();
+
+		const std::string pathKey = modelDir + "AND" + modelName;
+
+		// モデルを追加
+		const auto& modelPair =
+			enemyModels.emplace(pathKey,
+								std::make_unique<ObjModel>(modelDir,
+														   modelName)).first;
+
+		// 値をセット
+		data.model = modelPair->second.get();
+		data.hp = node["hp"].As<uint16_t>();
+		data.attack = node["attack"].As<uint16_t>();
+		data.speed = node["speed"].As<float>();
+		data.scale = node["scale"].As<float>();
+		data.behaviorStr = node["behavior"].As<std::string>();
+	}
+
+	// ウェーブ情報のファイルを読み込む
+	Util::CSVType csvData = Util::loadCsv("Resources/DataFile/waveData.csv", true, ',', "//");
+
+	WaveData* currentWave = nullptr;
+	WaveDataEnemyPos* currentEnemyType = nullptr;
+
+	// 読み込んだファイルからウェーブ情報をセットする
+	for (auto& i : csvData)
+	{
+		if (i.empty()) { continue; }
+
+		if (i[0] == "wave")
+		{
+			currentWave = &waveData.emplace_back();
+		} else if (currentWave)
+		{
+			if (i[0] == "type")
+			{
+				currentEnemyType = &currentWave->data.emplace_front();
+				currentEnemyType->tag = i[1];
+			} else if (currentEnemyType)
+			{
+				if (i[0] == "position")
+				{
+					currentEnemyType->pos.emplace_front(sToF3(i[1], i[2], i[3]));
+				}
+			}
+		}
+	}
+
+	// 最初のウェーブデータを出す
+	nextWaveIt = waveData.begin();
+	startWave(nextWaveIt);
+	// 出し終わったらイテレーターを進める
+	nextWaveIt++;
+
+	return false;
 }
 
 void GameMainScene::initCollider()
@@ -173,7 +245,7 @@ void GameMainScene::updateCollision()
 	// 敵コライダーを初期化
 	enemyCols.group.clear();
 	enemyAtkCols.group.clear();
-	for (auto& i : enemy)
+	for (auto& i : enemyMgr->getEnemyList())
 	{
 		if (i->getAlive())
 		{
@@ -208,7 +280,7 @@ void GameMainScene::updateBeatData()
 	player->setCol(XMFLOAT4(raitoColor, raitoColor, raitoColor, player->getCol().w));
 
 	player->setNowBeatRaito(nowBeatRaito);
-	for (auto& i : enemy)
+	for (auto& i : enemyMgr->getEnemyList())
 	{
 		i->setNowBeatRaito(nowBeatRaito);
 		i->setNowBeatCount((uint32_t)nowCount);
@@ -222,12 +294,12 @@ void GameMainScene::updateLight()
 	player->update();
 	light->setCircleShadowActive(0, true);
 	light->setCircleShadowCasterPos(0, player->calcWorldPos());
-	for (unsigned i = 0u, len = (unsigned)enemy.size(); i < len; ++i)
+	for (unsigned i = 0u, len = (unsigned)enemyMgr->getEnemyList().size(); i < len; ++i)
 	{
-		if (!enemy[i]->getAlive()) { continue; }
-		enemy[i]->update();
+		if (!enemyMgr->getEnemyList()[i]->getAlive()) { continue; }
+		enemyMgr->getEnemyList()[i]->update();
 		light->setCircleShadowActive(1 + i, true);
-		light->setCircleShadowCasterPos(1 + i, enemy[i]->calcWorldPos());
+		light->setCircleShadowCasterPos(1 + i, enemyMgr->getEnemyList()[i]->calcWorldPos());
 	}
 
 	light->update();
@@ -311,15 +383,23 @@ void GameMainScene::update()
 	updateCollision();
 
 	// 死んだ敵は消す
-	std::erase_if(enemy, [](const std::shared_ptr<BaseEnemy>& e) { return !e->getAlive(); });
+	std::erase_if(enemyMgr->getEnemyList(), [](const std::shared_ptr<BaseEnemy>& e) { return !e->getAlive(); });
 
 	// シーン移行
 	if (!player->getAlive())
 	{
 		SceneManager::getInstange()->changeScene<GameOverScene>();
-	} else if (enemy.empty())
+	} else if (enemyMgr->getEnemyList().empty())
 	{
-		SceneManager::getInstange()->changeScene<GameClearScene>();
+		if (nextWaveIt == waveData.end())
+		{
+			SceneManager::getInstange()->changeScene<GameClearScene>();
+		} else
+		{
+			startWave(nextWaveIt);
+
+			nextWaveIt++;
+		}
 	}
 
 #ifdef _DEBUG
@@ -347,7 +427,7 @@ void GameMainScene::drawObj3d()
 
 	stageObj->draw(light.get());
 	player->draw(light.get());
-	for (auto& i : enemy)
+	for (auto& i : enemyMgr->getEnemyList())
 	{
 		if (!i->getAlive()) { continue; }
 		i->draw(light.get());
@@ -386,23 +466,65 @@ void GameMainScene::drawFrontSprite()
 	ImGui::SetNextWindowPos(ImVec2(0, 0));
 }
 
-std::weak_ptr<BaseEnemy> GameMainScene::addEnemy(const DirectX::XMFLOAT3& pos)
+std::weak_ptr<BaseEnemy> GameMainScene::addEnemy(const DirectX::XMFLOAT3& pos,
+												 const EnemyMgr::EnemyParam& enemyParam,
+												 ObjModel* model,
+												 float scale,
+												 const std::string& behaviorStr)
 {
-	auto& i = enemy.emplace_back(std::make_shared<BaseEnemy>(cameraObj.get(), enemyModel.get()));
+	// 最大数を超えていたら追加しない
+	const auto enemyNum = static_cast<uint32_t>(1ui64 + enemyMgr->getEnemyList().size());
+	if (enemyNum >= Light::CircleShadowCountMax) { return std::weak_ptr<BaseEnemy>{}; }
 
-	i->setHp(3u);
-	i->setTargetObj(player.get());
-	i->setPos(pos);
-	i->setDamageSe(damageSe);
+	// 敵を追加
+	auto newEnemyRef = enemyMgr->addEnemy(cameraObj.get(), model);
+	auto e_pt = newEnemyRef.lock();
+	// 無効なら終了
+	if (!e_pt) { return e_pt; }
 
-	const auto enemyNum = static_cast<uint32_t>(enemy.size());
-	if (enemyNum < Light::CircleShadowCountMax)
+	// 丸影をセット
+	light->setCircleShadowActive(enemyNum, true);
+	light->setCircleShadowCaster2LightDistance(enemyNum, 150.f);
+
+	// パーティクルマネージャーをセット
+	e_pt->setParticle(particleMgr);
+
+	// パラメータ類をセット
+	e_pt->setScale(scale);
+
+	e_pt->setAttack(enemyParam.attack);
+	e_pt->setHp(enemyParam.hp);
+	e_pt->setSpeed(enemyParam.moveVal);
+
+	e_pt->setTargetObj(player.get());
+	e_pt->setPos(pos);
+	e_pt->setDamageSe(damageSe);
+
+	// ここで指定した行動を入れる
+	if (behaviorStr == "normal")
 	{
-		light->setCircleShadowActive(enemyNum, true);
-		light->setCircleShadowCaster2LightDistance(enemyNum, 50.f);
+		e_pt->setBehavior(std::make_unique<EnemyBehavior>(e_pt.get()));
+	} else if (behaviorStr == "boss")
+	{
+		e_pt->setBehavior(std::make_unique<BossBehavior>(e_pt.get()));
 	}
 
-	return i;
+	// 参照終了
+	e_pt.reset();
+
+	return newEnemyRef;
+}
+
+void GameMainScene::startWave(const std::list<WaveData>::const_iterator& wave)
+{
+	for (auto& w : wave->data)
+	{
+		EnemyFileDataFormat& dat = loadedData.at(w.tag);
+		for (auto& p : w.pos)
+		{
+			addEnemy(p, EnemyMgr::EnemyParam{.hp = dat.hp, .attack = dat.attack, .moveVal = dat.speed}, dat.model, dat.scale, dat.behaviorStr);
+		}
+	}
 }
 
 void GameMainScene::movePlayer()
@@ -416,8 +538,16 @@ void GameMainScene::movePlayer()
 		return;
 	}
 
+	// 前方と右方を算出
+	XMVECTOR forward = XMVectorSetY(cameraObj->getEyeVec(), 0.f);
+	XMVECTOR right = XMVector3Rotate(forward, XMQuaternionRotationRollPitchYaw(0.f, XM_PIDIV2, 0.f));
+
+	// 入力の大きさを反映
+	forward *= inputVal.y;
+	right *= inputVal.x;
+
 	// 移動する
-	player->moveProcess(XMVectorSet(inputVal.x, 0.f, inputVal.y, 0.f));
+	player->moveProcess(forward + right);
 }
 
 void GameMainScene::RgbShiftData::update(Timer::timeType nowTime)
