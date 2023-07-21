@@ -209,7 +209,7 @@ void DX12Base::initDevice()
 		D3D_FEATURE_LEVEL_11_0,
 	};
 
-	D3D_FEATURE_LEVEL featureLevel;
+	D3D_FEATURE_LEVEL featureLevel{};
 
 	for (UINT i = 0, len = _countof(levels); i < len; ++i)
 	{
@@ -373,14 +373,12 @@ void DX12Base::initFence()
 
 bool DX12Base::InitImgui()
 {
-	HRESULT result = S_FALSE;
-
 	// デスクリプタヒープを生成
 	D3D12_DESCRIPTOR_HEAP_DESC heapDesc{};
 	heapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
 	heapDesc.NumDescriptors = 1;
 	heapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
-	result = dev->CreateDescriptorHeap(&heapDesc, IID_PPV_ARGS(&imguiHeap));
+	HRESULT result = dev->CreateDescriptorHeap(&heapDesc, IID_PPV_ARGS(&imguiHeap));
 	if (FAILED(result))
 	{
 		assert(0);
@@ -426,11 +424,11 @@ bool DX12Base::InitImgui()
 	// 未指定なら最初に読み込んだフォントが使われる(と思われる)
 
 	defaultImFont = io.Fonts->AddFontFromMemoryCompressedBase85TTF(Makinas_4_Flat_base85_compressed_data,
-																   18.f,
+																   (float)WinAPI::window_height / 40.f,
 																   nullptr,
 																   glyphRangesJapanese);
 	bigImFont = io.Fonts->AddFontFromMemoryCompressedBase85TTF(KaisoTai_base85_compressed_data_base85,
-															   36.f,
+															   (float)WinAPI::window_height / 20.f,
 															   nullptr,
 															   glyphRangesJapanese);
 
