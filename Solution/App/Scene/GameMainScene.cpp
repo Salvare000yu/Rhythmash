@@ -60,6 +60,26 @@ namespace
 	}
 }
 
+/// @brief Yaml::Nodeを範囲for文に対応させるための関数群
+namespace Yaml
+{
+	inline Yaml::Iterator begin(Yaml::Node& n) { return n.Begin(); }
+	inline Yaml::Iterator end(Yaml::Node& n) { return n.End(); }
+	inline Yaml::Iterator operator++(Yaml::Iterator& i)
+	{
+		i++;
+		return i;
+	}
+
+	inline Yaml::ConstIterator begin(const Yaml::Node& n) { return n.Begin(); }
+	inline Yaml::ConstIterator end(const Yaml::Node& n) { return n.End(); }
+	inline Yaml::ConstIterator operator++(Yaml::ConstIterator& i)
+	{
+		i++;
+		return i;
+	}
+}
+
 void GameMainScene::initPostEffect()
 {
 	RgbShiftData::reset();
@@ -119,6 +139,7 @@ void GameMainScene::initBack()
 	stageModel = std::make_unique<ObjModel>("Resources/ring/", "ring");
 	stageObj = std::make_unique<GameObj>(cameraObj.get(), stageModel.get());
 	stageObj->setScale(10);
+	stageObj->setCol(XMFLOAT4(1, 1, 1, 0.4f));
 }
 
 void GameMainScene::initEnemy()
@@ -147,10 +168,10 @@ bool GameMainScene::loadEnemyFile()
 		return true;
 	}
 
-	for (auto r_it = root.Begin(); r_it != root.End(); r_it++)
+	for (auto& r_it : root)
 	{
-		const auto& tag = (*r_it).first;
-		auto& node = (*r_it).second;
+		const auto& tag = r_it.first;
+		auto& node = r_it.second;
 
 		EnemyFileDataFormat& data = loadedData[tag];
 

@@ -6,14 +6,17 @@ DX12Base* Camera::dxBase = DX12Base::getInstance();
 
 namespace
 {
-	XMFLOAT3 operator-(const XMFLOAT3& left, const XMFLOAT3& right)
+	constexpr long double XM_PIDIV3_LD = 3.1415926535897930l / 3.0l;
+	constexpr float XM_PIDIV3 = static_cast<float>(XM_PIDIV3_LD);
+
+	constexpr XMFLOAT3 operator-(const XMFLOAT3& left, const XMFLOAT3& right)
 	{
 		return XMFLOAT3(
 			left.x - right.x,
 			left.y - right.y,
 			left.z - right.z);
 	}
-	XMFLOAT3 operator+(const XMFLOAT3& left, const XMFLOAT3& right)
+	constexpr XMFLOAT3 operator+(const XMFLOAT3& left, const XMFLOAT3& right)
 	{
 		return XMFLOAT3(
 			left.x + right.x,
@@ -21,7 +24,7 @@ namespace
 			left.z + right.z);
 	}
 
-	XMFLOAT3 operator*(const XMFLOAT3& left, const float right)
+	constexpr XMFLOAT3 operator*(const XMFLOAT3& left, const float right)
 	{
 		return XMFLOAT3(
 			left.x * right,
@@ -50,14 +53,12 @@ void Camera::updateViewMatrix()
 	cameraAxisZ = XMVector3Normalize(cameraAxisZ);
 
 	// カメラのX軸（右方向）
-	XMVECTOR cameraAxisX;
 	// X軸は上方向→Z軸の外積で求まる
 	cameraAxisX = XMVector3Cross(upVector, cameraAxisZ);
 	// ベクトルを正規化
 	cameraAxisX = XMVector3Normalize(cameraAxisX);
 
 	// カメラのY軸（上方向）
-	XMVECTOR cameraAxisY;
 	// Y軸はZ軸→X軸の外積で求まる
 	cameraAxisY = XMVector3Cross(cameraAxisZ, cameraAxisX);
 
@@ -81,7 +82,7 @@ void Camera::updateViewMatrix()
 	XMVECTOR tY = XMVector3Dot(cameraAxisY, reverseEyePosition);	// Y成分
 	XMVECTOR tZ = XMVector3Dot(cameraAxisZ, reverseEyePosition);	// Z成分
 	// 一つのベクトルにまとめる
-	XMVECTOR translation = XMVectorSet(tX.m128_f32[0], tY.m128_f32[1], tZ.m128_f32[2], 1.0f);
+	XMVECTOR translation = XMVectorSet(tX.m128_f32[0], tY.m128_f32[1], tZ.m128_f32[2], 1.f);
 	// ビュー行列に平行移動成分を設定
 	matView.r[3] = translation;
 
@@ -95,14 +96,12 @@ void Camera::updateViewMatrix()
 
 #pragma region Y軸回りビルボード行列の計算
 	// カメラX軸、Y軸、Z軸
-	XMVECTOR ybillCameraAxisX, ybillCameraAxisY, ybillCameraAxisZ;
-
 	// X軸は共通
-	ybillCameraAxisX = cameraAxisX;
+	XMVECTOR ybillCameraAxisX = cameraAxisX;
 	// Y軸はワールド座標系のY軸
-	ybillCameraAxisY = XMVector3Normalize(upVector);
+	XMVECTOR ybillCameraAxisY = XMVector3Normalize(upVector);
 	// Z軸はX軸→Y軸の外積で求まる
-	ybillCameraAxisZ = XMVector3Cross(ybillCameraAxisX, ybillCameraAxisY);
+	XMVECTOR ybillCameraAxisZ = XMVector3Cross(ybillCameraAxisX, ybillCameraAxisY);
 
 	// Y軸回りビルボード行列
 	matBillboardY.r[0] = ybillCameraAxisX;
@@ -141,6 +140,7 @@ void Camera::updateMatrix()
 			updateProjectionMatrix();
 			projectionDirty = false;
 		}
+
 		// ビュープロジェクションの合成
 		matViewProjection = matView * matProjection;
 		matVPV = matViewProjection * matViewPort;
@@ -207,12 +207,12 @@ void Camera::moveCamera(const XMVECTOR& move)
 	setTarget(target_moved);
 }
 
-Camera::Camera(const float window_width, const float window_height)
+Camera::Camera(const float window_width, const float window_height) :
+	aspectRatio(window_width / window_height),
+	fogAngleYRad(XM_PIDIV3),
+	nearZ(1.f),
+	farZ(256.f)
 {
-	fogAngleYRad = DirectX::XM_PI / 3.f;
-
-	aspectRatio = window_width / window_height;
-
 	//ビュー行列の計算
 	updateViewMatrix();
 
@@ -223,10 +223,10 @@ Camera::Camera(const float window_width, const float window_height)
 	matViewProjection = matView * matProjection;
 
 	matViewPort = XMMatrixIdentity();
-	matViewPort.r[0].m128_f32[0] = (float)window_width / 2.f;
-	matViewPort.r[1].m128_f32[1] = -1.f - ((float)window_height / 2.f);
+	matViewPort.r[0].m128_f32[0] = window_width / 2.f;
+	matViewPort.r[3].m128_f32[1] = window_height / 2.f;
+	matViewPort.r[1].m128_f32[1] = -1.f - matViewPort.r[3].m128_f32[1];
 	matViewPort.r[3].m128_f32[0] = matViewPort.r[0].m128_f32[0];
-	matViewPort.r[3].m128_f32[1] = (float)window_height / 2.f;
 }
 
 Camera::~Camera()

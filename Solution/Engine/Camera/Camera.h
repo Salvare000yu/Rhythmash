@@ -2,7 +2,7 @@
 
 #include <DirectXMath.h>
 
-#include "System/DX12Base.h"
+#include <System/DX12Base.h>
 
 class Camera
 {
@@ -18,6 +18,8 @@ protected:
 	static DX12Base* dxBase;
 
 private:
+	XMVECTOR cameraAxisX{};
+	XMVECTOR cameraAxisY{};
 	XMVECTOR cameraAxisZ{};
 	XMMATRIX matViewPort{};
 	// ビュー行列
@@ -45,9 +47,9 @@ private:
 	// アスペクト比
 	float aspectRatio = 1.0f;
 
-	float nearZ = 0.1f;
-	float farZ = 1000.f;
-	float fogAngleYRad = DirectX::XM_PI / 3.f;;
+	float nearZ;
+	float farZ;
+	float fogAngleYRad;
 
 	// --------------------
 	// メンバ関数
@@ -66,10 +68,16 @@ private:
 	virtual void postUpdate() {};
 
 public:
-	/// @brief 視線ベクトルを取得
-	/// @return 視線ベクトル
+	/// @brief 視線ベクトル（奥方向）を取得
 	inline const XMVECTOR& getEyeVec() const { return cameraAxisZ; }
 
+	/// @brief 右方向を取得
+	inline const XMVECTOR& getRightVec() const { return cameraAxisX; }
+
+	/// @brief 上方向を取得
+	inline const XMVECTOR& getUpVec() const { return cameraAxisY; }
+
+	/// @brief ビューポート行列を取得 
 	inline const XMMATRIX& getViewPortMatrix() const { return matViewPort; }
 
 	// ビュー行列の取得
@@ -118,6 +126,11 @@ public:
 
 	XMFLOAT3 screenPos2WorldPos(const XMFLOAT3& screenPos) const;
 	XMVECTOR screenPos2WorldPosVec(const XMFLOAT3& screenPos) const;
+
+	inline void screenPos2WorldPos(const XMFLOAT3& screenPos, XMFLOAT3& outBuf) const
+	{
+		DirectX::XMStoreFloat3(&outBuf, screenPos2WorldPosVec(screenPos));
+	}
 
 	inline XMFLOAT3 calcLookVec() const
 	{
