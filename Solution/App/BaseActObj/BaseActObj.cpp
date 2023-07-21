@@ -10,7 +10,7 @@ BaseActObj::BaseActObj(Camera* camera, ObjModel* model, const DirectX::XMFLOAT3&
 	GameObj(camera, model, pos),
 	judge([] { return true; })
 {
-	atkObjPt = otherObj.emplace("AtkObj", std::make_unique<GameObj>(camera, nullptr)).first->second;
+	atkObjPt = otherObj.emplace("BaseActObj::AtkObj", std::make_unique<GameObj>(camera, nullptr)).first->second;
 
 	auto atkObj = atkObjPt.lock();
 
@@ -52,7 +52,7 @@ void BaseActObj::moveProcess(const XMFLOAT3& dir)
 
 void BaseActObj::moveProcess(const DirectX::XMVECTOR& dir)
 {
-	const auto moveValVec = XMVector3Normalize(dir) * (moveSpeed / DX12Base::ins()->getFPS());
+	const auto moveValVec = XMVector3Normalize(dir) * moveSpeed;
 
 	XMFLOAT3 moveVal{};
 	XMStoreFloat3(&moveVal, moveValVec);
@@ -65,16 +65,4 @@ void BaseActObj::moveProcess(const DirectX::XMVECTOR& dir)
 
 	const XMFLOAT2 angleDeg = GameObj::calcRotationSyncVelDeg(moveVal);
 	this->setRotation(XMFLOAT3(angleDeg.x, angleDeg.y, this->getRotation().z));
-}
-
-void BaseActObj::attackProcess()
-{
-	if (!attackFlag) { return; }
-
-	this->setCol(XMFLOAT4(1, 1, 1, this->getCol().w));
-	if (++waitFrame >= 30)
-	{
-		attackFlag = false;
-		waitFrame = 0;
-	}
 }

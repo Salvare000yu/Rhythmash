@@ -12,8 +12,6 @@ BossBehavior::BossBehavior(BaseEnemy* enemy) :
 
 	mainPhase->addChild(*movePhase);
 
-	enemy->setSpeed(BaseActObj::moveSpeedDef * 10.f);
-
 	moveVel = DirectX::XMVectorSet(0, 0, enemy->getSpeed(), 1);
 }
 

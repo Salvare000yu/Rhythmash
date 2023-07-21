@@ -1,7 +1,7 @@
 enemy1:
     hp: 2
     attack: 1
-    speed: 200.0
+    speed: 5.0
     scale: 1.0
     behavior: normal
     modelDir: Resources/enemy/
@@ -9,7 +9,7 @@ enemy1:
 enemy2:
     hp: 2
     attack: 1
-    speed: 100.0
+    speed: 2.5
     scale: 1.0
     behavior: normal
     modelDir: Resources/mod_sample/
@@ -17,7 +17,7 @@ enemy2:
 boss:
     hp: 20
     attack: 1
-    speed: 100.0
+    speed: 2.5
     scale: 10.0
     behavior: boss
     modelDir: Resources/mod_sample/

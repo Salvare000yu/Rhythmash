@@ -6,6 +6,8 @@ EnemyBaseBehavior::EnemyBaseBehavior(BaseEnemy* enemy) :
 {
 	addChild(Task([&]
 				  {
+					  targetDistance = this->enemy->targetFromDistance();
+
 					  // メインの行動をし、結果を取得
 					  const NODE_RESULT ret = mainPhase->run();
 

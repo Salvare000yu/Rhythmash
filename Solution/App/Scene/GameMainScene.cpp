@@ -410,6 +410,14 @@ void GameMainScene::update()
 		SceneManager::getInstange()->changeScene<TitleScene>();
 		return;
 	}
+
+	if (Input::ins()->triggerKey(DIK_K))
+	{
+		for (auto& i : enemyMgr->getEnemyList())
+		{
+			i->kill();
+		}
+	}
 #endif // _DEBUG
 
 	// 自機の移動
@@ -482,7 +490,7 @@ std::weak_ptr<BaseEnemy> GameMainScene::addEnemy(const DirectX::XMFLOAT3& pos,
 	auto newEnemyRef = enemyMgr->addEnemy(cameraObj.get(), model);
 	auto e_pt = newEnemyRef.lock();
 	// 無効なら終了
-	if (!e_pt) { return e_pt; }
+	if (!e_pt) { return newEnemyRef; }
 
 	// 丸影をセット
 	light->setCircleShadowActive(enemyNum, true);

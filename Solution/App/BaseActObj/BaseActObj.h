@@ -27,10 +27,6 @@ protected:
 	//移動スピード
 	float moveSpeed = moveSpeedDef;
 
-	int waitFrame = 0;
-
-	Light* light;
-
 	std::weak_ptr<GameObj> atkObjPt;
 
 	bool attackFlag = false;
@@ -85,8 +81,6 @@ public:
 	//基本移動動作
 	void moveProcess(const DirectX::XMFLOAT3& dir);
 	void moveProcess(const DirectX::XMVECTOR& dir);
-
-	void attackProcess();
 
 	virtual void attack() {};
 };
