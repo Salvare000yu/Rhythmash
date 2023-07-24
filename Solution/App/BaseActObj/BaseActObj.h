@@ -27,10 +27,6 @@ protected:
 	//移動スピード
 	float moveSpeed = moveSpeedDef;
 
-	std::weak_ptr<GameObj> atkObjPt;
-
-	bool attackFlag = false;
-
 	/// @brief 無敵状態かどうか
 	bool invincibleFrag;
 
@@ -49,7 +45,7 @@ public:
 	/// @brief 無敵状態の更新処理
 	void invincible();
 
-	CollisionMgr::ColliderType mycoll{}, atkcoll{};
+	CollisionMgr::ColliderType mycoll{};
 
 #pragma region アクセッサ
 
@@ -67,16 +63,9 @@ public:
 	float getSpeed() { return moveSpeed; }
 	void setSpeed(float speed) { moveSpeed = speed; }
 
-	inline void setAttackFlag(bool flag) { this->attackFlag = flag; }
-	inline bool getAttackFlag() const { return attackFlag; }
-
 	inline void setDamageSe(const std::weak_ptr<SoundData>& damageSound) { damage = damageSound; }
 
-	inline auto& getAtkObjPt() const { return atkObjPt; }
-
 #pragma endregion アクセッサ
-
-	void createAtkParticle();
 
 	//基本移動動作
 	void moveProcess(const DirectX::XMFLOAT3& dir);

@@ -109,8 +109,6 @@ void GameMainScene::initPlayer()
 	player->setParticle(particleMgr);
 
 	playerCols.group.emplace_front(CollisionMgr::ColliderType::create(player.get(), player->getScaleF3().z));
-	auto pAtk = player->getAtkObjPt().lock();
-	playerAtkCols.group.emplace_front(CollisionMgr::ColliderType::create(pAtk.get(), pAtk->getScaleF3().z));
 
 	player->addDamageProc([&] { rgbShiftData.start(timer->getNowTime()); });
 
@@ -267,30 +265,24 @@ void GameMainScene::updateCollision()
 {
 	// 敵コライダーを初期化
 	enemyCols.group.clear();
-	enemyAtkCols.group.clear();
 	for (auto& i : enemyMgr->getEnemyList())
 	{
 		if (i->getAlive())
 		{
 			enemyCols.group.emplace_front(CollisionMgr::ColliderType::create(i.get(), i->getScaleF3().z));
 		}
-
-		if (i->getAttackFlag())
-		{
-			auto atk = i->getAtkObjPt().lock();
-			enemyAtkCols.group.emplace_front(CollisionMgr::ColliderType::create(atk.get(), atk->getScaleF3().z));
-		}
 	}
 
 	// 当たり判定をする
+	// 自機は攻撃中無敵
 	if (player->getAttackFlag())
 	{
-		CollisionMgr::checkHitAll(playerAtkCols, enemyCols);
-	}
-
-	if (!player->getInvincibleFrag())
+		// 敵が食らう判定
+		CollisionMgr::checkHitAll(enemyCols, player->getAttackObjColliderSet());
+	} else if (!player->getInvincibleFrag())
 	{
-		CollisionMgr::checkHitAll(enemyAtkCols, playerCols);
+		// 自機が食らう判定
+		CollisionMgr::checkHitAll(enemyCols, playerCols);
 	}
 }
 
@@ -489,7 +481,6 @@ void GameMainScene::drawFrontSprite()
 	ImGui::Text("移動 + リズムよく[C]: ダッシュ");
 	ImGui::Text("リズムよく[スペース]: 前方に攻撃");
 	ImGui::Text("自機体力: %u", player->getHp());
-	ImGui::Text(player->getAttackFlag() ? "攻撃中" : "暇人");
 
 	ImGui::End();
 

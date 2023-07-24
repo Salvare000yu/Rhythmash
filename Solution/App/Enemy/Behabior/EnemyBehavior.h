@@ -18,9 +18,6 @@ private:
 	/// @brief 移動フェーズ
 	std::unique_ptr<BaseComposite> squareMovePhase;
 
-	/// @brief 攻撃フェーズ
-	std::unique_ptr<BaseComposite> attackPhase;
-
 	/// @brief 接近して攻撃するフェーズ
 	std::unique_ptr<BaseComposite> approachAttackPhase;
 
@@ -35,7 +32,6 @@ private:
 
 private:
 	NODE_RESULT phase_squareMove();
-	NODE_RESULT phase_Attack();
 	NODE_RESULT phase_Approach();
 
 public:

@@ -11,6 +11,9 @@
 #include <Sound/Sound.h>
 #include <memory>
 
+class Timer;
+class ObjModel;
+
  /// @brief 自機クラス
 class Player
 	: public BaseActObj
@@ -22,7 +25,7 @@ class Player
 	std::function<void()> update_proc;
 
 	/// @brief 攻撃状態の現在の経過時間
-	uint32_t attackFrame = 0;
+	std::unique_ptr<Timer> attackTimer;
 
 	/// @brief 通常移動の速さ
 	float normalSpeed = BaseActObj::moveSpeedDef;
@@ -32,6 +35,15 @@ class Player
 
 	/// @brief ダッシュ速度の減衰値
 	float dashSpeedAttenuation = 1.f;
+
+	/// @brief 攻撃しているかどうか
+	bool attackFlag = false;
+
+	std::unique_ptr<GameObj> attackObj = nullptr;
+	std::unique_ptr<ObjModel> attackModel = nullptr;
+
+	CollisionMgr::ColliderType attackObjCol{};
+	CollisionMgr::ColliderSet attackObjColSet{};
 
 private:
 	/// @brief データをYAMLファイルから読み込む
@@ -44,9 +56,16 @@ private:
 	/// @brief ダッシュ
 	void step();
 
+	void startAttack();
+
 public:
 	/// @brief コンストラクタ
 	Player(Camera* camera,
 		   ObjModel* model,
 		   const DirectX::XMFLOAT3& pos = { 0,0,0 });
+
+	inline bool getAttackFlag() const { return attackFlag; }
+
+	inline const auto& getAttackObjCollider() const { return attackObjCol; }
+	inline const auto& getAttackObjColliderSet() const { return attackObjColSet; }
 };

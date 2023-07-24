@@ -57,13 +57,11 @@ class GameMainScene :
 	std::unique_ptr<ObjModel> playerModel;
 	std::unique_ptr<GameObj> playerObj;
 	CollisionMgr::ColliderSet playerCols;
-	CollisionMgr::ColliderSet playerAtkCols;
 
 	// 敵
 	std::unique_ptr<EnemyMgr> enemyMgr;
 	std::unordered_map<std::string, std::unique_ptr<ObjModel>> enemyModels;
 	CollisionMgr::ColliderSet enemyCols;
-	CollisionMgr::ColliderSet enemyAtkCols;
 
 	std::unique_ptr<CameraObj> cameraObj;
 	std::unique_ptr<Light> light;
