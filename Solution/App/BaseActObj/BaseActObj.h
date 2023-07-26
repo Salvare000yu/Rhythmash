@@ -68,8 +68,8 @@ public:
 #pragma endregion アクセッサ
 
 	//基本移動動作
-	void moveProcess(const DirectX::XMFLOAT3& dir);
-	void moveProcess(const DirectX::XMVECTOR& dir);
+	void moveProcess(const DirectX::XMFLOAT3& dir, bool changeRotationFlag = true);
+	void moveProcess(const DirectX::XMVECTOR& dir, bool changeRotationFlag = true);
 
 	virtual void attack() {};
 };
