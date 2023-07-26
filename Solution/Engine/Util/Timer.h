@@ -14,6 +14,9 @@ private:
 	std::chrono::steady_clock::time_point  startTimeDir{};
 
 public:
+	float bpm = 100.f;
+
+public:
 	/// @brief 時間の単位
 	using timeUnit = std::chrono::microseconds;
 	/// @brief 時間を格納する型
@@ -67,9 +70,9 @@ public:
 	/// @param bpm 曲のbpm
 	/// @param nowCount [out] 現在の拍数出力用(float)
 	/// @return 現在の拍内での進行度
-	static inline float calcNowBeatRaito(float nowTime, float bpm, float& nowCount)
+	static inline float calcNowBeatRaito(float nowTime, float bpm, float& nowCountBuf)
 	{
-		return std::modf(nowTime / (float)calc1BeatTime(bpm), &nowCount);
+		return std::modf(nowTime / float(calc1BeatTime(bpm)), &nowCountBuf);
 	}
 
 	~Timer();

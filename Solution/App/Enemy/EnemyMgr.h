@@ -6,6 +6,7 @@ class BaseEnemy;
 class Light;
 class Camera;
 class ObjModel;
+class Timer;
 
 class EnemyMgr
 {
@@ -35,7 +36,8 @@ public:
 	/// @param model モデルのポインタ
 	/// @return 追加した要素
 	std::weak_ptr<BaseEnemy> addEnemy(Camera* camera,
-									  ObjModel* model);
+									  ObjModel* model,
+									  std::weak_ptr<Timer> timer);
 
 	/// @brief 更新処理
 	void update();

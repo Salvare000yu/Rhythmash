@@ -2,6 +2,7 @@
 #include <DirectXMath.h>
 #include <GameObject/GameObj.h>
 #include <CollisionMgr.h>
+#include <Util/Timer.h>
 
 class Light;
 class Camera;
@@ -20,6 +21,8 @@ private:
 	float nowBeatRaito = 0.f;
 
 protected:
+	std::weak_ptr<Timer> timerRef;
+
 	std::weak_ptr<ParticleMgr> particle;
 
 	std::function<bool()> judge;
@@ -40,6 +43,7 @@ public:
 	/// @brief コンストラクタ
 	BaseActObj(Camera* camera,
 			   ObjModel* model,
+			   std::weak_ptr<Timer> timer,
 			   const DirectX::XMFLOAT3& pos = { 0,0,0 });
 
 	/// @brief 無敵状態の更新処理
@@ -64,6 +68,8 @@ public:
 	void setSpeed(float speed) { moveSpeed = speed; }
 
 	inline void setDamageSe(const std::weak_ptr<SoundData>& damageSound) { damage = damageSound; }
+
+	inline const auto& getTimerRef() const { return timerRef; }
 
 #pragma endregion アクセッサ
 

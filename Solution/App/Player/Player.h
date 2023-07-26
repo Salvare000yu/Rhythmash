@@ -62,6 +62,7 @@ public:
 	/// @brief コンストラクタ
 	Player(Camera* camera,
 		   ObjModel* model,
+		   std::weak_ptr<Timer> timer,
 		   const DirectX::XMFLOAT3& pos = { 0,0,0 });
 
 	inline bool getAttackFlag() const { return attackFlag; }

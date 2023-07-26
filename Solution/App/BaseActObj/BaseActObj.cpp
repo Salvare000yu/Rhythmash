@@ -6,8 +6,9 @@
 
 using namespace DirectX;
 
-BaseActObj::BaseActObj(Camera* camera, ObjModel* model, const DirectX::XMFLOAT3& pos) :
+BaseActObj::BaseActObj(Camera* camera, ObjModel* model, std::weak_ptr<Timer> timer, const DirectX::XMFLOAT3& pos) :
 	GameObj(camera, model, pos),
+	timerRef(timer),
 	judge([] { return true; })
 {
 	mycoll = CollisionMgr::ColliderType::create(this, this->getScaleF3().z);

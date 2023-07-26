@@ -24,6 +24,7 @@ protected:
 public:
 	BaseEnemy(Camera* camera,
 			  ObjModel* model,
+			  std::weak_ptr<Timer> timer,
 			  const DirectX::XMFLOAT3& pos = { 0,0,0 });
 
 	template<class Ty>

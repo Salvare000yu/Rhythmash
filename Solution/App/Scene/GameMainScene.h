@@ -32,9 +32,8 @@ class GameMainScene :
 	// --------------------
 	// 時間関係
 	// --------------------
-	std::unique_ptr<Timer> timer;
+	std::shared_ptr<Timer> timer;
 
-	float bpm{};
 	const float judgeOkRange{};
 	float nowCount{};
 	float nowBeatRaito{};
