@@ -6,11 +6,17 @@
 #include <Util/Timer.h>
 #include <Input/Input.h>
 #include <3D/ParticleMgr.h>
+#include <Util/Timer.h>
 
 #include <fstream>
 #include <Yaml.hpp>
 
 using namespace DirectX;
+
+namespace
+{
+	constexpr uint32_t attackTimeMax = Timer::oneSec / 2ui32;
+}
 
 bool Player::loadYamlFile()
 {
@@ -60,7 +66,8 @@ bool Player::loadYamlFile()
 Player::Player(Camera* camera,
 			   ObjModel* model,
 			   const DirectX::XMFLOAT3& pos) :
-	BaseActObj(camera, model, pos)
+	BaseActObj(camera, model, pos),
+	attackTimer(std::make_unique<Timer>())
 {
 	se1 = Sound::ins()->loadWave("Resources/SE/Sys_Set03-click.wav");
 
@@ -87,7 +94,24 @@ Player::Player(Camera* camera,
 	};
 
 	// 更新処理を登録
-	additionalUpdateProc.emplace("Player::update_proc", [&] { update_proc(); });
+	additionalUpdateProc.emplace("Player::update_proc", update_proc);
+
+	// 攻撃当たり判定用オブジェクトの設定
+	attackModel = std::make_unique<ObjModel>("Resources/sphere/", "sphere", 0U, true);
+
+	attackObj = std::make_unique<GameObj>(camera, attackModel.get());;
+	attackObj->setParent(this->getObj());
+	attackObj->setScale(6.f);
+	attackObj->setCol(XMFLOAT4(0.5f, 1, 1, 0.25f));
+
+	attackObjCol = CollisionMgr::ColliderType::create(attackObj.get(), attackObj->getScaleF3().z);
+	attackObjColSet.group.emplace_front(attackObjCol);
+
+	additionalUpdateProc.emplace("Player::update_attackObj", [&] { attackObj->update(); });
+	additionalDrawProc.emplace("Player::draw_attackObj", [&](Light* light) { if (attackFlag) { attackObj->draw(light); } });
+
+	// 最初は無敵でスタート
+	invincibleFrag = true;
 }
 
 void Player::attack()
@@ -95,22 +119,17 @@ void Player::attack()
 	// タイミングよく入力で攻撃
 	if (Input::ins()->triggerKey(DIK_SPACE) && judge())
 	{
-		Sound::playWave(se1);
-		attackFlag = true;
-		this->setCol(XMFLOAT4(0, 0, 1, getCol().w));
+		startAttack();
 	}
 
 	// フレーム更新処理
 	if (!attackFlag) { return; }
 
-	if (++attackFrame >= 2ui32)
+	// 指定時間経過したら攻撃状態終了
+	if (attackTimer->getNowTime() >= attackTimeMax)
 	{
 		attackFlag = false;
-		attackFrame = 0;
 	}
-
-	// パーティクルを出す
-	createAtkParticle();
 }
 
 void Player::step()
@@ -123,4 +142,11 @@ void Player::step()
 		const float acc = normalSpeed * dashSpeedAttenuation;
 		setSpeed(std::max(normalSpeed, moveSpeed + acc));
 	}
+}
+
+void Player::startAttack()
+{
+	Sound::playWave(se1);
+	attackFlag = true;
+	attackTimer->reset();
 }

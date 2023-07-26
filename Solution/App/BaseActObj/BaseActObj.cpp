@@ -10,15 +10,6 @@ BaseActObj::BaseActObj(Camera* camera, ObjModel* model, const DirectX::XMFLOAT3&
 	GameObj(camera, model, pos),
 	judge([] { return true; })
 {
-	atkObjPt = otherObj.emplace("BaseActObj::AtkObj", std::make_unique<GameObj>(camera, nullptr)).first->second;
-
-	auto atkObj = atkObjPt.lock();
-
-	atkObj->setParent((BaseObj*)obj.get());
-	atkObj->setPos(XMFLOAT3(0, 0, 5));
-	atkObj->setCol(XMFLOAT4(1, 1, 1, 0.5f));
-
-	atkcoll = CollisionMgr::ColliderType::create(atkObj.get(), atkObj->getScaleF3().z);
 	mycoll = CollisionMgr::ColliderType::create(this, this->getScaleF3().z);
 }
 
@@ -29,19 +20,6 @@ void BaseActObj::invincible()
 	{
 		invincibleFrame = 0;
 		invincibleFrag = false;
-	}
-}
-
-void BaseActObj::createAtkParticle()
-{
-	// パーティクルを出す
-	auto p = particle.lock();
-	auto atkObj = atkObjPt.lock();
-	if (p && atkObj)
-	{
-		p->createParticle(atkObj->calcWorldPos(), 50U, 1.f, 0.0625f,
-						  XMFLOAT3(1.f, 0.f, 1.f),
-						  XMFLOAT3(0.f, 1.f, 1.f));
 	}
 }
 
