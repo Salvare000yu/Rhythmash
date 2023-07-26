@@ -273,7 +273,7 @@ void GameMainScene::updateCollision()
 		}
 	}
 
-	// 当たり判定をする
+	// 自機本体と敵本体の当たり判定をする
 	// 自機は攻撃中無敵
 	if (player->getAttackFlag())
 	{
@@ -304,8 +304,10 @@ void GameMainScene::updateBeatData()
 
 void GameMainScene::updateLight()
 {
+	// 一旦すべての丸影を無効にする
 	light->setCircleShadowActiveAll(false);
 
+	// 情報を更新して有効なオブジェクトのみ丸影を付ける
 	player->update();
 	light->setCircleShadowActive(0, true);
 	light->setCircleShadowCasterPos(0, player->calcWorldPos());
@@ -317,6 +319,7 @@ void GameMainScene::updateLight()
 		light->setCircleShadowCasterPos(1 + i, enemyMgr->getEnemyList()[i]->calcWorldPos());
 	}
 
+	// ライトの更新
 	light->update();
 }
 
@@ -326,44 +329,28 @@ GameMainScene::GameMainScene() :
 	bpm(100.f),
 	judgeOkRange(0.25f)
 {
-	// --------------------
 	// ライト
-	// --------------------
 	initLight();
 
-	// --------------------
 	// カメラ
-	// --------------------
 	initCamera();
 
-	// --------------------
 	// パーティクル
-	// --------------------
 	initParticle();
 
-	// --------------------
 	// 背景
-	// --------------------
 	initBack();
 
-	// --------------------
 	// 自機
-	// --------------------
 	initPlayer();
 
-	// --------------------
 	// 敵
-	// --------------------
 	initEnemy();
 
-	// --------------------
 	// コライダー衝突時関数
-	// --------------------
 	initCollider();
 
-	// --------------------
 	// 音
-	// --------------------
 	initSound();
 }
 
