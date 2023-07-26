@@ -5,14 +5,21 @@
 using namespace DirectX;
 
 BossBehavior::BossBehavior(BaseEnemy* enemy) :
-	EnemyBaseBehavior(enemy)
+	EnemyBaseBehavior(enemy),
+	moveVel(DirectX::XMVectorSet(0, 0, enemy->getSpeed(), 1))
 {
 	movePhase = std::make_unique<Selector>();
 	movePhase->addChild(Task(std::bind(&BossBehavior::phase_squareMove, this)));
 
-	mainPhase->addChild(*movePhase);
+	jumpAttackPhase = std::make_unique<Sequencer>();
+	jumpAttackPhase->addChild(Task([&] { /* 空中へ上昇する */ return NODE_RESULT::SUCCESS; }));
+	jumpAttackPhase->addChild(Task([&] { /* （空中で）移動する */ return NODE_RESULT::SUCCESS; }));
+	jumpAttackPhase->addChild(Task([&] { /* 少し留まる */ return NODE_RESULT::SUCCESS; }));
+	jumpAttackPhase->addChild(Task([&] { /* 落ちてくる */ return NODE_RESULT::SUCCESS; }));
 
-	moveVel = DirectX::XMVectorSet(0, 0, enemy->getSpeed(), 1);
+	mainPhase = std::make_unique<Sequencer>();
+	mainPhase->addChild(*movePhase);
+	mainPhase->addChild(*jumpAttackPhase);
 }
 
 NODE_RESULT BossBehavior::phase_squareMove()

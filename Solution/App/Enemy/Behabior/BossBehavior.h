@@ -22,6 +22,8 @@ private:
 
 	static constexpr uint16_t moveCountMax = 4ui16;
 
+	std::unique_ptr<BaseComposite> jumpAttackPhase;
+
 public:
 	NODE_RESULT phase_squareMove();
 
