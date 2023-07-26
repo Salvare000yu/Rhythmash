@@ -35,6 +35,7 @@ public:
 	inline uint32_t getNowBeatCount() const { return nowBeatCount; }
 
 	inline void setTargetObj(GameObj* obj) { targetObj = obj; }
+	inline const GameObj* const getTargetObj() const { return targetObj; }
 
 	inline DirectX::XMFLOAT3 getTargetWorldPos() const { return targetObj->calcWorldPos(); }
 

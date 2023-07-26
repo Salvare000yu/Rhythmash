@@ -8,14 +8,14 @@ BossBehavior::BossBehavior(BaseEnemy* enemy) :
 	EnemyBaseBehavior(enemy)
 {
 	movePhase = std::make_unique<Selector>();
-	movePhase->addChild(Task(std::bind(&BossBehavior::phase_move, this)));
+	movePhase->addChild(Task(std::bind(&BossBehavior::phase_squareMove, this)));
 
 	mainPhase->addChild(*movePhase);
 
 	moveVel = DirectX::XMVectorSet(0, 0, enemy->getSpeed(), 1);
 }
 
-NODE_RESULT BossBehavior::phase_move()
+NODE_RESULT BossBehavior::phase_squareMove()
 {
 	// カウントが変わっていなければ、実行中として終了
 	if (preBeatCount == enemy->getNowBeatCount()) { return NODE_RESULT::RUNNING; }

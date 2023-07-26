@@ -23,7 +23,7 @@ private:
 	static constexpr uint16_t moveCountMax = 4ui16;
 
 public:
-	NODE_RESULT phase_move();
+	NODE_RESULT phase_squareMove();
 
 public:
 	BossBehavior(BaseEnemy* enemy);
