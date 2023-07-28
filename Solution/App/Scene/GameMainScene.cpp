@@ -102,7 +102,7 @@ void GameMainScene::initCamera()
 void GameMainScene::initPlayer()
 {
 	playerModel = std::make_unique<ObjModel>("Resources/player_robot/", "player_robot");
-	player = std::make_unique<Player>(cameraObj.get(), playerModel.get());
+	player = std::make_unique<Player>(cameraObj.get(), playerModel.get(), timer);
 	player->setDamageSe(damageSe);
 	player->setJudgeProc([&] { return Timer::judge(player->getNowBeatRaito(), judgeOkRange); });
 	player->setCol(XMFLOAT4(1, 1, 1, 0.8f));
@@ -289,7 +289,7 @@ void GameMainScene::updateCollision()
 void GameMainScene::updateBeatData()
 {
 	// 拍内進行度と拍数を更新
-	nowBeatRaito = Timer::calcNowBeatRaito((float)timer->getNowTime(), bpm, nowCount);
+	nowBeatRaito = Timer::calcNowBeatRaito((float)timer->getNowTime(), timer->bpm, nowCount);
 
 	const float raitoColor = std::lerp(0.25f, 1.f, 1.f - nowBeatRaito);
 	player->setCol(XMFLOAT4(raitoColor, raitoColor, raitoColor, player->getCol().w));
@@ -325,10 +325,11 @@ void GameMainScene::updateLight()
 
 GameMainScene::GameMainScene() :
 	input(Input::ins()),
-	timer(std::make_unique<Timer>()),
-	bpm(100.f),
+	timer(std::make_shared<Timer>()),
 	judgeOkRange(0.25f)
 {
+	timer->bpm = 100.f;
+
 	// ライト
 	initLight();
 
@@ -486,7 +487,7 @@ std::weak_ptr<BaseEnemy> GameMainScene::addEnemy(const DirectX::XMFLOAT3& pos,
 	if (enemyNum >= Light::CircleShadowCountMax) { return std::weak_ptr<BaseEnemy>{}; }
 
 	// 敵を追加
-	auto newEnemyRef = enemyMgr->addEnemy(cameraObj.get(), model);
+	auto newEnemyRef = enemyMgr->addEnemy(cameraObj.get(), model, timer);
 	auto e_pt = newEnemyRef.lock();
 	// 無効なら終了
 	if (!e_pt) { return newEnemyRef; }

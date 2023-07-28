@@ -4,8 +4,8 @@
 
 using namespace DirectX;
 
-BaseEnemy::BaseEnemy(Camera* camera, ObjModel* model, const DirectX::XMFLOAT3& pos)
-	:BaseActObj(camera, model, pos),
+BaseEnemy::BaseEnemy(Camera* camera, ObjModel* model, std::weak_ptr<Timer> timer, const DirectX::XMFLOAT3& pos)
+	:BaseActObj(camera, model, timer, pos),
 	enemyBehavior(std::make_unique<EnemyBehavior>(this))
 {
 	additionalUpdateProc.emplace("BaseEnemy::update_proc", [&] { enemyBehavior->run(); });

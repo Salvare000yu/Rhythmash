@@ -24,6 +24,7 @@ protected:
 public:
 	BaseEnemy(Camera* camera,
 			  ObjModel* model,
+			  std::weak_ptr<Timer> timer,
 			  const DirectX::XMFLOAT3& pos = { 0,0,0 });
 
 	template<class Ty>
@@ -35,6 +36,7 @@ public:
 	inline uint32_t getNowBeatCount() const { return nowBeatCount; }
 
 	inline void setTargetObj(GameObj* obj) { targetObj = obj; }
+	inline const GameObj* const getTargetObj() const { return targetObj; }
 
 	inline DirectX::XMFLOAT3 getTargetWorldPos() const { return targetObj->calcWorldPos(); }
 

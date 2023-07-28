@@ -65,8 +65,9 @@ bool Player::loadYamlFile()
 
 Player::Player(Camera* camera,
 			   ObjModel* model,
+			   std::weak_ptr<Timer> timer,
 			   const DirectX::XMFLOAT3& pos) :
-	BaseActObj(camera, model, pos),
+	BaseActObj(camera, model, timer, pos),
 	attackTimer(std::make_unique<Timer>())
 {
 	se1 = Sound::ins()->loadWave("Resources/SE/Sys_Set03-click.wav");
