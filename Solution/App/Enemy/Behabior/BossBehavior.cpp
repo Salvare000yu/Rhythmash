@@ -8,8 +8,8 @@ namespace
 {
 	constexpr uint16_t squareMoveCountMax = 4ui16;
 
-	constexpr uint16_t risingCountMax = 4ui16;
-	constexpr uint16_t movingCountMax = 8ui16;
+	constexpr uint16_t risingCountMax = 2ui16;
+	constexpr uint16_t movingCountMax = 4ui16;
 }
 
 BossBehavior::BossBehavior(BaseEnemy* enemy) :
@@ -27,16 +27,19 @@ BossBehavior::BossBehavior(BaseEnemy* enemy) :
 	constexpr float jumpAttackPosMax = 20.f;
 	constexpr float jumpAttackPosMin = 0.f;
 
-	jumpAttackPhase = std::make_unique<Sequencer>();
-	jumpAttackPhase->addChild(Task([&]
+	const Task resetTimer = Task([&]
 								   {
 									   auto timer = this->enemy->getTimerRef().lock();
 									   if (!timer) { return NODE_RESULT::FAIL; }
 									   timer->reset();
 									   return NODE_RESULT::SUCCESS;
-								   }));
+								   });
+
+	jumpAttackPhase = std::make_unique<Sequencer>();
+	jumpAttackPhase->addChild(resetTimer);
 	jumpAttackPhase->addChild(Task(std::bind(&BossBehavior::jumpAttack_rising, this, jumpAttackPosMin, jumpAttackPosMax)));
 	jumpAttackPhase->addChild(Task(std::bind(&BossBehavior::jumpAttack_moving, this)));
+	jumpAttackPhase->addChild(resetTimer);
 	jumpAttackPhase->addChild(Task(std::bind(&BossBehavior::jumpAttack_rising, this, jumpAttackPosMax, jumpAttackPosMin)));
 
 	mainPhase = std::make_unique<Sequencer>();
@@ -71,9 +74,10 @@ NODE_RESULT BossBehavior::jumpAttack_rising(float startPosY, float endPosY)
 	const auto timer = enemyTimerRef.lock();
 	if (!timer) { return NODE_RESULT::FAIL; }
 
-	const auto risingTimeMax = (risingCountMax + 1ui16) * timer->calc1BeatTime(timer->bpm);
+	const auto risingTimeMax = risingCountMax * timer->calc1BeatTime(timer->bpm);
 
-	const float raito = float(timer->getNowTime()) / float(risingTimeMax);
+	float raito = float(timer->getNowTime()) / float(risingTimeMax);
+	raito *= raito * raito * raito;
 
 	XMFLOAT3 pos = enemy->getPos();
 	pos.y = std::lerp(startPosY, endPosY, raito);
@@ -85,6 +89,7 @@ NODE_RESULT BossBehavior::jumpAttack_rising(float startPosY, float endPosY)
 	// 指定カウント経過していなければ、実行中として終了
 	if (nowPhaseCount <= risingCountMax) { ++nowPhaseCount; return NODE_RESULT::RUNNING; }
 
+	// 終わっていたら終了時の位置に合わせる
 	pos.y = endPosY;
 	enemy->setPos(pos);
 
@@ -95,9 +100,6 @@ NODE_RESULT BossBehavior::jumpAttack_rising(float startPosY, float endPosY)
 
 NODE_RESULT BossBehavior::jumpAttack_moving()
 {
-	const auto timer = enemyTimerRef.lock();
-	if (!timer) { return NODE_RESULT::FAIL; }
-
 	// カウントが変わっていなければ、実行中として終了
 	if (preBeatCount == enemy->getNowBeatCount()) { return NODE_RESULT::RUNNING; }
 
@@ -111,6 +113,5 @@ NODE_RESULT BossBehavior::jumpAttack_moving()
 	if (nowPhaseCount <= movingCountMax) { ++nowPhaseCount; return NODE_RESULT::RUNNING; }
 
 	nowPhaseCount = 0ui16;
-	timer->reset();
 	return NODE_RESULT::SUCCESS;
 }
