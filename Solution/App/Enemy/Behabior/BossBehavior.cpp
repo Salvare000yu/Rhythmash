@@ -10,6 +10,9 @@ namespace
 
 	constexpr uint16_t risingCountMax = 2ui16;
 	constexpr uint16_t movingCountMax = 4ui16;
+
+	// ジャンプ攻撃時のY座標の幅
+	constexpr float jumpAttackHeight = 20.f;
 }
 
 BossBehavior::BossBehavior(BaseEnemy* enemy) :
@@ -23,9 +26,6 @@ BossBehavior::BossBehavior(BaseEnemy* enemy) :
 	squareMovePhase = std::make_unique<Selector>();
 	squareMovePhase->addChild(Task(std::bind(&BossBehavior::phase_squareMove, this)));
 
-	// ジャンプ攻撃時のY座標の最小値と最大値
-	constexpr float jumpAttackPosMax = 20.f;
-	constexpr float jumpAttackPosMin = 0.f;
 
 	const Task resetTimer = Task([&]
 								   {
@@ -37,10 +37,10 @@ BossBehavior::BossBehavior(BaseEnemy* enemy) :
 
 	jumpAttackPhase = std::make_unique<Sequencer>();
 	jumpAttackPhase->addChild(resetTimer);
-	jumpAttackPhase->addChild(Task(std::bind(&BossBehavior::jumpAttack_rising, this, jumpAttackPosMin, jumpAttackPosMax)));
+	jumpAttackPhase->addChild(Task(std::bind(&BossBehavior::jumpAttack_rising, this, false)));
 	jumpAttackPhase->addChild(Task(std::bind(&BossBehavior::jumpAttack_moving, this)));
 	jumpAttackPhase->addChild(resetTimer);
-	jumpAttackPhase->addChild(Task(std::bind(&BossBehavior::jumpAttack_rising, this, jumpAttackPosMax, jumpAttackPosMin)));
+	jumpAttackPhase->addChild(Task(std::bind(&BossBehavior::jumpAttack_rising, this, true)));
 
 	mainPhase = std::make_unique<Sequencer>();
 	mainPhase->addChild(*squareMovePhase);
@@ -69,7 +69,7 @@ NODE_RESULT BossBehavior::phase_squareMove()
 	return NODE_RESULT::SUCCESS;
 }
 
-NODE_RESULT BossBehavior::jumpAttack_rising(float startPosY, float endPosY)
+NODE_RESULT BossBehavior::jumpAttack_rising(bool downFlag)
 {
 	const auto timer = enemyTimerRef.lock();
 	if (!timer) { return NODE_RESULT::FAIL; }
@@ -78,6 +78,15 @@ NODE_RESULT BossBehavior::jumpAttack_rising(float startPosY, float endPosY)
 
 	float raito = float(timer->getNowTime()) / float(risingTimeMax);
 	raito *= raito * raito * raito;
+
+	float startPosY = enemy->getScaleF3().y, endPosY = enemy->getScaleF3().y;
+	if (downFlag)
+	{
+		startPosY += jumpAttackHeight;
+	} else
+	{
+		endPosY += jumpAttackHeight;
+	}
 
 	XMFLOAT3 pos = enemy->getPos();
 	pos.y = std::lerp(startPosY, endPosY, raito);

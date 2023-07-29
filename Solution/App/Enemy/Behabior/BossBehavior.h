@@ -26,11 +26,10 @@ private:
 
 	std::unique_ptr<BaseComposite> jumpAttackPhase;
 	std::unique_ptr<Timer> phaseTimer;
-
 public:
 	NODE_RESULT phase_squareMove();
 
-	NODE_RESULT jumpAttack_rising(float startPosY, float endPosY);
+	NODE_RESULT jumpAttack_rising(bool downFlag);
 	NODE_RESULT jumpAttack_moving();
 
 public:

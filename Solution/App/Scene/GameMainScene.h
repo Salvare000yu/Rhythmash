@@ -66,7 +66,9 @@ class GameMainScene :
 	std::unique_ptr<Light> light;
 
 	std::unique_ptr<GameObj> stageObj;
+	std::unique_ptr<GameObj> stageOtherObj;
 	std::unique_ptr<ObjModel> stageModel;
+	std::unique_ptr<ObjModel> stageOtherModel;
 
 	std::weak_ptr<SoundData> bgm;
 	std::weak_ptr<SoundData> damageSe;

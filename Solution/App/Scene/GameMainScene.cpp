@@ -31,6 +31,9 @@ using namespace DirectX;
 
 namespace
 {
+	size_t backPP{};
+	size_t ditherPP{};
+
 	template <class T>
 	inline auto from_string(const std::string& str, T& buf)
 	{
@@ -105,8 +108,13 @@ void GameMainScene::initPlayer()
 	player = std::make_unique<Player>(cameraObj.get(), playerModel.get(), timer);
 	player->setDamageSe(damageSe);
 	player->setJudgeProc([&] { return Timer::judge(player->getNowBeatRaito(), judgeOkRange); });
-	player->setCol(XMFLOAT4(1, 1, 1, 0.8f));
+	player->setColor(XMFLOAT4(1, 1, 1, 0.8f));
 	player->setParticle(particleMgr);
+	{
+		XMFLOAT3 pos = player->getPos();
+		pos.y += player->getScaleF3().y;
+		player->setPos(pos);
+	}
 
 	playerCols.group.emplace_front(CollisionMgr::ColliderType::create(player.get(), player->getScaleF3().z));
 
@@ -134,10 +142,16 @@ void GameMainScene::initBack()
 
 	groundObj->color = XMFLOAT4(1, 1, 1, 0.5f);
 
-	stageModel = std::make_unique<ObjModel>("Resources/ring/", "ring");
+	constexpr float stageScale = 10.f;
+
+	stageModel = std::make_unique<ObjModel>("Resources/ring_jimen/", "ring_jimen");
 	stageObj = std::make_unique<GameObj>(cameraObj.get(), stageModel.get());
-	stageObj->setScale(10);
-	stageObj->setCol(XMFLOAT4(1, 1, 1, 0.4f));
+	stageObj->setScale(stageScale);
+
+	stageOtherModel = std::make_unique<ObjModel>("Resources/ring_other/", "ring_other");
+	stageOtherObj = std::make_unique<GameObj>(cameraObj.get(), stageOtherModel.get());
+	stageOtherObj->setScale(stageScale);
+	stageOtherObj->setPipelineStateNum(ditherPP);
 }
 
 void GameMainScene::initEnemy()
@@ -292,7 +306,7 @@ void GameMainScene::updateBeatData()
 	nowBeatRaito = Timer::calcNowBeatRaito((float)timer->getNowTime(), timer->bpm, nowCount);
 
 	const float raitoColor = std::lerp(0.25f, 1.f, 1.f - nowBeatRaito);
-	player->setCol(XMFLOAT4(raitoColor, raitoColor, raitoColor, player->getCol().w));
+	player->setColor(XMFLOAT4(raitoColor, raitoColor, raitoColor, player->getColor().w));
 
 	player->setNowBeatRaito(nowBeatRaito);
 	for (auto& i : enemyMgr->getEnemyList())
@@ -329,6 +343,13 @@ GameMainScene::GameMainScene() :
 	judgeOkRange(0.25f)
 {
 	timer->bpm = 100.f;
+
+	backPP = Object3d::createGraphicsPipeline(BaseObj::BLEND_MODE::ALPHA,
+											  L"Resources/Shaders/BackVS.hlsl",
+											  L"Resources/Shaders/BackPS.hlsl");
+	ditherPP = Object3d::createGraphicsPipeline(BaseObj::BLEND_MODE::ALPHA,
+												L"Resources/Shaders/DistanceDitherVS.hlsl",
+												L"Resources/Shaders/DistanceDitherPS.hlsl");
 
 	// ライト
 	initLight();
@@ -425,6 +446,7 @@ void GameMainScene::update()
 	movePlayer();
 
 	groundObj->update();
+	stageOtherObj->update();
 	stageObj->update();
 	updateLight();
 
@@ -434,8 +456,9 @@ void GameMainScene::update()
 
 void GameMainScene::drawObj3d()
 {
-	groundObj->draw(light.get());
+	groundObj->draw(light.get(), backPP);
 
+	stageOtherObj->draw(light.get());
 	stageObj->draw(light.get());
 	player->draw(light.get());
 	for (auto& i : enemyMgr->getEnemyList())
@@ -507,7 +530,7 @@ std::weak_ptr<BaseEnemy> GameMainScene::addEnemy(const DirectX::XMFLOAT3& pos,
 	e_pt->setSpeed(enemyParam.moveVal);
 
 	e_pt->setTargetObj(player.get());
-	e_pt->setPos(pos);
+	e_pt->setPos(XMFLOAT3(pos.x, pos.y + scale, pos.z));
 	e_pt->setDamageSe(damageSe);
 
 	// ここで指定した行動を入れる

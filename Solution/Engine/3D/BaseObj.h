@@ -13,7 +13,7 @@ protected:
 	using XMMATRIX = DirectX::XMMATRIX;
 
 public:
-	enum class BLEND_MODE : short
+	enum class BLEND_MODE : uint8_t
 	{
 		ALPHA,
 		ADD,

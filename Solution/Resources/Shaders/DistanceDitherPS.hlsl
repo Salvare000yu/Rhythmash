@@ -27,7 +27,13 @@ PSOutput main(VSOutput input)
 {
 	float4 texcolor = float4(tex.Sample(smp, input.uv * texTilling + shiftUv));
 
-	ScreenDoor(input.svpos.xy, texcolor.a * color.a);
+	float clipAlpha = texcolor.a * color.a * m_alpha;
+		
+	clipAlpha *= clamp(max(0.f, length(input.viewPos) - 22.f) / 4.f,
+					   0.2f,
+					   1.f);
+
+	ScreenDoor(input.svpos.xy, clipAlpha);
 	
 	const float shininess = 4.f; // 光沢
 	float3 eyeDir = normalize(cameraPos - input.worldPos.xyz); // 頂点->視点ベクトル
@@ -125,7 +131,7 @@ PSOutput main(VSOutput input)
 	
 	PSOutput output;
 	output.target0 = float4(shadeColor.rgb * texcolor.rgb * color.rgb, 1.f);
-	output.target1 = float4(texcolor.rgb, 1.f);
+	output.target1 = float4(texcolor.rgb, 1);
 
 	return output;
 }

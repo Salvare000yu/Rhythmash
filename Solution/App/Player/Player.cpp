@@ -85,7 +85,7 @@ Player::Player(Camera* camera,
 		if (!this->getAlive())
 		{
 			update_proc = [] {};
-			this->setCol({ 0,0,0,getCol().w });
+			this->setColor({ 0,0,0,getColor().w });
 			return;
 		}
 
@@ -103,7 +103,7 @@ Player::Player(Camera* camera,
 	attackObj = std::make_unique<GameObj>(camera, attackModel.get());;
 	attackObj->setParent(this->getObj());
 	attackObj->setScale(6.f);
-	attackObj->setCol(XMFLOAT4(0.5f, 1, 1, 0.25f));
+	attackObj->setColor(XMFLOAT4(0.5f, 1, 1, 0.25f));
 
 	attackObjCol = CollisionMgr::ColliderType::create(attackObj.get(), attackObj->getScaleF3().z);
 	attackObjColSet.group.emplace_front(attackObjCol);
