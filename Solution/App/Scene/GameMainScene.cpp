@@ -105,8 +105,13 @@ void GameMainScene::initPlayer()
 	player = std::make_unique<Player>(cameraObj.get(), playerModel.get(), timer);
 	player->setDamageSe(damageSe);
 	player->setJudgeProc([&] { return Timer::judge(player->getNowBeatRaito(), judgeOkRange); });
-	player->setCol(XMFLOAT4(1, 1, 1, 0.8f));
+	player->setColor(XMFLOAT4(1, 1, 1, 0.8f));
 	player->setParticle(particleMgr);
+	{
+		XMFLOAT3 pos = player->getPos();
+		pos.y += player->getScaleF3().y;
+		player->setPos(pos);
+	}
 
 	playerCols.group.emplace_front(CollisionMgr::ColliderType::create(player.get(), player->getScaleF3().z));
 
@@ -137,7 +142,7 @@ void GameMainScene::initBack()
 	stageModel = std::make_unique<ObjModel>("Resources/ring/", "ring");
 	stageObj = std::make_unique<GameObj>(cameraObj.get(), stageModel.get());
 	stageObj->setScale(10);
-	stageObj->setCol(XMFLOAT4(1, 1, 1, 0.4f));
+	stageObj->setColor(XMFLOAT4(1, 1, 1, 0.4f));
 }
 
 void GameMainScene::initEnemy()
@@ -292,7 +297,7 @@ void GameMainScene::updateBeatData()
 	nowBeatRaito = Timer::calcNowBeatRaito((float)timer->getNowTime(), timer->bpm, nowCount);
 
 	const float raitoColor = std::lerp(0.25f, 1.f, 1.f - nowBeatRaito);
-	player->setCol(XMFLOAT4(raitoColor, raitoColor, raitoColor, player->getCol().w));
+	player->setColor(XMFLOAT4(raitoColor, raitoColor, raitoColor, player->getColor().w));
 
 	player->setNowBeatRaito(nowBeatRaito);
 	for (auto& i : enemyMgr->getEnemyList())
@@ -507,7 +512,7 @@ std::weak_ptr<BaseEnemy> GameMainScene::addEnemy(const DirectX::XMFLOAT3& pos,
 	e_pt->setSpeed(enemyParam.moveVal);
 
 	e_pt->setTargetObj(player.get());
-	e_pt->setPos(pos);
+	e_pt->setPos(XMFLOAT3(pos.x, pos.y + scale, pos.z));
 	e_pt->setDamageSe(damageSe);
 
 	// ここで指定した行動を入れる
