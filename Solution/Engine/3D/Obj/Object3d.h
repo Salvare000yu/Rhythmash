@@ -11,6 +11,7 @@
 #include "3D/Light/Light.h"
 
 #include <3D/BaseObj.h>
+#include <unordered_map>
 
 class Object3d :
 	public BaseObj
@@ -21,7 +22,8 @@ public:
 	struct ConstBufferDataB0
 	{
 		XMFLOAT4 color;
-		XMMATRIX viewProj;
+		XMMATRIX view;
+		XMMATRIX proj;
 		XMMATRIX world;	// ワールド行列
 		XMFLOAT3 cameraPos;	// カメラ位置(ワールド座標)
 	};
@@ -33,6 +35,7 @@ private:
 	static DX12Base* dxBase;
 	static ComPtr<ID3D12RootSignature> rootsignature;
 	static std::vector<ComPtr<ID3D12PipelineState>> pipelinestate;
+	static std::unordered_map<std::wstring, size_t> ppStateNums;
 
 	static void createTransferBufferB0(ComPtr<ID3D12Resource>& constBuff);
 

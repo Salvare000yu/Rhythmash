@@ -31,6 +31,9 @@ using namespace DirectX;
 
 namespace
 {
+	size_t backPP{};
+	size_t ditherPP{};
+
 	template <class T>
 	inline auto from_string(const std::string& str, T& buf)
 	{
@@ -139,10 +142,16 @@ void GameMainScene::initBack()
 
 	groundObj->color = XMFLOAT4(1, 1, 1, 0.5f);
 
-	stageModel = std::make_unique<ObjModel>("Resources/ring/", "ring");
+	constexpr float stageScale = 10.f;
+
+	stageModel = std::make_unique<ObjModel>("Resources/ring_jimen/", "ring_jimen");
 	stageObj = std::make_unique<GameObj>(cameraObj.get(), stageModel.get());
-	stageObj->setScale(10);
-	stageObj->setColor(XMFLOAT4(1, 1, 1, 0.4f));
+	stageObj->setScale(stageScale);
+
+	stageOtherModel = std::make_unique<ObjModel>("Resources/ring_other/", "ring_other");
+	stageOtherObj = std::make_unique<GameObj>(cameraObj.get(), stageOtherModel.get());
+	stageOtherObj->setScale(stageScale);
+	stageOtherObj->setPipelineStateNum(ditherPP);
 }
 
 void GameMainScene::initEnemy()
@@ -335,6 +344,13 @@ GameMainScene::GameMainScene() :
 {
 	timer->bpm = 100.f;
 
+	backPP = Object3d::createGraphicsPipeline(BaseObj::BLEND_MODE::ALPHA,
+											  L"Resources/Shaders/BackVS.hlsl",
+											  L"Resources/Shaders/BackPS.hlsl");
+	ditherPP = Object3d::createGraphicsPipeline(BaseObj::BLEND_MODE::ALPHA,
+												L"Resources/Shaders/DistanceDitherVS.hlsl",
+												L"Resources/Shaders/DistanceDitherPS.hlsl");
+
 	// ライト
 	initLight();
 
@@ -430,6 +446,7 @@ void GameMainScene::update()
 	movePlayer();
 
 	groundObj->update();
+	stageOtherObj->update();
 	stageObj->update();
 	updateLight();
 
@@ -439,8 +456,9 @@ void GameMainScene::update()
 
 void GameMainScene::drawObj3d()
 {
-	groundObj->draw(light.get());
+	groundObj->draw(light.get(), backPP);
 
+	stageOtherObj->draw(light.get());
 	stageObj->draw(light.get());
 	player->draw(light.get());
 	for (auto& i : enemyMgr->getEnemyList())

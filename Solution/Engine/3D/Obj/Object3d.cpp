@@ -13,6 +13,7 @@ using namespace Microsoft::WRL;
 DX12Base* Object3d::dxBase = nullptr;
 ComPtr<ID3D12RootSignature> Object3d::rootsignature{};
 std::vector<ComPtr<ID3D12PipelineState>> Object3d::pipelinestate{};
+std::unordered_map<std::wstring, size_t> Object3d::ppStateNums{};
 
 size_t Object3d::ppStateNum = 0u;
 
@@ -51,7 +52,8 @@ void Object3d::update()
 	if (SUCCEEDED(constBuffB0->Map(0, nullptr, (void**)&constMapB0)))
 	{
 		constMapB0->color = color; // RGBA
-		constMapB0->viewProj = camera->getViewProjectionMatrix();
+		constMapB0->view = camera->getViewMatrix();
+		constMapB0->proj = camera->getProjectionMatrix();
 		constMapB0->world = matWorld;
 		constMapB0->cameraPos = camera->getEye();
 		constBuffB0->Unmap(0, nullptr);
@@ -105,9 +107,23 @@ size_t Object3d::createGraphicsPipeline(BaseObj::BLEND_MODE blendMode,
 										const wchar_t* vsPath,
 										const wchar_t* psPath)
 {
-	ComPtr<ID3DBlob> vsBlob;	// 頂点シェーダオブジェクト
-	ComPtr<ID3DBlob> psBlob;	// ピクセルシェーダオブジェクト
-	ComPtr<ID3DBlob> errorBlob;	// エラーオブジェクト
+	const std::wstring key =
+		std::to_wstring(uint8_t(blendMode)) +
+		L"\\" +
+		std::wstring(vsPath) +
+		L"\\" +
+		std::wstring(psPath);
+	{
+		auto elem = ppStateNums.find(key);
+		if (elem != ppStateNums.end())
+		{
+			return elem->second;
+		}
+	}
+
+	ComPtr<ID3DBlob> vsBlob{};	// 頂点シェーダオブジェクト
+	ComPtr<ID3DBlob> psBlob{};	// ピクセルシェーダオブジェクト
+	ComPtr<ID3DBlob> errorBlob{};	// エラーオブジェクト
 
 	constexpr UINT compileFlag =
 #ifdef _DEBUG
@@ -292,8 +308,9 @@ size_t Object3d::createGraphicsPipeline(BaseObj::BLEND_MODE blendMode,
 	gpipeline.pRootSignature = rootsignature.Get();
 
 	//パイプラインステートの生成
-	pipelinestate.emplace_back();
+	auto& elem = pipelinestate.emplace_back();
 	const size_t ppStateNum = pipelinestate.size() - 1u;
+	ppStateNums.emplace(key, ppStateNum);
 	result = dxBase->getDev()->CreateGraphicsPipelineState(&gpipeline, IID_PPV_ARGS(pipelinestate[ppStateNum].ReleaseAndGetAddressOf()));
 	assert(SUCCEEDED(result));
 

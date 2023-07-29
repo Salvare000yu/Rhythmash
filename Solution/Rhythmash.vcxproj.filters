@@ -425,6 +425,12 @@
       <Filter>シェーダーファイル\Back</Filter>
     </FxCompile>
     <FxCompile Include="Resources\Shaders\PostEffectPS_2.hlsl" />
+    <FxCompile Include="Resources\Shaders\DistanceDitherPS.hlsl">
+      <Filter>シェーダーファイル\Basic</Filter>
+    </FxCompile>
+    <FxCompile Include="Resources\Shaders\DistanceDitherVS.hlsl">
+      <Filter>シェーダーファイル\Basic</Filter>
+    </FxCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\Shaders\Basic.hlsli">
@@ -443,5 +449,8 @@
       <Filter>シェーダーファイル\Back</Filter>
     </None>
     <None Include=".editorconfig" />
+    <None Include="Resources\Shaders\DistanceDither.hlsli">
+      <Filter>シェーダーファイル\Basic</Filter>
+    </None>
   </ItemGroup>
 </Project>
