@@ -85,7 +85,7 @@ namespace Yaml
 
 void GameMainScene::initPostEffect()
 {
-	RgbShiftData::reset();
+	rgbShiftData.reset();
 }
 
 void GameMainScene::initLight()
@@ -118,7 +118,7 @@ void GameMainScene::initPlayer()
 
 	playerCols.group.emplace_front(CollisionMgr::ColliderType::create(player.get(), player->getScaleF3().z));
 
-	player->addDamageProc([&] { rgbShiftData.start(timer->getNowTime()); });
+	player->addDamageProc([&] { rgbShiftData.start(); });
 
 	cameraObj->setParentObj(player.get());
 }
@@ -378,7 +378,7 @@ GameMainScene::GameMainScene() :
 
 GameMainScene::~GameMainScene()
 {
-	RgbShiftData::reset();
+	initPostEffect();
 	Sound::stopWave(bgm);
 }
 
@@ -451,7 +451,7 @@ void GameMainScene::update()
 	updateLight();
 
 	cameraObj->update();
-	rgbShiftData.update(timer->getNowTime());
+	rgbShiftData.update();
 }
 
 void GameMainScene::drawObj3d()
@@ -583,11 +583,11 @@ void GameMainScene::movePlayer()
 	player->moveProcess(forward + right);
 }
 
-void GameMainScene::RgbShiftData::update(Timer::timeType nowTime)
+void GameMainScene::RgbShiftData::update()
 {
 	if (!activeFlag) { return; }
 
-	const auto nowRgbShiftTime = nowTime - startTime;
+	const auto nowRgbShiftTime = this->timer->getNowTime();
 	if (nowRgbShiftTime > timeMax)
 	{
 		PostEffect::getInstance()->setRgbShiftNum(XMFLOAT2(0.f, 0.f));

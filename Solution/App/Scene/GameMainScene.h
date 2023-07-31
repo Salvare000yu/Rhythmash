@@ -112,23 +112,32 @@ private:
 	// RGBずらし
 	class RgbShiftData
 	{
-		Timer::timeType startTime = 0;
-		bool activeFlag = false;
+		bool activeFlag;
+		std::unique_ptr<Timer> timer;
 
 	public:
+		RgbShiftData() : activeFlag(false), timer(std::make_unique<Timer>()) {}
+
+		inline Timer::timeType getNowTime() const { return this->timer->getNowTime(); }
+
 		static constexpr Timer::timeType timeMax = Timer::oneSec / 2;
 
-		inline static void reset() { PostEffect::ins()->setRgbShiftNum(DirectX::XMFLOAT2(0.f, 0.f)); }
+		inline void reset()
+		{
+			PostEffect::ins()->setRgbShiftNum(DirectX::XMFLOAT2(0.f, 0.f));
+			activeFlag = false;
+			timer->reset();
+		}
 
 		inline bool isActive() const { return activeFlag; }
 
-		inline void start(Timer::timeType nowTime)
+		inline void start()
 		{
 			activeFlag = true;
-			startTime = nowTime;
+			timer->reset();
 		}
 
-		void update(Timer::timeType nowTime);
+		void update();
 	};
 	RgbShiftData rgbShiftData{};
 
