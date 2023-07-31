@@ -13,6 +13,8 @@ namespace
 
 	// ジャンプ攻撃時のY座標の幅
 	constexpr float jumpAttackHeight = 20.f;
+
+	constexpr float approachDistanceMin = 30.f;
 }
 
 BossBehavior::BossBehavior(BaseEnemy* enemy) :
@@ -23,9 +25,18 @@ BossBehavior::BossBehavior(BaseEnemy* enemy) :
 	moveVel = XMVectorSet(0, 0, enemy->getSpeed(), 1);
 	enemyTimerRef = enemy->getTimerRef();
 
-	squareMovePhase = std::make_unique<Selector>();
+	// 正方形に動くフェーズ
+	squareMovePhase = std::make_unique<Sequencer>();
 	squareMovePhase->addChild(Task(std::bind(&BossBehavior::phase_squareMove, this)));
 
+	// 遠ければ接近するフェーズ
+	moveFieldPhase = std::make_unique<Sequencer>();
+	moveFieldPhase->addChild(Task([&] { return this->enemy->targetFromDistance() > approachDistanceMin ? NODE_RESULT::SUCCESS : NODE_RESULT::FAIL; }));
+	moveFieldPhase->addChild(Task(std::bind(&BossBehavior::phase_moving, this)));
+
+	movePhase = std::make_unique<Selector>();
+	movePhase->addChild(*moveFieldPhase);
+	movePhase->addChild(*squareMovePhase);
 
 	const Task resetTimer = Task([&]
 								   {
@@ -35,15 +46,16 @@ BossBehavior::BossBehavior(BaseEnemy* enemy) :
 									   return NODE_RESULT::SUCCESS;
 								   });
 
+	// 上昇し上から来るフェーズ
 	jumpAttackPhase = std::make_unique<Sequencer>();
 	jumpAttackPhase->addChild(resetTimer);
 	jumpAttackPhase->addChild(Task(std::bind(&BossBehavior::jumpAttack_rising, this, false)));
-	jumpAttackPhase->addChild(Task(std::bind(&BossBehavior::jumpAttack_moving, this)));
+	jumpAttackPhase->addChild(Task(std::bind(&BossBehavior::phase_moving, this)));
 	jumpAttackPhase->addChild(resetTimer);
 	jumpAttackPhase->addChild(Task(std::bind(&BossBehavior::jumpAttack_rising, this, true)));
 
 	mainPhase = std::make_unique<Sequencer>();
-	mainPhase->addChild(*squareMovePhase);
+	mainPhase->addChild(*movePhase);
 	mainPhase->addChild(*jumpAttackPhase);
 }
 
@@ -107,7 +119,7 @@ NODE_RESULT BossBehavior::jumpAttack_rising(bool downFlag)
 	return NODE_RESULT::SUCCESS;
 }
 
-NODE_RESULT BossBehavior::jumpAttack_moving()
+NODE_RESULT BossBehavior::phase_moving()
 {
 	// カウントが変わっていなければ、実行中として終了
 	if (preBeatCount == enemy->getNowBeatCount()) { return NODE_RESULT::RUNNING; }

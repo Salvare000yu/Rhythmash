@@ -1,4 +1,4 @@
-#include "Basic.hlsli"
+#include "DistanceDither.hlsli"
 
 Texture2D<float4> tex : register(t0); // 0番スロットに設定されたテクスチャ
 SamplerState smp : register(s0); // 0番スロットに設定されたサンプラー
@@ -6,19 +6,19 @@ SamplerState smp : register(s0); // 0番スロットに設定されたサンプ�
 // ディザリング抜き
 void ScreenDoor(float2 screenPos, float alpha)
 {
-	static const int Bayer[4][4] =
+	static const float Bayer[4][4] =
 	{
-		{ 0, 8, 2, 10 },
-		{ 12, 4, 14, 6 },
-		{ 3, 11, 1, 9 },
-		{ 15, 7, 13, 5 }
+		{ 0.f, 8.f, 2.f, 10.f },
+		{ 12.f, 4.f, 14.f, 6.f },
+		{ 3.f, 11.f, 1.f, 9.f },
+		{ 15.f, 7.f, 13.f, 5.f }
 	};
 	
 	// 0 ~ 16
-	float ditherLevel = clamp(16.f - (alpha * 16.f), 0.f, 16.f);
+	float ditherLevel = 16.f * (1.f - alpha);
 		
-	int ditherUvX = (int)fmod(screenPos.x, 4.f);
-	int ditherUvY = (int)fmod(screenPos.y, 4.f);
+	int ditherUvX = int(screenPos.x) % 4;
+	int ditherUvY = int(screenPos.y) % 4;
 	float doorNum = Bayer[ditherUvY][ditherUvX];
 	clip(doorNum - ditherLevel);
 }
@@ -28,7 +28,7 @@ PSOutput main(VSOutput input)
 	float4 texcolor = float4(tex.Sample(smp, input.uv * texTilling + shiftUv));
 
 	float clipAlpha = texcolor.a * color.a * m_alpha;
-		
+	
 	clipAlpha *= clamp(max(0.f, length(input.viewPos) - 22.f) / 4.f,
 					   0.2f,
 					   1.f);

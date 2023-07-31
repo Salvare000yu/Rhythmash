@@ -85,7 +85,7 @@ namespace Yaml
 
 void GameMainScene::initPostEffect()
 {
-	RgbShiftData::reset();
+	rgbShiftData.reset();
 }
 
 void GameMainScene::initLight()
@@ -118,7 +118,7 @@ void GameMainScene::initPlayer()
 
 	playerCols.group.emplace_front(CollisionMgr::ColliderType::create(player.get(), player->getScaleF3().z));
 
-	player->addDamageProc([&] { rgbShiftData.start(timer->getNowTime()); });
+	player->addDamageProc([&] { rgbShiftData.start(); });
 
 	cameraObj->setParentObj(player.get());
 }
@@ -378,7 +378,7 @@ GameMainScene::GameMainScene() :
 
 GameMainScene::~GameMainScene()
 {
-	RgbShiftData::reset();
+	initPostEffect();
 	Sound::stopWave(bgm);
 }
 
@@ -451,7 +451,7 @@ void GameMainScene::update()
 	updateLight();
 
 	cameraObj->update();
-	rgbShiftData.update(timer->getNowTime());
+	rgbShiftData.update();
 }
 
 void GameMainScene::drawObj3d()
@@ -583,25 +583,25 @@ void GameMainScene::movePlayer()
 	player->moveProcess(forward + right);
 }
 
-void GameMainScene::RgbShiftData::update(Timer::timeType nowTime)
+void GameMainScene::RgbShiftData::update()
 {
 	if (!activeFlag) { return; }
 
-	const auto nowRgbShiftTime = nowTime - startTime;
-
-	const float raito = (float)nowRgbShiftTime / (float)timeMax;
-	if (raito > 1.f)
+	const auto nowRgbShiftTime = this->timer->getNowTime();
+	if (nowRgbShiftTime > timeMax)
 	{
 		PostEffect::getInstance()->setRgbShiftNum(XMFLOAT2(0.f, 0.f));
 		activeFlag = false;
 		return;
 	}
 
+	const float raito = (float)nowRgbShiftTime / (float)timeMax;
+
 	constexpr float rgbShiftMumMax = 1.f / 16.f;
 
 	constexpr float  c4 = 2.f * XM_PI / 3.f;
-	const float easeRate = -std::pow(2.f, 10.f * (1.f - raito) - 10.f) *
-		std::sin((raito * 10.f - 10.75f) * c4);
+	const float easeRate = std::clamp(-std::pow(2.f, 10.f * (1.f - raito) - 10.f) *
+		std::sin((raito * 10.f - 10.75f) * c4), 0.f, 1.f);
 
 	PostEffect::getInstance()->setRgbShiftNum(XMFLOAT2(easeRate * rgbShiftMumMax,
 													   0.f));

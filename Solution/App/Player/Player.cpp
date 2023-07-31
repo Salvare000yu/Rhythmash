@@ -15,7 +15,7 @@ using namespace DirectX;
 
 namespace
 {
-	constexpr uint32_t attackTimeMax = Timer::oneSec / 2ui32;
+	constexpr uint32_t attackTimeMax = Timer::oneSec / 8ui32;
 }
 
 bool Player::loadYamlFile()
