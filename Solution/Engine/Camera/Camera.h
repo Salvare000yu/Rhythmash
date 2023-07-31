@@ -77,7 +77,7 @@ public:
 	/// @brief 上方向を取得
 	inline const XMVECTOR& getUpVec() const { return cameraAxisY; }
 
-	/// @brief ビューポート行列を取得 
+	/// @brief ビューポート行列を取得
 	inline const XMMATRIX& getViewPortMatrix() const { return matViewPort; }
 
 	// ビュー行列の取得

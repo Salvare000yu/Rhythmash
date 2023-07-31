@@ -588,14 +588,14 @@ void GameMainScene::RgbShiftData::update(Timer::timeType nowTime)
 	if (!activeFlag) { return; }
 
 	const auto nowRgbShiftTime = nowTime - startTime;
-
-	const float raito = (float)nowRgbShiftTime / (float)timeMax;
-	if (raito > 1.f)
+	if (nowRgbShiftTime > timeMax)
 	{
 		PostEffect::getInstance()->setRgbShiftNum(XMFLOAT2(0.f, 0.f));
 		activeFlag = false;
 		return;
 	}
+
+	const float raito = (float)nowRgbShiftTime / (float)timeMax;
 
 	constexpr float rgbShiftMumMax = 1.f / 16.f;
 

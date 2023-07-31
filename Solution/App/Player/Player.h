@@ -14,7 +14,7 @@
 class Timer;
 class ObjModel;
 
- /// @brief 自機クラス
+/// @brief 自機クラス
 class Player
 	: public BaseActObj
 {

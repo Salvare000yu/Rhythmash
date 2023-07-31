@@ -26,7 +26,6 @@ BossBehavior::BossBehavior(BaseEnemy* enemy) :
 	squareMovePhase = std::make_unique<Selector>();
 	squareMovePhase->addChild(Task(std::bind(&BossBehavior::phase_squareMove, this)));
 
-
 	const Task resetTimer = Task([&]
 								   {
 									   auto timer = this->enemy->getTimerRef().lock();
