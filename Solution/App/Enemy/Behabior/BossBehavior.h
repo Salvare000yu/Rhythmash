@@ -18,6 +18,9 @@ private:
 
 	/// @brief 移動フェーズ
 	std::unique_ptr<BaseComposite> squareMovePhase;
+	std::unique_ptr<BaseComposite> moveFieldPhase;
+
+	std::unique_ptr<BaseComposite> movePhase;
 
 	DirectX::XMVECTOR moveVel{};
 
@@ -30,7 +33,7 @@ public:
 	NODE_RESULT phase_squareMove();
 
 	NODE_RESULT jumpAttack_rising(bool downFlag);
-	NODE_RESULT jumpAttack_moving();
+	NODE_RESULT phase_moving();
 
 public:
 	BossBehavior(BaseEnemy* enemy);
