@@ -35,6 +35,10 @@ TitleScene::TitleScene() :
 
 void TitleScene::start()
 {
+	constexpr float speedLineNum = 1.f / 32.f;
+	PostEffect::ins()->setSpeedLineIntensity(speedLineNum);
+	PostEffect::ins()->setVignIntensity(0.5f);
+
 	// 次シーンの読み込み開始
 	sceneThread.reset(new MyThread());
 	sceneThread->thread.reset(new std::thread([&] { nextScene = std::make_unique<GameMainScene>(); }));

@@ -35,7 +35,7 @@ public:
 	static const UINT spriteSRVCount = 512u;
 
 	// パイプラインセット
-	PipelineSet pipelineSet;
+	PipelineSet pipelineSet{};
 	// 射影行列
 	XMMATRIX matProjection{};
 	// テクスチャ用デスクリプタヒープの生成

@@ -25,6 +25,9 @@
 #include <Enemy/Behabior/EnemyBehavior.h>
 #include <Enemy/Behabior/BossBehavior.h>
 
+#include <2D/Sprite.h>
+#include <2D/SpriteBase.h>
+
 #include <Yaml.hpp>
 
 using namespace DirectX;
@@ -35,7 +38,7 @@ namespace
 	size_t ditherPP{};
 
 	template <class T>
-	inline auto from_string(const std::string& str, T& buf)
+	inline std::from_chars_result from_string(const std::string& str, T& buf)
 	{
 		return std::from_chars(std::to_address(str.begin()),
 							   std::to_address(str.end()),
@@ -50,15 +53,22 @@ namespace
 		return buf;
 	}
 
-	XMFLOAT3 sToF3(const std::string& str_x,
-				   const std::string& str_y,
-				   const std::string& str_z)
+	inline void sToF3(const std::string& str_x,
+					  const std::string& str_y,
+					  const std::string& str_z,
+					  XMFLOAT3& outBuf)
+	{
+		from_string(str_x, outBuf.x);
+		from_string(str_y, outBuf.y);
+		from_string(str_z, outBuf.z);
+	}
+
+	inline XMFLOAT3 sToF3(const std::string& str_x,
+						  const std::string& str_y,
+						  const std::string& str_z)
 	{
 		XMFLOAT3 ret{};
-		from_string(str_x, ret.x);
-		from_string(str_y, ret.y);
-		from_string(str_z, ret.z);
-
+		sToF3(str_x, str_y, str_z, ret);
 		return ret;
 	}
 }
@@ -275,6 +285,27 @@ void GameMainScene::initSound()
 	damageSe = Sound::ins()->loadWave("Resources/SE/damage.wav");
 }
 
+void GameMainScene::initSprite()
+{
+	spriteBase = std::make_unique<SpriteBase>();
+	rhythmUi = std::make_unique<Sprite>(spriteBase->loadTexture(L"Resources/white.png"),
+										spriteBase.get(), XMFLOAT2(0.5f, 1.f));
+
+	constexpr XMFLOAT2 rhythmUiSize = XMFLOAT2(float(WinAPI::window_width) / 128.f,
+											   float(WinAPI::window_height) / 8.f);
+	constexpr XMFLOAT3 rhythmUiPos = XMFLOAT3(float(WinAPI::window_width) / 2.f,
+											  float(WinAPI::window_height - 90),
+											  0.f);
+
+	rhythmUi->setSize(XMFLOAT2(rhythmUiSize));
+	rhythmUi->position = rhythmUiPos;
+	rhythmUi->color.w = 0.5f;
+
+	judgeRangeSprite = std::make_unique<Sprite>(spriteBase->loadTexture(L"Resources/judgeRange.png"), spriteBase.get());
+	judgeRangeSprite->position = rhythmUiPos;
+	judgeRangeSprite->color.w = 0.25f;
+}
+
 void GameMainScene::updateCollision()
 {
 	// 敵コライダーを初期化
@@ -374,6 +405,9 @@ GameMainScene::GameMainScene() :
 
 	// 音
 	initSound();
+
+	// スプライト
+	initSprite();
 }
 
 GameMainScene::~GameMainScene()
@@ -471,6 +505,11 @@ void GameMainScene::drawObj3d()
 
 void GameMainScene::drawFrontSprite()
 {
+	spriteBase->drawStart(DX12Base::ins()->getCmdList());
+	judgeRangeSprite->drawWithUpdate(DX12Base::ins(), spriteBase.get());
+	rhythmUi->rotation = 360.f * nowBeatRaito;
+	rhythmUi->drawWithUpdate(DX12Base::ins(), spriteBase.get());
+
 	constexpr float barWid = 300.f;
 	ImGui::SetNextWindowSize(ImVec2(barWid, 150));
 	ImGui::Begin("自機",
@@ -490,7 +529,7 @@ void GameMainScene::drawFrontSprite()
 
 	ImGui::Text("[WASD]: 移動");
 	ImGui::Text("移動 + リズムよく[C]: ダッシュ");
-	ImGui::Text("リズムよく[スペース]: 前方に攻撃");
+	ImGui::Text("リズムよく[スペース]: 攻撃");
 	ImGui::Text("自機体力: %u", player->getHp());
 
 	ImGui::End();

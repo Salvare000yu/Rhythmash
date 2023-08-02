@@ -39,6 +39,13 @@ class GameMainScene :
 	float nowBeatRaito{};
 
 	// --------------------
+	// スプライト
+	// --------------------
+	std::unique_ptr<SpriteBase> spriteBase;
+	std::unique_ptr<Sprite> rhythmUi;
+	std::unique_ptr<Sprite> judgeRangeSprite;
+
+	// --------------------
 	// 背景
 	// --------------------
 	std::unique_ptr<ObjModel> groundModel;
@@ -108,6 +115,7 @@ private:
 	bool loadEnemyFile();
 	void initCollider();
 	void initSound();
+	void initSprite();
 
 	// RGBずらし
 	class RgbShiftData

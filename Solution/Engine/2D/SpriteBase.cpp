@@ -20,8 +20,6 @@ SpriteBase::PipelineSet SpriteBase::SpriteCreateGraphicsPipeline(ID3D12Device* d
 																 const wchar_t* vsPath, const wchar_t* psPath,
 																 BLEND_MODE blendMode)
 {
-	HRESULT result;
-
 	ComPtr<ID3DBlob> vsBlob = nullptr; // 頂点シェーダオブジェクト
 	ComPtr<ID3DBlob> psBlob = nullptr; // ピクセルシェーダオブジェクト
 	ComPtr<ID3DBlob> errorBlob = nullptr; // エラーオブジェクト
@@ -34,7 +32,7 @@ SpriteBase::PipelineSet SpriteBase::SpriteCreateGraphicsPipeline(ID3D12Device* d
 #endif // _DEBUG
 
 	// 頂点シェーダの読み込みとコンパイル
-	result = D3DCompileFromFile(
+	HRESULT result = D3DCompileFromFile(
 		vsPath,  // シェーダファイル名
 		nullptr,
 		D3D_COMPILE_STANDARD_FILE_INCLUDE, // インクルード可能にする
@@ -204,15 +202,13 @@ UINT SpriteBase::loadTexture(const wchar_t* filename, DirectX::XMFLOAT2* pTexSiz
 
 	auto dev = DX12Base::getInstance()->getDev();
 
-	HRESULT result = S_FALSE;
-
 #pragma region 画像読み込み
 
 	// WICテクスチャのロード
 	TexMetadata metadata{};
 	ScratchImage scratchImg{};
 
-	result = LoadFromWICFile(
+	HRESULT result = LoadFromWICFile(
 		filename,
 		WIC_FLAGS_NONE,
 		&metadata, scratchImg);

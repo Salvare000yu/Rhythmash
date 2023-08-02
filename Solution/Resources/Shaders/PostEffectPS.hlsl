@@ -131,7 +131,7 @@ float3 chromaticSlice(float t)
 
 }
 
-float4 chromaticAberration(float2 uv, float level = 3.f, float spread = 0.03125f)
+float4 chromaticAberration(float2 uv, float level = 3.f, float spread = 0.015f)
 {
 	float2 offset = (uv - 0.5f) * float2(1.f, -1.f);
 	float3 sum = float3(0.f, 0.f, 0.f);
@@ -168,11 +168,19 @@ float4 main(VSOutput input) : SV_TARGET
 	float vignNum = vignatte(uv);
 
 	// --------------------
+	// 走査線のようなもの
+	// --------------------
+	float sinNum = uv.y * slnDivLevel + time * slnSpeed;
+	float sLineNum = fracNoise(float2(time, uv.y)) * sin(sinNum) * sin(sinNum + 0.75f) + 1.f;
+	sLineNum /= -slnPower;
+
+	// --------------------
 	// rgbずらし&ディザリング
 	// --------------------
 	const float ditherSize = winSize.y / 512.f;
 	float4 texColor0 = dither(tex0.Sample(smp, uv), uv, ditherSize);
 	texColor0.g = dither(tex0.Sample(smp, uv + rgbShiftNum), uv, ditherSize).g;
+	texColor0 += chromaticAberration(uv);
 	texColor0.rgb = pow(texColor0.rgb, gamma);
 
 	float noiseNum = noise(input.uv, time);
@@ -190,7 +198,7 @@ float4 main(VSOutput input) : SV_TARGET
 	// 合わせる
 	// --------------------
 	
-	float4 drawCol = float4(texColor0.rgb + vignNum + noiseNum + speedLineNum, alpha);
+	float4 drawCol = float4(texColor0.rgb + sLineNum + vignNum + noiseNum + speedLineNum, alpha);
 	
 	// 色数を減らす
 	drawCol.rgb = floor(drawCol.rgb * colorNum) / colorNum;
