@@ -25,6 +25,9 @@
 #include <Enemy/Behabior/EnemyBehavior.h>
 #include <Enemy/Behabior/BossBehavior.h>
 
+#include <2D/Sprite.h>
+#include <2D/SpriteBase.h>
+
 #include <Yaml.hpp>
 
 using namespace DirectX;
@@ -275,6 +278,28 @@ void GameMainScene::initSound()
 	damageSe = Sound::ins()->loadWave("Resources/SE/damage.wav");
 }
 
+void GameMainScene::initSprite()
+{
+	spriteBase = std::make_unique<SpriteBase>();
+	rhythmUi = std::make_unique<Sprite>(spriteBase->loadTexture(L"Resources/white.png"),
+										spriteBase.get(),
+										XMFLOAT2(0.5f, 1.f));
+
+	constexpr XMFLOAT2 rhythmUiSize = XMFLOAT2(float(WinAPI::window_width) / 128.f,
+											   float(WinAPI::window_height) / 8.f);
+	constexpr XMFLOAT3 rhythmUiPos = XMFLOAT3(float(WinAPI::window_width) / 2.f,
+											  float(WinAPI::window_height) / 2.f,
+											  0.f);
+
+	rhythmUi->setSize(XMFLOAT2(rhythmUiSize));
+	rhythmUi->position = rhythmUiPos;
+	rhythmUi->color.w = 0.5f;
+
+	judgeRangeSprite = std::make_unique<Sprite>(spriteBase->loadTexture(L"Resources/judgeRange.png"), spriteBase.get());
+	judgeRangeSprite->position = rhythmUiPos;
+	judgeRangeSprite->color.w = 0.25f;
+}
+
 void GameMainScene::updateCollision()
 {
 	// 敵コライダーを初期化
@@ -374,6 +399,9 @@ GameMainScene::GameMainScene() :
 
 	// 音
 	initSound();
+
+	// スプライト
+	initSprite();
 }
 
 GameMainScene::~GameMainScene()
@@ -471,6 +499,11 @@ void GameMainScene::drawObj3d()
 
 void GameMainScene::drawFrontSprite()
 {
+	spriteBase->drawStart(DX12Base::ins()->getCmdList());
+	judgeRangeSprite->drawWithUpdate(DX12Base::ins(), spriteBase.get());
+	rhythmUi->rotation = 360.f * nowBeatRaito;
+	rhythmUi->drawWithUpdate(DX12Base::ins(), spriteBase.get());
+
 	constexpr float barWid = 300.f;
 	ImGui::SetNextWindowSize(ImVec2(barWid, 150));
 	ImGui::Begin("自機",

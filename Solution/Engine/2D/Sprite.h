@@ -41,7 +41,7 @@ protected:
 	XMMATRIX matWorld;
 
 public:
-	// Z軸回りの回転角
+	// Z軸回りの回転角[deg]
 	float rotation = 0.0f;
 	// 座標
 	XMFLOAT3 position = { 0,0,0 };
