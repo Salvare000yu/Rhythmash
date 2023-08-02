@@ -463,7 +463,8 @@ void DX12Base::ClearDepthBuffer()
 
 DX12Base::DX12Base() :
 	winapi(WinAPI::getInstance()),
-	fps(-1.f)
+	fps(-1.f),
+	fpsTimer(std::make_unique<Timer>())
 {
 	updateFPS();
 	flipTimeFPS();
@@ -480,6 +481,8 @@ DX12Base::DX12Base() :
 	{
 		assert(0);
 	}
+
+	fpsTimer->reset();
 }
 
 DX12Base::~DX12Base()
@@ -593,6 +596,19 @@ void DX12Base::flipTimeFPS()
 	fpsTime[0] = std::chrono::duration_cast<Timer::timeUnit>(
 		std::chrono::steady_clock::now() - std::chrono::steady_clock::time_point()
 	).count();
+
+	//1/60（くらい）
+	constexpr auto kMinTime = uint64_t(1'000'000.0f / 70.f);
+
+	// 前回空の経過時間
+	auto elap = fpsTimer->getNowTime();
+
+	if (kMinTime > elap)
+	{
+		std::this_thread::sleep_for(Timer::timeUnit(kMinTime - elap));
+	}
+
+	fpsTimer->reset();
 }
 
 void DX12Base::updateFPS()

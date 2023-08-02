@@ -527,6 +527,19 @@ void GameMainScene::drawFrontSprite()
 	ImGui::GetWindowDrawList()->AddRectFilled(posLT, posRB, ImU32(0xff2222f8));
 	ImGui::Text(judgeRet ? "OK!!!" : "");
 
+	{
+		static uint8_t frame = 0ui8;
+		static float fps = 0.f;
+		if (frame < 16ui8)
+		{
+			++frame;
+		} else
+		{
+			fps = DX12Base::ins()->getFPS();
+			frame = 0ui8;
+		}
+		ImGui::Text("%.f", fps);
+	}
 	ImGui::Text("[WASD]: 移動");
 	ImGui::Text("移動 + リズムよく[C]: ダッシュ");
 	ImGui::Text("リズムよく[スペース]: 攻撃");

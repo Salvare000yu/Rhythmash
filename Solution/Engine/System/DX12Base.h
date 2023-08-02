@@ -11,6 +11,8 @@
 
 #include <imgui.h>
 
+#include <Util/Timer.h>
+
 class DX12Base
 {
 	DX12Base(const DX12Base& dxBase) = delete;
@@ -62,6 +64,7 @@ private:
 	LONGLONG fpsTime[divNum]{};
 	constexpr static USHORT divLen = divNum - 1;
 	float fps;
+	std::unique_ptr<Timer> fpsTimer;
 
 	void flipTimeFPS();
 	void updateFPS();
