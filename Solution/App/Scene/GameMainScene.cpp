@@ -289,13 +289,12 @@ void GameMainScene::initSprite()
 {
 	spriteBase = std::make_unique<SpriteBase>();
 	rhythmUi = std::make_unique<Sprite>(spriteBase->loadTexture(L"Resources/white.png"),
-										spriteBase.get(),
-										XMFLOAT2(0.5f, 1.f));
+										spriteBase.get(), XMFLOAT2(0.5f, 1.f));
 
 	constexpr XMFLOAT2 rhythmUiSize = XMFLOAT2(float(WinAPI::window_width) / 128.f,
 											   float(WinAPI::window_height) / 8.f);
 	constexpr XMFLOAT3 rhythmUiPos = XMFLOAT3(float(WinAPI::window_width) / 2.f,
-											  float(WinAPI::window_height) / 2.f,
+											  float(WinAPI::window_height - 90),
 											  0.f);
 
 	rhythmUi->setSize(XMFLOAT2(rhythmUiSize));
@@ -530,7 +529,7 @@ void GameMainScene::drawFrontSprite()
 
 	ImGui::Text("[WASD]: 移動");
 	ImGui::Text("移動 + リズムよく[C]: ダッシュ");
-	ImGui::Text("リズムよく[スペース]: 前方に攻撃");
+	ImGui::Text("リズムよく[スペース]: 攻撃");
 	ImGui::Text("自機体力: %u", player->getHp());
 
 	ImGui::End();
