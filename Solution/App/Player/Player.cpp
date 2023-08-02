@@ -104,6 +104,7 @@ Player::Player(Camera* camera,
 	attackObj->setParent(this->getObj());
 	attackObj->setScale(6.f);
 	attackObj->setColor(XMFLOAT4(0.5f, 1, 1, 0.25f));
+	attackObj->setPipelineStateNum(Object3d::createGraphicsPipeline(BaseObj::BLEND_MODE::REVERSE));
 
 	attackObjCol = CollisionMgr::ColliderType::create(attackObj.get(), attackObj->getScaleF3().z);
 	attackObjColSet.group.emplace_front(attackObjCol);

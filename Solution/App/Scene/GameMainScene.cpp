@@ -38,7 +38,7 @@ namespace
 	size_t ditherPP{};
 
 	template <class T>
-	inline auto from_string(const std::string& str, T& buf)
+	inline std::from_chars_result from_string(const std::string& str, T& buf)
 	{
 		return std::from_chars(std::to_address(str.begin()),
 							   std::to_address(str.end()),
@@ -53,15 +53,22 @@ namespace
 		return buf;
 	}
 
-	XMFLOAT3 sToF3(const std::string& str_x,
-				   const std::string& str_y,
-				   const std::string& str_z)
+	inline void sToF3(const std::string& str_x,
+					  const std::string& str_y,
+					  const std::string& str_z,
+					  XMFLOAT3& outBuf)
+	{
+		from_string(str_x, outBuf.x);
+		from_string(str_y, outBuf.y);
+		from_string(str_z, outBuf.z);
+	}
+
+	inline XMFLOAT3 sToF3(const std::string& str_x,
+						  const std::string& str_y,
+						  const std::string& str_z)
 	{
 		XMFLOAT3 ret{};
-		from_string(str_x, ret.x);
-		from_string(str_y, ret.y);
-		from_string(str_z, ret.z);
-
+		sToF3(str_x, str_y, str_z, ret);
 		return ret;
 	}
 }
