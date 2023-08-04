@@ -2,30 +2,25 @@
 wave
 
 type,enemy1
-position,-20,1,6
+position,16,1,16
+position,16,1,-24
 
 type,enemy2
-position,8,1,6
-position,4,1,6
-position,0,1,6
-position,-4,1,6
-position,-8,1,6
+position,-24,1,16
+position,-24,1,-24
 
 wave
 
 type,enemy1
-position,16,1,6
-position,12,1,6
-position,8,1,6
-position,4,1,6
-position,0,1,6
+position,-20,1,6
+position,20,1,6
 
 type,enemy2
-position,16,1,12
-position,12,1,12
-position,8,1,12
-position,4,1,12
-position,0,1,12
+position,12,1,2
+position,6,1,0
+position,0,1,-2
+position,-6,1,0
+position,-12,1,2
 
 wave
 
